@@ -1,0 +1,142 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only"
+      }
+    },
+    "letsencryptSignerEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "The email used to get certificate from letsencrypt"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Remote desktop user password. Must be a strong password"
+      }
+    },
+    "gatewayVersion": {
+      "type": "string",
+      "defaultValue": "1.0.1-CI-20180417-02",
+      "metadata": {
+        "description": "The application type version."
+      }
+    },
+    "explorerVersion": {
+      "type": "string",
+      "defaultValue": "1.0.1-CI-20180417-02",
+      "metadata": {
+        "description": "The explorer type version."
+      }
+    },
+    "vmImagePublisher": {
+      "type": "string",
+      "allowedValues": [
+        "Canonical",
+        "MicrosoftWindowsServer"
+      ],
+      "defaultValue": "MicrosoftWindowsServer"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "name": "DeployKeyvault",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/vaults/demo",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {}
+      }
+    },
+    {
+      "name": "CreateCertificate",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo?secretName=test&keyVaultName=',reference('DeployKeyvault').outputs.keyVaultName.value)]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parametersLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo/parameters?secretName=test&keyVaultName=',reference('DeployKeyvault').outputs.keyVaultName.value)]",
+          "contentVersion": "1.0.0.0"
+        }
+      }
+    },
+    {
+      "name": "CreateServiceFabricCluster",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/clusters/demo?vmImagePublisher=',parameters('vmImagePublisher'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "adminPassword": { "value": "[parameters('adminPassword')]" },
+          "certificateThumbprint": { "value": "[reference('CreateCertificate').outputs.certificateThumbprint.value]" },
+          "sourceVaultValue": { "value": "[reference('DeployKeyvault').outputs.vaultResourceId.value]" },
+          "certificateUrlValue": { "value": "[reference('CreateCertificate').outputs.certificateUrlValue.value]" }
+        }
+      }
+    },
+    {
+      "name": "DeploySInnovationsGateway",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/apps/demo",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "letsencryptSignerEmail": {
+            "value": "[parameters('letsencryptSignerEmail')]"
+          },
+          "clusterHost": {
+            "value": "[reference('CreateServiceFabricCluster').outputs.fqdn.value]"
+          },
+          "clusterName": {
+            "value": "[parameters('clusterName')]"
+          },
+          "applicationStorageName": {
+            "value": "[reference('CreateServiceFabricCluster').outputs.applicationStorageName.value]"
+          },
+          "secretsCertificateThumbprint": {
+            "value": "[reference('CreateCertificate').outputs.certificateThumbprint.value]"
+          },
+          "msi": {
+            "value": "[reference('CreateServiceFabricCluster').outputs.msi.value]"
+          },
+          "vaultUri": {
+            "value": "[reference('DeployKeyvault').outputs.vaultUri.value]"
+          },
+          "applicationTypeVersion": {
+            "value": "[parameters('gatewayVersion')]"
+          },
+          "explorerApplicationTypeVersion": {
+            "value": "[parameters('explorerVersion')]"
+          },
+          "applicationInsightsKey": {
+            "value": "[reference('CreateServiceFabricCluster').outputs.applicationInsightsKey.value]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

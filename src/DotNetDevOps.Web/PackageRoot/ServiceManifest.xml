@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" Name="DotNETDevOps.Web.ServicePkg" Version="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <ServiceTypes>
+    <!-- This is the name of your ServiceType. 
+         The UseImplicitHost attribute indicates this is a guest executable service. -->
+    <StatelessServiceType ServiceTypeName="DotNETDevOps.Web.ServiceType" />
+
+  </ServiceTypes>
+  <!-- Code package is your service executable. -->
+  <CodePackage Name="Code" Version="1.0.0">
+    <EntryPoint>
+      <ExeHost>
+        <Program>DotNetDevOps.Web.exe</Program>
+        <Arguments>--serviceFabric</Arguments>
+        <WorkingFolder>CodePackage</WorkingFolder>
+        <ConsoleRedirection FileRetentionCount="5" FileMaxSizeInKb="2048" />
+      </ExeHost>
+    </EntryPoint>
+    <EnvironmentVariables>
+      <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="Development" />
+    </EnvironmentVariables>
+  </CodePackage>
+  <!-- Config package is the contents of the Config directoy under PackageRoot that contains an 
+       independently-updateable and versioned set of custom configuration settings for your service. -->
+  <ConfigPackage Name="Config" Version="1.0.0" />
+  <Resources>
+  </Resources>
+</ServiceManifest>

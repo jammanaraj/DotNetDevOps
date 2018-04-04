@@ -1,0 +1,134 @@
+﻿@page
+@inject IOptions<BrandingOptions> BrandingOptions;
+@inject IOptions<EndpointOptions> EndpointOptions;
+@{
+    var Branding = BrandingOptions.Value;
+    var Endpoints = EndpointOptions.Value;
+}
+
+<html lang="en">
+<head>
+    <title>@Branding.Title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="@Branding.Description">
+    <meta name="og:site_name" content="EarthML">
+    <meta property="og:title" content="@Branding.Title">
+    <meta property="og:description" content="@Branding.Description">
+    <meta property="og:image" content="@Branding.Image">
+    <meta property="og:url" content="@Branding.Url">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image:alt" content="@Branding.Description">
+
+    <meta name="theme-color" content="#faf6f3">
+    <link href="src/site.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono|Roboto:400,700" rel="stylesheet">
+    <style>
+    </style>
+</head>
+<body>
+
+
+
+
+
+    <header class="header" role="banner">
+        <div class="container has-max-width">
+            <section>
+                <h1>Adapt with <span>.Net Devops.</span></h1>
+                <h2>transforming your organization into a new era</h2>
+                <h3>Get all the shortcuts</h3>
+                <div class="header-cta">
+                    <a href="#overview" class="btn is-inverse">Goto Overview</a>
+                    <span>or</span>
+                    <a id="trypimetr" href="https://portal.azure.com/#create/Microsoft.Template/uri/@WebUtility.UrlEncode(Endpoints.ResourceApiEndpoint+"/providers/DotNetDevOps.AzureTemplates/templates/demo?withApp=true")" class="btn">Create your cluster</a>
+                </div>
+            </section>
+
+        </div>
+    </header>
+
+
+
+
+
+    <main class="main" role="main">
+
+        <section id="overview" class="overview container has-max-width">
+            <header>
+                <h3 class="h1">Service Fabric.<button data-example-next="2"><span class="current">1</span> <span class="d-none d-inline-sm">of</span><span class="d-none-sm">/</span> 4 <i>→</i></button></h3>
+                <h4 class="h2">
+                    <span class="example-text is-active" data-example="1">Deploy your windows cluster: <a href="https://portal.azure.com/#create/Microsoft.Template/uri/@WebUtility.UrlEncode(Endpoints.ResourceApiEndpoint+"/providers/DotNetDevOps.AzureTemplates/templates/demo?withApp=true")" target="_blank"><img src="http://azuredeploy.net/deploybutton.png" /></a></span>
+                    <span class="example-text" data-example="2">Think of Pimetr chart as a spreadsheet, each <strong>row</strong> is a set of <strong>columns</strong> </span>
+                    <span class="example-text" data-example="3">Each Chart is customizable, sharable and easily integratable with your own system</span>
+                    <span class="example-text" data-example="4">Powered by <a href="https://naver.github.io/billboard.js/">billboard.js</a></span>
+                </h4>
+            </header>
+
+
+        </section>
+
+
+        <section id="overview" class="overview container has-max-width">
+            <header>
+                <h3 class="h1">Service Fabric.<button data-example-next="2"><span class="current">1</span> <span class="d-none d-inline-sm">of</span><span class="d-none-sm">/</span> 4 <i>→</i></button></h3>
+                <h4 class="h2">
+                    <span class="example-text is-active" data-example="1">Deploy your unix cluster: <a href="https://portal.azure.com/#create/Microsoft.Template/uri/@WebUtility.UrlEncode(Endpoints.ResourceApiEndpoint+"/providers/DotNetDevOps.AzureTemplates/templates/demo?withApp=true&vmImagePublisher=Canonical")" target="_blank"><img src="http://azuredeploy.net/deploybutton.png" /></a></span>
+                    <span class="example-text" data-example="2">Think of Pimetr chart as a spreadsheet, each <strong>row</strong> is a set of <strong>columns</strong> </span>
+                    <span class="example-text" data-example="3">Each Chart is customizable, sharable and easily integratable with your own system</span>
+                    <span class="example-text" data-example="4">Powered by <a href="https://naver.github.io/billboard.js/">billboard.js</a></span>
+                </h4>
+            </header>
+
+
+        </section>
+
+
+
+    </main>
+
+
+
+
+
+    <footer class="footer" role="contentinfo">
+        <div class="container has-max-width content ta-center">
+            <p>www.dotnetdevops.org is a thing for the web made by <a href="https://pksorensen.com/" target="_blank">Poul K. Sørensen</a>&nbsp;✌️</p>
+        </div>
+    </footer>
+
+
+
+
+    <script>
+        (function () {
+
+            var $nextButton = document.querySelector('[data-example-next]');
+            var examples = document.querySelectorAll('.example-text').length;
+            var activeClass = 'is-active';
+
+            $nextButton.addEventListener('click', function () {
+
+                var nextExample = parseInt(this.attributes[0].value, 10);
+                var $currentExample = document.querySelectorAll('[data-example].' + activeClass);
+                var $nextExample = document.querySelectorAll('[data-example="' + nextExample + '"]');
+
+                $currentExample.forEach(function (el) {
+                    el.classList.remove(activeClass);
+                });
+
+                $nextExample.forEach(function (el) {
+                    el.classList.add(activeClass);
+                });
+
+                this.attributes[0].value = (nextExample + 1 > examples) ? 1 : nextExample + 1;
+                this.querySelector('.current').textContent = nextExample;
+
+            });
+
+        })();
+    </script>
+
+
+</body>
+</html>

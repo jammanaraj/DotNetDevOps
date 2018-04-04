@@ -1,0 +1,282 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "letsencryptSignerEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "The email used to get certificate from letsencrypt"
+      }
+    },
+    "clusterHost": {
+      "type": "string",
+      "metadata": {
+        "description": "The gateway hostname"
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]",
+      "metadata": {
+        "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only."
+      }
+    },
+    "clusterLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location of the Cluster"
+      }
+    },
+    "applicationTypeName": {
+      "type": "string",
+      "defaultValue": "S-Innovations.ServiceFabric.GatewayApplicationType",
+      "metadata": {
+        "description": "The application type name."
+      }
+    },
+    "explorerApplicationTypeName": {
+      "type": "string",
+      "defaultValue": "ServiceFabricGateway.ExplorerApplicationType",
+      "metadata": {
+        "description": "The application type name."
+      }
+    },
+    "applicationTypeVersion": {
+      "type": "string",
+      "defaultValue": "1.0.1-CI-20180417-02",
+      "metadata": {
+        "description": "The application type version."
+      }
+    },
+    "explorerApplicationTypeVersion": {
+      "type": "string",
+      "defaultValue": "1.0.1-CI-20180417-02",
+      "metadata": {
+        "description": "The application type version."
+      }
+    },
+    "applicationName": {
+      "type": "string",
+      "defaultValue": "S-Innovations.ServiceFabric.GatewayApplication",
+      "metadata": {
+        "description": "The name of the application resource."
+      }
+    },
+    "explorerApplicationName": {
+      "type": "string",
+      "defaultValue": "ServiceFabricGateway.ExplorerApplication",
+      "metadata": {
+        "description": "The name of the application resource."
+      }
+    },
+    "secretsCertificateThumbprint": {
+      "type": "string",
+      "metadata": {
+        "description": "the secretsCertificateThumbprint"
+      }
+    },
+    "msi": {
+      "type": "object",
+      "metadata": {
+        "description": "The MSI object"
+      }
+    },
+    "vaultUri": {
+      "type": "string",
+      "metadata": {
+        "description": "The Vault vaultUri"
+      }
+    },
+    "applicationStorageName": {
+      "type": "string",
+      "metadata": {
+        "description": "ARM Application Storage Account object"
+      }
+    },
+    "applicationInsightsKey": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "appPackageUrl": "[concat('https://cdn.earthml.com/sfapps/S-Innovations.ServiceFabric.GatewayApplicationType/CI/',parameters('applicationTypeVersion'),'.sfpkg')]",
+    "explorerAppPackageUrl": "[concat('https://cdn.earthml.com/sfapps/ServiceFabricGateway.ExplorerApplicationType/CI/',parameters('explorerApplicationTypeVersion'),'.sfpkg')]",
+    "applicationStorageId": "[resourceId('Microsoft.Storage/storageAccounts',parameters('applicationStorageName'))]",
+    "principalId": "[parameters('msi').principalId]",
+    "clusterLocation": "[resourcegroup().location]",
+    "owner": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-07-01",
+      "name": "{{GUID-roleassignment}}",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "properties": {
+        "roleDefinitionId": "[variables('owner')]",
+        "principalId": "[parameters('msi').principalId]",
+        "scope": "[concat('/subscriptions/',subscription().subscriptionId,'/resourcegroups/',resourceGroup().name)]"
+      }
+    },
+    {
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applicationTypes",
+      "name": "[concat(parameters('clusterName'), '/', parameters('applicationTypeName'))]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "{{GUID-roleassignment}}"
+      ],
+      "properties": {
+        "provisioningState": "Default"
+      }
+    },
+    {
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applicationTypes",
+      "name": "[concat(parameters('clusterName'), '/', parameters('explorerApplicationTypeName'))]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "{{GUID-roleassignment}}"
+      ],
+      "properties": {
+        "provisioningState": "Default"
+      }
+    },
+    {
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions",
+      "name": "[concat(parameters('clusterName'), '/', parameters('applicationTypeName'), '/', parameters('applicationTypeVersion'))]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('applicationTypeName'))]"
+      ],
+      "properties": {
+        "provisioningState": "Default",
+        "appPackageUrl": "[variables('appPackageUrl')]"
+      }
+    },
+    {
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions",
+      "name": "[concat(parameters('clusterName'), '/', parameters('explorerApplicationTypeName'), '/', parameters('explorerApplicationTypeVersion'))]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('explorerApplicationTypeName'))]"
+      ],
+      "properties": {
+        "provisioningState": "Default",
+        "appPackageUrl": "[variables('explorerAppPackageUrl')]"
+      }
+    },
+    {
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applications",
+      "name": "[concat(parameters('clusterName'), '/', parameters('applicationName'))]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('applicationTypeName'), '/versions/', parameters('applicationTypeVersion'))]"
+      ],
+      "properties": {
+        "provisioningState": "Default",
+        "typeName": "[parameters('applicationTypeName')]",
+        "typeVersion": "[parameters('applicationTypeVersion')]",
+        "parameters": {
+          "GatewayService_InstanceCount": "-1",
+          "AzureADServicePrincipal": "",
+          "TenantId": "[parameters('msi').tenantId]",
+          "ApplicationStorageAccountId": "[variables('applicationStorageId')]",
+          "AzureResourceManagerCertThumbrint": "[parameters('secretsCertificateThumbprint')]",
+          "Azure.KeyVault.Uri": "[parameters('vaultUri')]",
+          "ASPNETCORE_ENVIRONMENT": "Production",
+          "APPLICATION_INSIGHTS": "[parameters('applicationInsightsKey')]",
+          "GatewaySslOptions": "[concat('{\"Enabled\":true,\"SignerEmail\":\"',parameters('letsencryptSignerEmail'),'\",\"UseHttp01Challenge\":true}')]",
+          "GatewayServerName": "[parameters('clusterHost')]"
+        },
+        "upgradePolicy": {
+          "upgradeReplicaSetCheckTimeout": "01:00:00.0",
+          "forceRestart": "false",
+          "rollingUpgradeMonitoringPolicy": {
+            "healthCheckWaitDuration": "00:02:00.0",
+            "healthCheckStableDuration": "00:05:00.0",
+            "healthCheckRetryTimeout": "00:10:00.0",
+            "upgradeTimeout": "01:00:00.0",
+            "upgradeDomainTimeout": "00:20:00.0"
+          },
+          "applicationHealthPolicy": {
+            "considerWarningAsError": "false",
+            "maxPercentUnhealthyDeployedApplications": "50",
+            "defaultServiceTypeHealthPolicy": {
+              "maxPercentUnhealthyServices": "50",
+              "maxPercentUnhealthyPartitionsPerService": "50",
+              "maxPercentUnhealthyReplicasPerPartition": "50"
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applications",
+      "name": "[concat(parameters('clusterName'), '/', parameters('explorerApplicationName'))]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('applicationName'))]",
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('explorerApplicationTypeName'), '/versions/', parameters('explorerApplicationTypeVersion'))]"
+      ],
+      "properties": {
+        "provisioningState": "Default",
+        "typeName": "[parameters('explorerApplicationTypeName')]",
+        "typeVersion": "[parameters('explorerApplicationTypeVersion')]",
+        "parameters": {
+          "S-Innovations.ServiceFabricGateway.Explorer_InstanceCount": "-1",
+          "ASPNETCORE_ENVIRONMENT": "Production",
+          "ExplorerServerName": "[parameters('clusterHost')]",
+          "ResourceApiEndpoint": "[concat('https://',parameters('clusterHost'))]",
+          "OIDC_AUTHORITY": "[concat('https://',parameters('clusterHost'),'/identity/')]",
+          "OIDC_SCOPE": "[concat('openid profile https://',parameters('clusterHost'),'/identity https://',parameters('clusterHost'),'/gateway')]",
+          "IDENTITY_SERVICE_THUMBPRINT": "[parameters('secretsCertificateThumbprint')]"
+        },
+        "upgradePolicy": {
+          "upgradeReplicaSetCheckTimeout": "01:00:00.0",
+          "forceRestart": "false",
+          "rollingUpgradeMonitoringPolicy": {
+            "healthCheckWaitDuration": "00:02:00.0",
+            "healthCheckStableDuration": "00:05:00.0",
+            "healthCheckRetryTimeout": "00:10:00.0",
+            "upgradeTimeout": "01:00:00.0",
+            "upgradeDomainTimeout": "00:20:00.0"
+          },
+          "applicationHealthPolicy": {
+            "considerWarningAsError": "false",
+            "maxPercentUnhealthyDeployedApplications": "50",
+            "defaultServiceTypeHealthPolicy": {
+              "maxPercentUnhealthyServices": "50",
+              "maxPercentUnhealthyPartitionsPerService": "50",
+              "maxPercentUnhealthyReplicasPerPartition": "50"
+            }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applications/services",
+      "name": "[concat(parameters('clusterName'), '/', parameters('explorerApplicationName'), '/', parameters('explorerApplicationName') ,'~ServiceFabricGateway.IdentityService')]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('explorerApplicationName'))]"
+      ],
+      "properties": {
+        "provisioningState": "Default",
+        "serviceKind": "Stateless",
+        "serviceTypeName": "ServiceFabricGateway.IdentityServiceType",
+        "instanceCount": "-1",
+        "partitionDescription": {
+          "partitionScheme": "Singleton"
+        },
+        "correlationScheme": [],
+        "serviceLoadMetrics": [],
+        "servicePlacementPolicies": []
+      }
+    }
+  ]
+}

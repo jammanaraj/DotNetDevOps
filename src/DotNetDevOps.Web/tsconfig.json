@@ -1,0 +1,39 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "amd",
+    "target": "es5",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "noImplicitAny": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "outDir": "artifacts/app/src",
+    "declarationDir": "artifacts/app/typings",
+    "declaration": true,
+    "moduleResolution": "node",
+    "paths": {
+      "kolayout/*": [ "node_modules/kolayout/dist/typings/*" ],
+      "si-appbuilder/*": [ "node_modules/si-appbuilder/dist/typings/*" ],
+      "si-appbuilder-oidcmiddleware/*": [ "node_modules/si-appbuilder-oidcmiddleware/dist/typings/*" ],
+      "Utils/*": [ "src/Utils/*" ]
+    },
+    "baseUrl": ".",
+    "lib": [
+      "dom",
+      "es5",
+      "es6",
+      "es2015.promise"
+    ],
+    "jsx": "react",
+    "jsxFactory": "KnockoutJsxFactory"
+  },
+  "include": [
+    "Pages"
+  ],
+  "exclude": [
+    "node_modules",
+    "wwwroot"
+  ]
+}

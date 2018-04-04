@@ -1,11 +1,45 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26823.1
+VisualStudioVersion = 15.0.26923.0
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{88B0C0BE-3A4C-496F-8914-8793002DEEA0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3CA4699D-2057-4D75-9A63-017615DCF550}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetDevOps.Web", "src\DotNetDevOps.Web\DotNetDevOps.Web.csproj", "{F016374C-8654-44AF-A7D0-D45352F95803}"
+EndProject
+Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "DotNetDevOps.Application", "src\DotNetDevOps.Application\DotNetDevOps.Application.sfproj", "{490BBCF7-5273-4003-8D27-EA275C583A41}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F016374C-8654-44AF-A7D0-D45352F95803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F016374C-8654-44AF-A7D0-D45352F95803}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F016374C-8654-44AF-A7D0-D45352F95803}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F016374C-8654-44AF-A7D0-D45352F95803}.Debug|x64.Build.0 = Debug|Any CPU
+		{F016374C-8654-44AF-A7D0-D45352F95803}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F016374C-8654-44AF-A7D0-D45352F95803}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F016374C-8654-44AF-A7D0-D45352F95803}.Release|x64.ActiveCfg = Release|Any CPU
+		{F016374C-8654-44AF-A7D0-D45352F95803}.Release|x64.Build.0 = Release|Any CPU
+		{490BBCF7-5273-4003-8D27-EA275C583A41}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{490BBCF7-5273-4003-8D27-EA275C583A41}.Debug|x64.ActiveCfg = Debug|x64
+		{490BBCF7-5273-4003-8D27-EA275C583A41}.Debug|x64.Build.0 = Debug|x64
+		{490BBCF7-5273-4003-8D27-EA275C583A41}.Release|Any CPU.ActiveCfg = Release|x64
+		{490BBCF7-5273-4003-8D27-EA275C583A41}.Release|x64.ActiveCfg = Release|x64
+		{490BBCF7-5273-4003-8D27-EA275C583A41}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F016374C-8654-44AF-A7D0-D45352F95803} = {3CA4699D-2057-4D75-9A63-017615DCF550}
+		{490BBCF7-5273-4003-8D27-EA275C583A41} = {3CA4699D-2057-4D75-9A63-017615DCF550}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFF22EB7-22A2-4A95-B4D5-4A93A06FCD92}

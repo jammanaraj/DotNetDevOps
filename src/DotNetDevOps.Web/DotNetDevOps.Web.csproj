@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <IsServiceFabricServiceProject>True</IsServiceFabricServiceProject>
+    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+    <TypeScriptToolsVersion>2.4</TypeScriptToolsVersion>
+    <RootNamespace>DotNetDevOps</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Templates\ServiceFabric\fabric.json" />
+    <Content Remove="Templates\ServiceFabric\msi.json" />
+    <Content Remove="Templates\ServiceFabric\root.json" />
+    <Content Remove="Templates\ServiceFabric\secret.json" />
+    <Content Remove="Templates\ServiceFabric\vault.json" />
+    <Content Remove="Templates\ServiceFabric\vmss.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Templates\ServiceFabric\docker_install.ps1" />
+    <None Remove="Templates\VMSS\nginx_install.sh" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\ServiceFabric\app.json" />
+    <EmbeddedResource Include="Templates\VMSS\docker_install.ps1" />
+    <EmbeddedResource Include="Templates\ServiceFabric\fabric.json" />
+    <EmbeddedResource Include="Templates\KeyVault\msi.json" />
+    <EmbeddedResource Include="Templates\ServiceFabric\root.json" />
+    <EmbeddedResource Include="Templates\KeyVault\secret.json" />
+    <EmbeddedResource Include="Templates\KeyVault\vault.json" />
+    <EmbeddedResource Include="Templates\VMSS\nginx_install.sh" />
+    <EmbeddedResource Include="Templates\VMSS\vmss.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.0-preview2-final" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.2" />
+    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore2" Version="1.0.1-pre-2018043001" />
+    <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.1.1" />
+  </ItemGroup>
+
+</Project>
