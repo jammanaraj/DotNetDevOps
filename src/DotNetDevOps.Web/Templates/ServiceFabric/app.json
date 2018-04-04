@@ -233,7 +233,8 @@
           "ResourceApiEndpoint": "[concat('https://',parameters('clusterHost'))]",
           "OIDC_AUTHORITY": "[concat('https://',parameters('clusterHost'),'/identity/')]",
           "OIDC_SCOPE": "[concat('openid profile https://',parameters('clusterHost'),'/identity https://',parameters('clusterHost'),'/gateway')]",
-          "IDENTITY_SERVICE_THUMBPRINT": "[parameters('secretsCertificateThumbprint')]"
+          "IDENTITY_SERVICE_THUMBPRINT": "[parameters('secretsCertificateThumbprint')]",
+          "InstrumentationKey": "[parameters('applicationInsightsKey')]"
         },
         "upgradePolicy": {
           "upgradeReplicaSetCheckTimeout": "01:00:00.0",
