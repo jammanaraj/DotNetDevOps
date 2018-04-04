@@ -225,7 +225,7 @@ namespace DotNetDevOps.Web
             {
                 var container = new CloudBlobContainer(new Uri("https://cdn.earthml.com/sfapps"));
                 var blobs = await container.ListBlobsSegmentedAsync("S-Innovations.ServiceFabric.GatewayApplicationType/CI/", null);
-                var folders = blobs.Results.OfType<CloudBlockBlob>();
+                var folders = blobs.Results.OfType<CloudBlockBlob>().Where(b=> !string.Equals( Path.GetFileNameWithoutExtension( b.Name) , "latest",StringComparison.OrdinalIgnoreCase));
                 var version = Path.GetFileNameWithoutExtension(folders.Last().Name);
                 template.SelectToken("$.parameters.gatewayVersion.defaultValue").Replace(version);
              
@@ -233,7 +233,7 @@ namespace DotNetDevOps.Web
             {
                 var container = new CloudBlobContainer(new Uri("https://cdn.earthml.com/sfapps"));
                 var blobs = await container.ListBlobsSegmentedAsync("ServiceFabricGateway.ExplorerApplicationType/CI/", null);
-                var folders = blobs.Results.OfType<CloudBlockBlob>();
+                var folders = blobs.Results.OfType<CloudBlockBlob>().Where(b => !string.Equals(Path.GetFileNameWithoutExtension(b.Name), "latest", StringComparison.OrdinalIgnoreCase)); ;
                 var version = Path.GetFileNameWithoutExtension(folders.Last().Name);
                 template.SelectToken("$.parameters.explorerVersion.defaultValue").Replace(version);
                 
