@@ -8,17 +8,11 @@
        should match the Name and Version attributes of the ServiceManifest element defined in the 
        ServiceManifest.xml file. -->
   <ServiceManifestImport>
-    <ServiceManifestRef ServiceManifestName="DotNETDevOps.ServicePkg" ServiceManifestVersion="1.0.0" />
+    <ServiceManifestRef ServiceManifestName="DotNETDevOps.Web.ServicePkg" ServiceManifestVersion="1.0.0" />
     <ConfigOverrides />
     <EnvironmentOverrides CodePackageRef="Code">
       <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[ASPNETCORE_ENVIRONMENT]" />
     </EnvironmentOverrides>
   </ServiceManifestImport>
-  <DefaultServices>
-    <Service Name="DotNETDevOps.Service">
-      <StatelessService ServiceTypeName="DotNETDevOps.ServiceType" InstanceCount="[DotNETDevOps.ServiceType_InstanceCount]">
-        <SingletonPartition />
-      </StatelessService>
-    </Service>
-  </DefaultServices>
+  <DefaultServices />
 </ApplicationManifest>
