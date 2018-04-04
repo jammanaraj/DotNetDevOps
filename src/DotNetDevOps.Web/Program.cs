@@ -122,6 +122,21 @@ namespace DotNetDevOps.Web
                         },
                         Properties = new Dictionary<string, object> { { "www301", true }, { "cf-real-ip", true } },
                     },
+                    AdditionalGateways = new[]
+                    {
+                        new GatewayOptions{
+                        Key = "DotNETDevOps.ServiceProvider",
+                        ServerName = "management.dotnetdevops.org",
+                        ReverseProxyLocation = new string[]{ "DotNetDevOps.AzureTemplates"}.BuildResourceProviderLocation(),
+                        Ssl = new SslOptions
+                        {
+                            Enabled = true,
+                            SignerEmail = "info@earthml.com",
+                            UseHttp01Challenge = true
+                        },
+                        Properties = new Dictionary<string, object> {   { "cf-real-ip", true } },
+                    },
+                    }
                 });
 
             Thread.Sleep(Timeout.Infinite);
