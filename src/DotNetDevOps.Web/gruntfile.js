@@ -65,7 +65,7 @@ module.exports = function (grunt) {
     grunt.registerTask("initProject", ["npmcopy"]);
     grunt.registerTask("buildLib", ["copy:bin", "copy:lib", "copy:templates", "lessDependencis"]);
     grunt.registerTask("packLib", ["initProject", "buildLib", "requirejs"]);
-    grunt.registerTask("packwww", ["initProject", "copy:www"]);
+    grunt.registerTask("packwww", ["initProject", "buildLib", "copy:www"]);
 
     ;
 

@@ -117,9 +117,10 @@ namespace DotNetDevOps.Web
                         Ssl = new SslOptions
                         {
                             Enabled = true,
-                            SignerEmail = "info@earthml.com"
+                            SignerEmail = "info@earthml.com",
+                            UseHttp01Challenge = true
                         },
-                        Properties = new Dictionary<string, object> { { "CloudFlareZoneId", "93ff89ba4caa7ea02c70d27ca9fd9e2e" }, { "www301", true }, { "cf-real-ip", true } },
+                        Properties = new Dictionary<string, object> { { "www301", true }, { "cf-real-ip", true } },
                     },
                 });
 
