@@ -39,13 +39,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.0-preview2-final" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.3" />
-    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore2" Version="1.0.1-pre-2018051207" />
+    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.1.0-ci-20180620-01" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
-    <PackageReference Include="WindowsAzure.Storage" Version="9.1.1" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.2.0" />
   </ItemGroup>
 
 </Project>
