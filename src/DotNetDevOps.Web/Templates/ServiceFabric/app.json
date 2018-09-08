@@ -16,7 +16,7 @@
     },
     "clusterName": {
       "type": "string",
-      "defaultValue": "[resourceGroup().name]",
+      "defaultValue": "[toLower(take(resourceGroup().name,23))]",
       "metadata": {
         "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only."
       }
@@ -99,8 +99,10 @@
     }
   },
   "variables": {
-    "appPackageUrl": "[concat('https://cdn.earthml.com/sfapps/S-Innovations.ServiceFabric.GatewayApplicationType/CI/',parameters('applicationTypeVersion'),'.sfpkg')]",
-    "explorerAppPackageUrl": "[concat('https://cdn.earthml.com/sfapps/ServiceFabricGateway.ExplorerApplicationType/CI/',parameters('explorerApplicationTypeVersion'),'.sfpkg')]",
+    "applicationTypeVersion": "[last(split(parameters('applicationTypeVersion'),'/'))]",
+    "explorerApplicationTypeVersion": "[last(split(parameters('explorerApplicationTypeVersion'),'/'))]",
+    "appPackageUrl": "[concat('https://cdn.dotnetdevops.org/sfapps/S-Innovations.ServiceFabric.GatewayApplicationType/',parameters('applicationTypeVersion'),'.sfpkg')]",
+    "explorerAppPackageUrl": "[concat('https://cdn.dotnetdevops.org/sfapps/ServiceFabricGateway.ExplorerApplicationType/',parameters('explorerApplicationTypeVersion'),'.sfpkg')]",
     "applicationStorageId": "[resourceId('Microsoft.Storage/storageAccounts',parameters('applicationStorageName'))]",
     "principalId": "[parameters('msi').principalId]",
     "clusterLocation": "[resourcegroup().location]",
@@ -144,7 +146,7 @@
     {
       "apiVersion": "2017-07-01-preview",
       "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions",
-      "name": "[concat(parameters('clusterName'), '/', parameters('applicationTypeName'), '/', parameters('applicationTypeVersion'))]",
+      "name": "[concat(parameters('clusterName'), '/', parameters('applicationTypeName'), '/', variables('applicationTypeVersion'))]",
       "location": "[variables('clusterLocation')]",
       "dependsOn": [
         "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('applicationTypeName'))]"
@@ -157,7 +159,7 @@
     {
       "apiVersion": "2017-07-01-preview",
       "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions",
-      "name": "[concat(parameters('clusterName'), '/', parameters('explorerApplicationTypeName'), '/', parameters('explorerApplicationTypeVersion'))]",
+      "name": "[concat(parameters('clusterName'), '/', parameters('explorerApplicationTypeName'), '/', variables('explorerApplicationTypeVersion'))]",
       "location": "[variables('clusterLocation')]",
       "dependsOn": [
         "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('explorerApplicationTypeName'))]"
@@ -173,12 +175,12 @@
       "name": "[concat(parameters('clusterName'), '/', parameters('applicationName'))]",
       "location": "[variables('clusterLocation')]",
       "dependsOn": [
-        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('applicationTypeName'), '/versions/', parameters('applicationTypeVersion'))]"
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('applicationTypeName'), '/versions/', variables('applicationTypeVersion'))]"
       ],
       "properties": {
         "provisioningState": "Default",
         "typeName": "[parameters('applicationTypeName')]",
-        "typeVersion": "[parameters('applicationTypeVersion')]",
+        "typeVersion": "[variables('applicationTypeVersion')]",
         "parameters": {
           "GatewayService_InstanceCount": "-1",
           "AzureADServicePrincipal": "",
@@ -220,12 +222,12 @@
       "location": "[variables('clusterLocation')]",
       "dependsOn": [
         "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applications/', parameters('applicationName'))]",
-        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('explorerApplicationTypeName'), '/versions/', parameters('explorerApplicationTypeVersion'))]"
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('explorerApplicationTypeName'), '/versions/', variables('explorerApplicationTypeVersion'))]"
       ],
       "properties": {
         "provisioningState": "Default",
         "typeName": "[parameters('explorerApplicationTypeName')]",
-        "typeVersion": "[parameters('explorerApplicationTypeVersion')]",
+        "typeVersion": "[variables('explorerApplicationTypeVersion')]",
         "parameters": {
           "S-Innovations.ServiceFabricGateway.Explorer_InstanceCount": "-1",
           "ASPNETCORE_ENVIRONMENT": "Production",

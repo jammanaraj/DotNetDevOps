@@ -4,7 +4,7 @@
   "parameters": {
     "clusterName": {
       "type": "string",
-      "defaultValue": "[resourceGroup().name]",
+      "defaultValue": "[toLower(take(resourceGroup().name,23))]",
       "metadata": {
         "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only"
       }
@@ -24,6 +24,7 @@
     "gatewayVersion": {
       "type": "string",
       "defaultValue": "1.0.1-CI-20180417-02",
+      "allowedValues": [ "1.0.1-CI-20180417-02"],
       "metadata": {
         "description": "The application type version."
       }
@@ -31,6 +32,7 @@
     "explorerVersion": {
       "type": "string",
       "defaultValue": "1.0.1-CI-20180417-02",
+      "allowedValues": [ "1.0.1-CI-20180417-02" ],
       "metadata": {
         "description": "The explorer type version."
       }

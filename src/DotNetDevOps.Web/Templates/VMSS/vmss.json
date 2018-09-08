@@ -336,7 +336,7 @@
               //},
               {
                 "osType": "windows",
-                "name": "customScript",
+                "name": "customScript_installdocker",
                 "properties": {
                   "publisher": "Microsoft.Compute",
                   "settings": {

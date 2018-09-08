@@ -170,7 +170,7 @@ namespace DotNetDevOps.Web
             var withOutdocker = !withdocker.HasValue || !withdocker.Value;
             if (withOutdocker)
             {
-                template.SelectToken("$.resources[0].properties.virtualMachineProfile.extensionProfile.extensions[?(@.name == 'customScript')]").Remove();
+                template.SelectToken("$.resources[0].properties.virtualMachineProfile.extensionProfile.extensions[?(@.name == 'customScript_installdocker')]").Remove();
             }
 
             var withExtensions2 =  withExtensions.HasValue &&  withExtensions.Value;
@@ -222,22 +222,42 @@ namespace DotNetDevOps.Web
 
             template.SelectToken("$.parameters.vmImagePublisher.defaultValue").Replace(vmImagePublisher);
 
+          
+
             {
-                var container = new CloudBlobContainer(new Uri("https://cdn.earthml.com/sfapps"));
-                var blobs = await container.ListBlobsSegmentedAsync("S-Innovations.ServiceFabric.GatewayApplicationType/CI/", null);
-                var folders = blobs.Results.OfType<CloudBlockBlob>().Where(b=> !string.Equals( Path.GetFileNameWithoutExtension( b.Name) , "latest",StringComparison.OrdinalIgnoreCase));
-                var version = Path.GetFileNameWithoutExtension(folders.Last().Name);
-                template.SelectToken("$.parameters.gatewayVersion.defaultValue").Replace(version);
-             
+                var type = "S-Innovations.ServiceFabric.GatewayApplicationType/";
+                var container = new CloudBlobContainer(new Uri("https://cdn.dotnetdevops.org/sfapps"));
+                var blobs = await container.ListBlobsSegmentedAsync(type, true,BlobListingDetails.None,null,null,null,null);
+                var folders = blobs.Results.OfType<CloudBlockBlob>()
+                    .GroupBy(b => b.Parent.Prefix.Substring(type.Length).Trim('/'))
+                    .Select(c => c.Key + "/"+ Path.GetFileNameWithoutExtension(c.Where(b => !string.Equals(Path.GetFileNameWithoutExtension(b.Name), "latest", StringComparison.OrdinalIgnoreCase)).Last().Name))
+                    .Select(c => c.Trim('/'))
+                    .ToArray();
+
+
+                template.SelectToken("$.parameters.gatewayVersion.allowedValues").Replace(JArray.FromObject( folders));
+
+
             }
+
             {
-                var container = new CloudBlobContainer(new Uri("https://cdn.earthml.com/sfapps"));
-                var blobs = await container.ListBlobsSegmentedAsync("ServiceFabricGateway.ExplorerApplicationType/CI/", null);
-                var folders = blobs.Results.OfType<CloudBlockBlob>().Where(b => !string.Equals(Path.GetFileNameWithoutExtension(b.Name), "latest", StringComparison.OrdinalIgnoreCase)); ;
-                var version = Path.GetFileNameWithoutExtension(folders.Last().Name);
-                template.SelectToken("$.parameters.explorerVersion.defaultValue").Replace(version);
-                
+                var type = "ServiceFabricGateway.ExplorerApplicationType/";
+                var container = new CloudBlobContainer(new Uri("https://cdn.dotnetdevops.org/sfapps"));
+                var blobs = await container.ListBlobsSegmentedAsync(type, true, BlobListingDetails.None, null, null, null, null);
+                var folders = blobs.Results.OfType<CloudBlockBlob>()
+                    .GroupBy(b => b.Parent.Prefix.Substring(type.Length).Trim('/'))
+                    .Select(c => c.Key + "/" + Path.GetFileNameWithoutExtension(c.Where(b => !string.Equals(Path.GetFileNameWithoutExtension(b.Name), "latest", StringComparison.OrdinalIgnoreCase)).Last().Name))
+                    .Select(c=>c.Trim('/'))
+                    .ToArray();
+
+
+
+                template.SelectToken("$.parameters.explorerVersion.allowedValues").Replace(JArray.FromObject(folders));
+
+
             }
+
+
 
             return Ok(template);
         }
@@ -251,7 +271,7 @@ namespace DotNetDevOps.Web
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddMvc();
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1); 
 
 
             services.AddHsts(o => { o.IncludeSubDomains = false; o.Preload = true; });
@@ -271,7 +291,7 @@ namespace DotNetDevOps.Web
         {
             if (env.IsDevelopment())
             {
-            //    app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();
             }
            // app.UseHttpsRedirection();
             //app.UseHsts();

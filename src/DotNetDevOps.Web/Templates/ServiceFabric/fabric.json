@@ -11,7 +11,7 @@
     },
     "clusterName": {
       "type": "string",
-      "defaultValue": "[resourceGroup().name]",
+      "defaultValue": "[toLower(take(resourceGroup().name,23))]",
       "metadata": {
         "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only"
       }
@@ -150,7 +150,7 @@
   },
   "variables": {
     "computeLocation": "[parameters('clusterLocation')]",
-    "dnsName": "[parameters('clusterName')]",
+    "dnsName": "[toLower(take(resourceGroup().name,63))]",
     "vmName": "vm",
     "lbApiVersion": "2015-06-15",
     "vNetApiVersion": "2015-06-15",
@@ -435,7 +435,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/vmss/scalesets/demo?withExtensions=true&withdocker=true&vmImagePublisher=',parameters('vmImagePublisher'))]",
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/vmss/scalesets/demo?withExtensions=true&withdocker=false&vmImagePublisher=',parameters('vmImagePublisher'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -513,15 +513,15 @@
           //    }
           //  ]
           //},
-          {
-            "name": "Hosting",
-            "parameters": [
-              {
-                "name": "SkipDockerProcessManagement",
-                "value": "true"
-              }
-            ]
-          },
+          //{
+          //  "name": "Hosting",
+          //  "parameters": [
+          //    {
+          //      "name": "SkipDockerProcessManagement",
+          //      "value": "true"
+          //    }
+          //  ]
+          //},
           {
             "parameters": [
               {
