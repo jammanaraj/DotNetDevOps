@@ -24,7 +24,7 @@
     "gatewayVersion": {
       "type": "string",
       "defaultValue": "1.0.1-CI-20180417-02",
-      "allowedValues": [ "1.0.1-CI-20180417-02"],
+      "allowedValues": [ "1.0.1-CI-20180417-02" ],
       "metadata": {
         "description": "The application type version."
       }
@@ -44,9 +44,23 @@
         "MicrosoftWindowsServer"
       ],
       "defaultValue": "MicrosoftWindowsServer"
+    },
+    "additionalIpAddresses": {
+      "type": "int",
+      "defaultValue": 0
+    },
+    "durabilityLevel": {
+      "type": "string",
+      "defaultValue": "Bronze",
+      "allowedValues": [ "Gold","Silver","Bronze" ],
+      "metadata": {
+        "description": "The durability level"
+      }
     }
   },
-  "variables": {},
+  "variables": {
+    "withDocker": false
+  },
   "resources": [
     {
       "name": "DeployKeyvault",
@@ -84,7 +98,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/clusters/demo?vmImagePublisher=',parameters('vmImagePublisher'))]",
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/clusters/demo?withDocker=',variables('withDocker'),'&vmImagePublisher=',parameters('vmImagePublisher'),'&additionalIpAddresses=',parameters('additionalIpAddresses'),'&durabilityLevel=',parameters('durabilityLevel'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

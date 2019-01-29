@@ -1,0 +1,115 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "[toLower(take(resourceGroup().name,23))]",
+      "metadata": {
+        "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only."
+      }
+    },
+    "applicationTypeName": {
+      "type": "string",
+      "defaultValue": "S-Innovations.ServiceFabric.GatewayApplicationType",
+      "metadata": {
+        "description": "The application type name."
+      }
+    },
+    "applicationTypeVersion": {
+      "type": "string",
+      "defaultValue": "1.0.1-CI-20180417-02",
+      "metadata": {
+        "description": "The application type version."
+      }
+    },
+    "applicationName": {
+      "type": "string",
+      "defaultValue": "S-Innovations.ServiceFabric.GatewayApplication",
+      "metadata": {
+        "description": "The name of the application resource."
+      }
+    },
+    "appPackageUrl": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "applicationParameters": {
+      "type": "object",
+
+      "metadata": {
+        "description": "The parameters for application"
+      }
+    },
+    "applications": {
+      "type": "object",
+      "defaultValue": {}
+    }
+
+  },
+  "variables": {
+    "clusterLocation": "[resourcegroup().location]"
+  },
+  "resources": [
+    {
+      "condition": "[not(contains(parameters('applications'), concat(parameters('applicationName'),parameters('applicationTypeName'),parameters('applicationTypeVersion'))))]",
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applicationTypes",
+      "name": "[concat(parameters('clusterName'), '/', parameters('applicationTypeName'))]",
+      "location": "[variables('clusterLocation')]",
+      "properties": {
+        "provisioningState": "Default"
+      }
+    },
+    {
+      "condition": "[not(contains(parameters('applications'), concat(parameters('applicationName'),parameters('applicationTypeName'),parameters('applicationTypeVersion'))))]",
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applicationTypes/versions",
+      "name": "[concat(parameters('clusterName'), '/', parameters('applicationTypeName'), '/', parameters('applicationTypeVersion'))]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('applicationTypeName'))]"
+      ],
+      "properties": {
+        "provisioningState": "Default",
+        "appPackageUrl": "[parameters('appPackageUrl')]"
+      }
+    },
+    {
+      "condition": "[not(contains(parameters('applications'), concat(parameters('applicationName'),parameters('applicationTypeName'),parameters('applicationTypeVersion'))))]",
+      "apiVersion": "2017-07-01-preview",
+      "type": "Microsoft.ServiceFabric/clusters/applications",
+      "name": "[concat(parameters('clusterName'), '/', parameters('applicationName'))]",
+      "location": "[variables('clusterLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.ServiceFabric/clusters/', parameters('clusterName'), '/applicationTypes/', parameters('applicationTypeName'), '/versions/', parameters('applicationTypeVersion'))]"
+      ],
+      "properties": {
+        "provisioningState": "Default",
+        "typeName": "[parameters('applicationTypeName')]",
+        "typeVersion": "[parameters('applicationTypeVersion')]",
+        "parameters": "[parameters('applicationParameters')]",
+        "upgradePolicy": {
+          "upgradeReplicaSetCheckTimeout": "01:00:00.0",
+          "forceRestart": "false",
+          "rollingUpgradeMonitoringPolicy": {
+            "healthCheckWaitDuration": "00:02:00.0",
+            "healthCheckStableDuration": "00:05:00.0",
+            "healthCheckRetryTimeout": "00:10:00.0",
+            "upgradeTimeout": "01:00:00.0",
+            "upgradeDomainTimeout": "00:20:00.0"
+          },
+          "applicationHealthPolicy": {
+            "considerWarningAsError": "false",
+            "maxPercentUnhealthyDeployedApplications": "50",
+            "defaultServiceTypeHealthPolicy": {
+              "maxPercentUnhealthyServices": "50",
+              "maxPercentUnhealthyPartitionsPerService": "50",
+              "maxPercentUnhealthyReplicasPerPartition": "50"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

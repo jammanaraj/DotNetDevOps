@@ -1,29 +1,46 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <IsServiceFabricServiceProject>True</IsServiceFabricServiceProject>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
-    <TypeScriptToolsVersion>2.4</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>3.0</TypeScriptToolsVersion>
     <RootNamespace>DotNetDevOps</RootNamespace>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Templates\Applications\Carshopper.json" />
+    <Content Remove="Templates\Applications\EarthML.Pipelines.json" />
+    <Content Remove="Templates\ServiceBus\bus.json" />
     <Content Remove="Templates\ServiceFabric\fabric.json" />
+    <Content Remove="Templates\ServiceFabric\GenericApplication.json" />
     <Content Remove="Templates\ServiceFabric\msi.json" />
     <Content Remove="Templates\ServiceFabric\root.json" />
     <Content Remove="Templates\ServiceFabric\secret.json" />
     <Content Remove="Templates\ServiceFabric\vault.json" />
     <Content Remove="Templates\ServiceFabric\vmss.json" />
+    <Content Remove="Templates\SInnovations.Gateway\Applications.json" />
+    <Content Remove="Templates\SInnovations.Gateway\EncryptParameter.json" />
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="Templates\ServiceFabric\docker_install.ps1" />
+    <None Remove="Templates\VMSS\dotnetcore.ps1" />
     <None Remove="Templates\VMSS\nginx_install.sh" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Templates\Applications\Carshopper.json" />
+    <EmbeddedResource Include="Templates\Applications\EarthML.Pipelines.json" />
+    <EmbeddedResource Include="Templates\ServiceBus\bus.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Templates\ServiceFabric\app.json" />
+    <EmbeddedResource Include="Templates\ServiceFabric\GenericApplication.json" />
+    <EmbeddedResource Include="Templates\SInnovations.Gateway\Applications.json" />
+    <EmbeddedResource Include="Templates\SInnovations.Gateway\EncryptParameter.json" />
+    <EmbeddedResource Include="Templates\VMSS\dotnetcore.ps1" />
     <EmbeddedResource Include="Templates\VMSS\docker_install.ps1" />
     <EmbeddedResource Include="Templates\ServiceFabric\fabric.json" />
     <EmbeddedResource Include="Templates\KeyVault\msi.json" />
@@ -39,14 +56,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
-    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.1.2-ci-20180724-01-ci" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
+    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.1.2-ci-20190108-01-ci" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
-    <PackageReference Include="WindowsAzure.Storage" Version="9.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.2" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 
 </Project>

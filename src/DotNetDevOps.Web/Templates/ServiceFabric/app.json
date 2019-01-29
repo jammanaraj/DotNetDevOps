@@ -191,7 +191,7 @@
           "ASPNETCORE_ENVIRONMENT": "Production",
           "APPLICATION_INSIGHTS": "[parameters('applicationInsightsKey')]",
           "GatewaySslOptions": "[concat('{\"Enabled\":true,\"SignerEmail\":\"',parameters('letsencryptSignerEmail'),'\",\"UseHttp01Challenge\":true}')]",
-          "GatewayServerName": "[parameters('clusterHost')]"
+          "GatewayServerName": "[parameters('clusterHost')]"  
         },
         "upgradePolicy": {
           "upgradeReplicaSetCheckTimeout": "01:00:00.0",

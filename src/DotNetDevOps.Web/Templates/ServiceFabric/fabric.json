@@ -59,7 +59,7 @@
     },
     "vmImageSku": {
       "type": "string",
-      "defaultValue": "Datacenter-Core-1709-with-Containers-smalldisk",
+      "defaultValue": "Datacenter-Core-1803-with-Containers-smalldisk",
       "metadata": {
         "description": "VM image SKU"
       }
@@ -149,6 +149,7 @@
     }
   },
   "variables": {
+    "withDocker": false,
     "computeLocation": "[parameters('clusterLocation')]",
     "dnsName": "[toLower(take(resourceGroup().name,63))]",
     "vmName": "vm",
@@ -175,7 +176,7 @@
     "vmNodeType0Name": "[toLower(concat('NT1', variables('vmName')))]",
     "lbID0": "[resourceId('Microsoft.Network/loadBalancers',concat('LB','-', parameters('clusterName'),'-',variables('vmNodeType0Name')))]",
     "lbPoolID0": "[concat(variables('lbID0'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
-    "lbIPConfig0": "[concat(variables('lbID0'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
+    "lbIPConfig0": "[concat(variables('lbID0'),'/frontendIPConfigurations/LoadBalancerIPConfig-0')]",
     "lbProbeID0": "[concat(variables('lbID0'),'/probes/FabricGatewayProbe')]",
     "lbHttpProbeID0": "[concat(variables('lbID0'),'/probes/FabricHttpGatewayProbe')]"
 
@@ -278,7 +279,7 @@
       "properties": {
         "frontendIPConfigurations": [
           {
-            "name": "LoadBalancerIPConfig",
+            "name": "[concat('LoadBalancerIPConfig-','0')]",
             "properties": {
               "publicIPAddress": {
                 "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('lbIPName'),'-','0'))]"
@@ -435,7 +436,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/vmss/scalesets/demo?withExtensions=true&withdocker=false&vmImagePublisher=',parameters('vmImagePublisher'))]",
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/vmss/scalesets/demo?withExtensions=true&withdocker=',variables('withDocker'),'&vmImagePublisher=',parameters('vmImagePublisher'))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {

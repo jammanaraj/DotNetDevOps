@@ -29,6 +29,7 @@ rm "C:/Program Files/Docker/docker.exe" -Force
 rm "C:/Program Files/Docker/dockerd.exe" -Force
 rm "C:/Program Files/Docker/metadata.json" -Force
 [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
+[Environment]::SetEnvironmentVariable("LCOW_API_PLATFORM_IF_OMITTED", "linux", "Machine")
 Install-Module DockerProvider -Force
 Install-Package Docker -ProviderName DockerProvider -RequiredVersion preview -Force
 mkdir d:/docker

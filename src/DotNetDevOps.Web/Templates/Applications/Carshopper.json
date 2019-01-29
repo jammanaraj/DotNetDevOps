@@ -1,0 +1,173 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    
+    "AzureADServicePrincipal": {
+      "type": "securestring"
+    },
+    "InstrumentationKey": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "Production"
+    },
+    "intanceCount": {
+      "type": "string",
+      "defaultValue": "-1"
+    },
+    
+    "keyVaultUri": {
+      "type": "string",
+      "defaultValue": "https://carshopper-kv.vault.azure.net/"
+    },
+    "gatewayToken": {
+      "type": "securestring"
+
+
+    },
+    "storageToken": {
+      "type": "securestring"
+    }
+  },
+  "variables": {
+    "clusterLocation": "[resourcegroup().location]",
+    "gatewayUrl": "[concat('https://',toLower(take(resourceGroup().name,23)),'.westeurope.cloudapp.azure.com')]",
+    "gatewayApplicationName": "Carshopper.GatewayApplication",
+    "gatewayPackageUrl": "[concat('https://cdn.dotnetdevops.org/sfapps/S-Innovations.ServiceFabric.GatewayApplicationType/ci/latest.sfpkg')]",
+    "identityPackageUrl": "[concat('https://carshopper.blob.core.windows.net/sfapps/Carshopper.IdentityApplicationType/ci/latest.sfpkg',uricomponent(parameters('storageToken')))]",
+    "auctionPackageUrl": "[concat('https://carshopper.blob.core.windows.net/sfapps/Carshopper.AuctionsApplicationType/ci/latest.sfpkg',uricomponent(parameters('storageToken')))]"
+  },
+  "resources": [
+    {
+      "name": "EncryptSecret",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/SInnovations.Gateway/EncryptParamter/demo?gatewayUrl=',uricomponent(variables('gatewayUrl')),'&value=',uricomponent(parameters('AzureADServicePrincipal')),'&token=',uricomponent(parameters('gatewayToken')))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+        }
+      }
+
+    },
+    {
+      "name": "GetApplications",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/SInnovations.Gateway/Applications?gatewayUrl=',uricomponent(variables('gatewayUrl')),'&token=',uricomponent(parameters('gatewayToken')))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+        }
+      }
+
+    },
+    {
+      "name": "GreateGatewayApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',variables('gatewayPackageUrl'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": { "value": "[reference('GetApplications').outputs]" },
+          "applicationName": { "value": "[variables('gatewayApplicationName')]" },
+          "applicationParameters": {
+            "value": {
+              "APPLICATION_INSIGHTS": "[parameters('InstrumentationKey')]",
+              "ASPNETCORE_ENVIRONMENT": "[parameters('environment')]",
+              "ApplicationStorageAccountId": "/subscriptions/2971309a-5ac3-49fa-a46b-cda8873d0558/resourceGroups/carshopper-core/providers/Microsoft.Storage/storageAccounts/carshopper",
+              "Azure.KeyVault.Uri": "[parameters('keyVaultUri')]",
+              "AzureADServicePrincipal": "[reference('EncryptSecret').outputs.secret.value.value]",
+              "AzureResourceManagerCertThumbrint": "[reference('EncryptSecret').outputs.secret.value.thumbprint]",
+              "GatewayProperties": "{'CloudFlareZoneId':'00b065f9f2085f39b2384e61b6811aa7'}",
+              "GatewayReverseProxyLocation": "/gateway/",
+              "GatewayServerName": "gate.carshopper.dk",
+              "GatewayService_InstanceCount": "[parameters('intanceCount')]",
+              "GatewayService_Ports_Http": "9080",
+              "GatewayService_Ports_Https": "9443",
+              "TenantId": "c3c361c5-30b3-4815-8faf-f822448c53f4",
+              "GatewayManagementService_PlacementConstraints": "((NodeTypeName==nt1vm) && (NodeName==_nt1vm_0 ||  NodeName==_nt1vm_1 || NodeName==_nt1vm_2 || NodeName==_nt1vm_3 || NodeName==_nt1vm_4))"
+            }
+          }
+
+        }
+      }
+    },
+    {
+      "name": "CreateIdentityServerApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [ "GreateGatewayApplication" ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',variables('identityPackageUrl'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": { "value": "[reference('GetApplications').outputs]" },
+          "applicationName": { "value": "Carshopper.IdentityApplication" },
+          "applicationParameters": {
+            "value": {
+              "Authority": "https://management.carshopper.dk/identity/",
+              "AzureResourceManagerCertThumbrint": "[reference('EncryptSecret').outputs.secret.value.thumbprint]",
+              "B2CApplicationId": "c21f025e-159f-4aa8-821d-18d7f145e2f9",
+              "B2CTenantId": "carshopperb2c.onmicrosoft.com",
+              "Carshopper.IdentityService_ASPNETCORE_ENVIRONMENT": "[parameters('environment')]",
+              "Carshopper.IdentityService_InstanceCount": "[parameters('intanceCount')]",
+              "GatewayApplicationName": "[variables('gatewayApplicationName')]",
+              "InstrumentationKey": "[parameters('InstrumentationKey')]",
+              "KeyVaultUri": "[parameters('keyVaultUri')]"
+            }
+          }
+
+        }
+      }
+    },
+    {
+      "name": "CreateAuctionsApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [ "CreateIdentityServerApplication" ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',variables('auctionPackageUrl'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": { "value": "[reference('GetApplications').outputs]" },
+          "applicationName": { "value": "Carshopper.AuctionsApplication" },
+          "applicationParameters": {
+            "value": {
+              "Authority": "https://management.carshopper.dk/identity/",
+              "AccessTokenExpiringNotificationTime": "60",
+              "ClientId": "Carshopper.Auctions",
+              "ResourceApiEndpoint": "https://management.carshopper.dk",
+              "Carshopper.AuctionsService_ASPNETCORE_ENVIRONMENT": "[parameters('environment')]",
+              "Carshopper.AuctionsService_InstanceCount": "[parameters('intanceCount')]",
+              "GatewayApplicationName": "[variables('gatewayApplicationName')]",
+              "InstrumentationKey": "[parameters('InstrumentationKey')]",
+              "Scope": "openid profile https://management.carshopper.dk/identity https://management.carshopper.dk/storage https://management.carshopper.dk/auctions",
+              "SecretsCertificateThumbprint": "[reference('EncryptSecret').outputs.secret.value.thumbprint]"
+            }
+          }
+
+        }
+      }
+    }
+  ]
+}

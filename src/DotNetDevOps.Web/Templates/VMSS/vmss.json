@@ -87,7 +87,7 @@
     },
     "vmImageSku": {
       "type": "string",
-      "defaultValue": "Datacenter-Core-1709-with-Containers-smalldisk",
+      "defaultValue": "Datacenter-Core-1803-with-Containers-smalldisk",
       "metadata": {
         "description": "VM image SKU"
       }
@@ -147,7 +147,6 @@
     "addressPrefix": "10.0.0.0/16",
     "subnet0Name": "Subnet-0",
     "subnet0Prefix": "10.0.0.0/24",
-    "lbIPName": "PublicIP-LB-FE",
     "vmNodeType0Name": "[toLower(concat('NT1', variables('vmName')))]",
     "lbID0": "[resourceId('Microsoft.Network/loadBalancers',concat('LB','-', parameters('clusterName'),'-',variables('vmNodeType0Name')))]",
     "lbPoolID0": "[concat(variables('lbID0'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
@@ -160,6 +159,7 @@
     "wadmetricsresourceid0": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',resourceGroup().name ,'/providers/','Microsoft.Compute/virtualMachineScaleSets/', variables('vmNodeType0Name'))]"
   },
   "resources": [
+
     {
       "apiVersion": "[variables('vmssApiVersion')]",
       "type": "Microsoft.Compute/virtualMachineScaleSets",
@@ -174,7 +174,7 @@
           "extensionProfile": {
             "extensions": [
               {
-                "initial": true,
+                "initial": false,
                 "osType": "windows",
                 "name": "[concat(variables('vmNodeType0Name'),'ServiceFabricNodeVmExt')]",
                 "properties": {
@@ -214,7 +214,7 @@
                   "settings": {
                     "clusterEndpoint": "[reference(concat('Microsoft.ServiceFabric/clusters/',parameters('clusterName')),'2017-07-01-preview').clusterEndpoint]",
                     "nodeTypeRef": "[variables('vmNodeType0Name')]",
-                    "durabilityLevel": "Bronze",
+                    "durabilityLevel": "[parameters('durabilityLevel')]",
                     "enableParallelJobs": true,
                     "nicPrefixOverride": "[variables('subnet0Prefix')]",
                     "certificate": {
@@ -226,6 +226,7 @@
                 }
               },
               {
+                "initial": true,
                 "osType": "unix",
                 "name": "[concat('VMDiagnosticsVmExt','_vmNodeType0Name')]",
                 "properties": {
@@ -245,6 +246,7 @@
                 }
               },
               {
+                "initial": true,
                 "osType": "windows",
                 "name": "[concat('VMDiagnosticsVmExt','_vmNodeType0Name')]",
                 "properties": {
@@ -335,6 +337,7 @@
               //  }
               //},
               {
+                "initial": true,
                 "osType": "windows",
                 "name": "customScript_installdocker",
                 "properties": {
@@ -353,6 +356,26 @@
                 }
               },
               {
+                "initial": true,
+                "osType": "windows",
+                "name": "customScript_dotnetcore",
+                "properties": {
+                  "publisher": "Microsoft.Compute",
+                  "settings": {
+                    "fileUris": [
+                      "{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/vmss/scripts/dotnetcore.ps1"
+                    ]
+                  },
+                  "typeHandlerVersion": "1.9",
+                  "autoUpgradeMinorVersion": true,
+                  "protectedSettings": {
+                    "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File dotnetcore.ps1 -vmAdminUsername ', parameters('adminUserName'), ' -vmAdminPassword \"', parameters('adminPassword'), '\"')]"
+                  },
+                  "type": "CustomScriptExtension"
+                }
+              },
+              {
+                "initial": true,
                 "osType": "unix",
                 "name": "customScript",
                 "properties": {
@@ -365,7 +388,7 @@
                       "{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/vmss/scripts/nginx_install.sh"
                     ],
                     "commandToExecute": "sh nginx_install.sh"
-                  }               
+                  }
                 }
               }
             ]
@@ -446,6 +469,99 @@
       "tags": {
         "resourceType": "Service Fabric",
         "clusterName": "[parameters('clusterName')]"
+      }
+    },
+    {
+      "apiVersion": "2015-01-01",
+      "type": "Microsoft.Resources/deployments",
+      "name": "updateVMSS",
+      "dependsOn": [ "[variables('vmNodeType0Name')]" ],
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "apiVersion": "[variables('vmssApiVersion')]",
+              "type": "Microsoft.Compute/virtualMachineScaleSets",
+              "name": "[variables('vmNodeType0Name')]",
+              "location": "[variables('computeLocation')]",
+              "properties": {
+                "virtualMachineProfile": {
+                  "extensionProfile": {
+                    "extensions": [
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Insights/autoscaleSettings",
+      "apiVersion": "2015-04-01",
+      "name": "Autoscale",
+      "location": "[variables('computeLocation')]",
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachineScaleSets/', variables('vmNodeType0Name'))]"
+      ],
+      "properties": {
+        "name": "Autoscale",
+        "targetResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('vmNodeType0Name'))]",
+        "enabled": true,
+        "profiles": [
+          {
+            "name": "Autoscale by percentage based on CPU usage",
+            "capacity": {
+              "minimum": "[parameters('nt0InstanceCount')]",
+              "maximum": "25",
+              "default": "[parameters('nt0InstanceCount')]"
+            },
+            "rules": [
+              {
+                "metricTrigger": {
+                  "metricName": "Percentage CPU",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('vmNodeType0Name'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT5M",
+                  "timeAggregation": "Average",
+                  "operator": "GreaterThan",
+                  "threshold": 70
+                },
+                "scaleAction": {
+                  "direction": "Increase",
+                  "type": "ChangeCount",
+                  "value": "3",
+                  "cooldown": "PT5M"
+                }
+              },
+              {
+                "metricTrigger": {
+                  "metricName": "Percentage CPU",
+                  "metricNamespace": "",
+                  "metricResourceUri": "[concat('/subscriptions/',subscription().subscriptionId, '/resourceGroups/',  resourceGroup().name, '/providers/Microsoft.Compute/virtualMachineScaleSets/', variables('vmNodeType0Name'))]",
+                  "timeGrain": "PT1M",
+                  "statistic": "Average",
+                  "timeWindow": "PT60M",
+                  "timeAggregation": "Average",
+                  "operator": "LessThan",
+                  "threshold": 20
+                },
+                "scaleAction": {
+                  "direction": "Decrease",
+                  "type": "ChangeCount",
+                  "value": "1",
+                  "cooldown": "PT5M"
+                }
+              }
+            ]
+          }
+        ]
       }
     }
   ],

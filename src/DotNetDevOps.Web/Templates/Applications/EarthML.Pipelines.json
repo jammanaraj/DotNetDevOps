@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Remote desktop user password. Must be a strong password"
+      }
+    }
+  },
+  "resources": [
+    {
+      "name": "DeploySFGateway",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/demo?withApp=true&vmImagePublisher=Canonical",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "adminPassword": { "value": "[parameters('adminPassword')]" },
+          "letsencryptSignerEmail": { "value": "info@earthml.com" },
+          "durabilityLevel": { "value": "Silver" },
+          "additionalIpAddresses": { "value": 1 }
+        }
+      }
+    },
+    {
+      "name": "DeploySB",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceBus/namespaces/demo?correlationMappings=topic:pipelines-signalr:EarthML.Pipelines.Signalr",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "serviceBusTopicName": { "value": "earthml-pipelines" }
+
+        }
+      }
+    }
+
+  ]
+}
