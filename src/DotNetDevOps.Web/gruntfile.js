@@ -64,7 +64,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask("initProject", ["npmcopy"]);
     grunt.registerTask("buildLib", ["copy:bin", "copy:lib", "copy:templates", "lessDependencis"]);
-    grunt.registerTask("packLib", ["initProject", "buildLib", "requirejs"]);
     grunt.registerTask("packwww", ["initProject", "buildLib", "copy:www"]);
 
     ;
@@ -153,86 +152,7 @@ module.exports = function (grunt) {
 
 
     grunt.initConfig({
-        requirejs: {
-            compileApp: {
-                options: {
-                    // appDir:'./',
-                    baseUrl: outputPath,
-                    mainConfigFile: 'require-config.js',// outputPath+"/src/main.js", // 'require-config.js',
-                    paths: {
-                        "oidc-client": "empty:",
-                        "stripe": "empty:",
-                        "billboardjs": "empty:",
-                        "knockout": "libs/knockout/knockout-latest", //"empty:"
-                    },
-                    dir: distPath,
-                    modules: [
-                        {
-                            name: "PimetrPortal/index",
-                            include: [],
-                            exclude: ["nprogress"]
-                        },
-                        {
-                            name: "PimetrGeobin/index",
-                            include: [],
-                            exclude: ["nprogress"]
-                        },
-                        {
-                            name: "PimetrGeobin/Layouts/LoadingLayout",
-                            include: [],
-                            exclude: ["knockout", "kolayout", "css", "PimetrGeobin/index"]
-                        },
-                        {
-                            name: "PimetrPortal/Portal/PortalLayout",
-                            include: [],
-                            exclude: ["knockout", "kolayout", "css", "PimetrPortal/index"]
-                        },
-                        {
-                            name: "PimetrPortal/Signup/LoadingLayout",
-                            include: [],
-                            exclude: ["knockout", "kolayout", "css", "PimetrPortal/index"]
-                        }
-                    ],
-                    removeCombined: true,
-                    optimize: "none",//"none",// "uglify",
-                    generateSourceMaps: false,
-                    optimizeCss: "none",// "standard.keepLines.keepWhitespace",
-                    bundlesConfigOutFile: "src/main.js",
-                    writeBuildTxt: false,
-                    onModuleBundleComplete: function (data) {
-
-                        var existing = grunt.file.exists(distPath + "/modules.json") ? grunt.file.readJSON(distPath + "/modules.json") : [];
-
-                        var found = false;
-                        for (var i = 0; i < existing.length; i++) {
-                            if (existing[i].name === data.name) {
-                                existing[i] = data;
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found) {
-                            existing.push(data);
-                        }
-
-                        grunt.file.write(distPath + "/modules.json", JSON.stringify(existing, null, 4));
-                    },
-                    //done: function (done, output) {
-
-                    //    //var duplicates = require('rjs-build-analysis').duplicates(output);
-
-                    //    //if (Object.keys(duplicates).length) {
-                    //    //    grunt.log.subhead('Duplicates found in requirejs build:');
-                    //    //    grunt.log.warn(duplicates);
-                    //    //    return done(new Error('r.js built duplicate modules, please check the excludes option.'));
-                    //    //}
-                    //    grunt.log.subhead('Duplicates found in requirejs build:');
-                    //    grunt.file.write(distPath+"/output", output);
-                    //    done();
-                    //}
-                }
-            }
-        },
+       
         copy: {
             www: {
                 files: [
