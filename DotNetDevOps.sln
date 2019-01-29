@@ -11,6 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetDevOps.Web", "src\Dot
 EndProject
 Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "DotNetDevOps.Application", "src\DotNetDevOps.Application\DotNetDevOps.Application.sfproj", "{490BBCF7-5273-4003-8D27-EA275C583A41}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D1E4B8EC-0835-41DA-B0B3-1D1B16D8AAE9}"
+	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
