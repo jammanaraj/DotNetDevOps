@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <IsServiceFabricServiceProject>True</IsServiceFabricServiceProject>
-    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
     <RootNamespace>DotNetDevOps</RootNamespace>
     <LangVersion>latest</LangVersion>
@@ -62,7 +61,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
 
-    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.1.2-ci-20190108-01-ci" />
+    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.1.2-ci-20190131-01-ci" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.2" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
