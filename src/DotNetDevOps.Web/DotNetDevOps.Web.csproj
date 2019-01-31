@@ -4,14 +4,16 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <IsServiceFabricServiceProject>True</IsServiceFabricServiceProject>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
-    <TypeScriptToolsVersion>3.0</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
     <RootNamespace>DotNetDevOps</RootNamespace>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Remove="Templates\Applications\Carshopper.json" />
+    <Content Remove="Templates\Applications\DotNetDevOps.json" />
     <Content Remove="Templates\Applications\EarthML.Pipelines.json" />
+    <Content Remove="Templates\Applications\FabricGateway.json" />
     <Content Remove="Templates\ServiceBus\bus.json" />
     <Content Remove="Templates\ServiceFabric\fabric.json" />
     <Content Remove="Templates\ServiceFabric\GenericApplication.json" />
@@ -31,6 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Templates\Applications\DotNetDevOps.json" />
+    <EmbeddedResource Include="Templates\Applications\FabricGateway.json" />
     <EmbeddedResource Include="Templates\Applications\Carshopper.json" />
     <EmbeddedResource Include="Templates\Applications\EarthML.Pipelines.json" />
     <EmbeddedResource Include="Templates\ServiceBus\bus.json">

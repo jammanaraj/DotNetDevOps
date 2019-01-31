@@ -346,7 +346,7 @@
               "frontendPort": 80,
               "idleTimeoutInMinutes": 5,
               "probe": {
-                "id": "[concat(variables('lbID0'),'/probes/AppPortProbe1')]"
+                "id": "[concat(variables('lbID0'),'/probes/AppPortProbe-0')]"
               },
               "protocol": "Tcp"
             }
@@ -365,7 +365,7 @@
               "frontendPort": 443,
               "idleTimeoutInMinutes": 5,
               "probe": {
-                "id": "[concat(variables('lbID0'),'/probes/AppPortProbe1')]"
+                "id": "[concat(variables('lbID0'),'/probes/AppPortProbe-0')]"
               },
               "protocol": "Tcp"
             }
@@ -393,7 +393,7 @@
             }
           },
           {
-            "name": "AppPortProbe1",
+            "name": "AppPortProbe-0",
             "properties": {
               "intervalInSeconds": 5,
               "numberOfProbes": 2,

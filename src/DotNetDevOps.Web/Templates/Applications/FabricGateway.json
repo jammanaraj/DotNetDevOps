@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "[toLower(take(resourceGroup().name,23))]",
+      "metadata": {
+        "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only."
+      }
+    }
+  },
+  "variables": {
+    "clusterLocation": "[resourcegroup().location]",
+    "explorerApplicationName": "ServiceFabricGateway.ExplorerApplication",
+    "explorerApplicationType": "ServiceFabricGateway.ExplorerApplicationType",
+    "gatewayApplicationName": "S-Innovations.ServiceFabric.GatewayApplication",
+    "gatewayApplicationType": "S-Innovations.ServiceFabric.GatewayApplicationType"
+  },
+  "resources": [
+    {
+      "name": "UpgradeExplorerApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [ "UpgradeGatewayApplication" ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',concat('https://cdn.dotnetdevops.org/sfapps/',variables('explorerApplicationType'),'/ci/latest.sfpkg'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": {
+            "value": "[json(concat('{\"', variables('explorerApplicationName'), reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('explorerApplicationName')),'2017-07-01-preview').typeName,reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('explorerApplicationName')),'2017-07-01-preview').typeVersion, '\":true }'))]",
+          },
+          "applicationName": { "value": "[variables('explorerApplicationName')]" },
+          "applicationParameters": {
+            "value": "[reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'), variables('explorerApplicationName')),'2017-07-01-preview').parameters]"
+          }
+
+
+        }
+      }
+    },
+    {
+      "name": "UpgradeGatewayApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',concat('https://cdn.dotnetdevops.org/sfapps/',variables('gatewayApplicationType'),'/ci/latest.sfpkg'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": {
+            "value": "[json(concat('{\"', variables('gatewayApplicationName'), reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('gatewayApplicationName')),'2017-07-01-preview').typeName,reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('gatewayApplicationName')),'2017-07-01-preview').typeVersion, '\":true }'))]",
+          },
+          "applicationName": { "value": "[variables('gatewayApplicationName')]" },
+          "applicationParameters": {
+            "value": "[reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'), variables('gatewayApplicationName')),'2017-07-01-preview').parameters]"
+          }
+
+
+        }
+      }
+    }
+  ]
+
+}

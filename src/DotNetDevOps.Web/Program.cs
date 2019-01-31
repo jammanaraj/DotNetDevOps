@@ -23,17 +23,6 @@ using Autofac;
 
 namespace DotNetDevOps.Web
 {
-    public class BrandingOptions
-    {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Image { get; set; }
-        public string Url { get; set; }
-    }
-    public class EndpointOptions
-    {
-        public string ResourceApiEndpoint { get; set; }
-    }
 
     public class Program
     {
@@ -175,10 +164,10 @@ namespace DotNetDevOps.Web
                         Ssl = new SslOptions
                         {
                             Enabled = true,
-                            SignerEmail = "info@earthml.com",
-                            UseHttp01Challenge = true
+                            SignerEmail = "info@dotnetdevops.org",
+                            UseHttp01Challenge = false
                         },
-                        Properties = new Dictionary<string, object> { { "www301", true }, { "cf-real-ip", true } },
+                        Properties = new Dictionary<string, object> { ["www301"]= true , ["cf-real-ip"]= true ,["CloudFlareZoneId"]="93ff89ba4caa7ea02c70d27ca9fd9e2e" },
                     },
                     AdditionalGateways = new[]
                     {
@@ -189,10 +178,10 @@ namespace DotNetDevOps.Web
                         Ssl = new SslOptions
                         {
                             Enabled = true,
-                            SignerEmail = "info@earthml.com",
-                            UseHttp01Challenge = true
+                            SignerEmail = "info@dotnetdevops.org",
+                            UseHttp01Challenge = false
                         },
-                        Properties = new Dictionary<string, object> {   { "cf-real-ip", true } },
+                        Properties = new Dictionary<string, object> {  ["cf-real-ip"]= true ,["CloudFlareZoneId"]="93ff89ba4caa7ea02c70d27ca9fd9e2e"  },
                     },
                     }
                 });

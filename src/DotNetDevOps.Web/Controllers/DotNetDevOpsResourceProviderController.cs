@@ -280,13 +280,17 @@ namespace DotNetDevOps.Web
 
 
 
+                  
+
+
+
 
                     lbDepsn.Add($"[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','{i}'))]");
 
 
                     frontendIPConfigurations.Add(JToken.FromObject(new
                     {
-                        name = "LoadBalancerIPConfig" + i,
+                        name = "LoadBalancerIPConfig-" + i,
                         properties = new
                         {
                             publicIPAddress = new
@@ -295,6 +299,31 @@ namespace DotNetDevOps.Web
                             }
                         }
                     }));
+
+
+                    var gatewayhttp = lb.SelectToken("$.properties.loadBalancingRules[?(@.name == 'GatewayHttp')]").DeepClone();
+                    gatewayhttp.SelectToken("$.name").Replace($"Gateway{i}Http");
+                    gatewayhttp.SelectToken("$.properties.backendPort").Replace(8080 + i * 1000);
+                    gatewayhttp.SelectToken("$.properties.frontendIPConfiguration.id").Replace($"[concat(variables('lbID0'),'/frontendIPConfigurations/LoadBalancerIPConfig-{i}')]");
+                    gatewayhttp.SelectToken("$.properties.probe.id").Replace($"[concat(variables('lbID0'),'/probes/AppPortProbe-{i}')]");
+                    (lb.SelectToken("$.properties.loadBalancingRules") as JArray).Add(gatewayhttp);
+
+                   
+
+                    var gatewayhttps = lb.SelectToken("$.properties.loadBalancingRules[?(@.name == 'GatewayHttps')]").DeepClone();
+                    gatewayhttps.SelectToken("$.name").Replace($"Gateway{i}Https");
+                    gatewayhttps.SelectToken("$.properties.backendPort").Replace(8443 + i * 1000);
+                    gatewayhttps.SelectToken("$.properties.frontendIPConfiguration.id").Replace($"[concat(variables('lbID0'),'/frontendIPConfigurations/LoadBalancerIPConfig-{i}')]");
+                    gatewayhttps.SelectToken("$.properties.probe.id").Replace($"[concat(variables('lbID0'),'/probes/AppPortProbe-{i}')]");
+                    (lb.SelectToken("$.properties.loadBalancingRules") as JArray).Add(gatewayhttps);
+
+
+                    var AppPortProbe = lb.SelectToken("$.properties.probes[?(@.name=='AppPortProbe-0')]").DeepClone();
+                    AppPortProbe.SelectToken("$.name").Replace($"AppPortProbe-{i}");
+                    AppPortProbe.SelectToken("$.properties.port").Replace(8080 + i * 1000);
+
+                    (lb.SelectToken("$.properties.probes") as JArray).Add(AppPortProbe);
+
 
                 }
             }

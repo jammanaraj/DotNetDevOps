@@ -1,0 +1,83 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "[toLower(take(resourceGroup().name,23))]",
+      "metadata": {
+        "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only."
+      }
+    },
+    "gatewayToken": {
+      "type": "securestring"
+
+
+    },
+    "cloudflareApiSecret": {
+
+      "type": "securestring"
+    },
+    "cloudflareSecretValue": {
+
+      "type": "securestring"
+    },
+    "keyVaultName": { "type": "string" }
+  },
+  "variables": {
+    "clusterLocation": "[resourcegroup().location]",
+    "gatewayUrl": "[concat('https://',toLower(take(resourceGroup().name,23)),'.westeurope.cloudapp.azure.com')]",
+    "dotnetdevopsApplicationType": "DotNETDevOps.ApplicationType",
+    "dotnetdevopsPackageUrl": "[concat('https://cdn.dotnetdevops.org/sfapps/',variables('dotnetdevopsApplicationType'),'/ci/latest.sfpkg')]",
+    "cloudflareSecretName": "CloudFlare",
+    
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2015-06-01",
+      "name": "[concat(parameters('keyVaultName'), '/', variables('cloudflareSecretName'))]",
+      "properties": {
+        "value": "[parameters('cloudflareSecretValue')]"
+      }
+    },
+    {
+      "name": "GetApplications",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/SInnovations.Gateway/Applications?gatewayUrl=',uricomponent(variables('gatewayUrl')),'&token=',uricomponent(parameters('gatewayToken')))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+        }
+      }
+
+    },
+    {
+      "name": "CreateIdentityServerApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',variables('dotnetdevopsPackageUrl'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": { "value": "[reference('GetApplications').outputs]" },
+          "applicationName": { "value": "Carshopper.IdentityApplication" },
+          "applicationParameters": {
+            "value": {
+
+            }
+          }
+
+        }
+      }
+    }
+  ]
+
+}
