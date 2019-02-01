@@ -14,5 +14,11 @@
       <EnvironmentVariable Name="ASPNETCORE_ENVIRONMENT" Value="[ASPNETCORE_ENVIRONMENT]" />
     </EnvironmentOverrides>
   </ServiceManifestImport>
-  <DefaultServices />
+  <DefaultServices>
+    <Service Name="DotNETDevOps.Service">
+      <StatelessService ServiceTypeName="DotNETDevOps.Web.ServiceType" InstanceCount="[DotNETDevOps.ServiceType_InstanceCount]">
+        <SingletonPartition />
+      </StatelessService>
+    </Service>
+  </DefaultServices>
 </ApplicationManifest>

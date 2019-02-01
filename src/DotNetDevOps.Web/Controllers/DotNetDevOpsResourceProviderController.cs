@@ -71,7 +71,7 @@ namespace DotNetDevOps.Web
             return Ok(template);
         }
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo/parameters")]
-        public async Task<IActionResult> GetCertificateParameters([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName)
+        public IActionResult GetCertificateParameters([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName)
         {
             var password = "";
 

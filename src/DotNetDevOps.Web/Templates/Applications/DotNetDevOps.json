@@ -68,7 +68,7 @@
         },
         "parameters": {
           "applications": { "value": "[reference('GetApplications').outputs]" },
-          "applicationName": { "value": "DotNETDevOps" },
+          "applicationName": { "value": "DotNETDevOpsApplication" },
           "applicationParameters": {
             "value": {
 
