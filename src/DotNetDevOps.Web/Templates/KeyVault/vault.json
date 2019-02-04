@@ -59,13 +59,6 @@
       "metadata": {
         "description": "Specifies whether Azure Resource Manager is permitted to retrieve secrets from the key vault."
       }
-    },
-    "objectId": {
-      "type": "string",
-      "defaultValue": "5916b848-b369-415e-a3cc-85216a59cc00",
-      "metadata": {
-        "description": "Object Id of the AAD user or service principal that will have access to the vault. Available from the Get-AzureRMADUser or the Get-AzureRMADServicePrincipal cmdlets"
-      }
     }
   },
   "resources": [

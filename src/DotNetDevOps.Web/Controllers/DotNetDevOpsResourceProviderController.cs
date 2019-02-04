@@ -7,6 +7,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
@@ -70,15 +72,125 @@ namespace DotNetDevOps.Web
 
             return Ok(template);
         }
+
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/ACI/commands/certificate")]
+        public async  Task<IActionResult> ACICommand([FromServices] IOptions<EndpointOptions> endpoints,string keyVaultName, string secretName)
+        {
+
+            var template = await LoadTemplateAsync(endpoints.Value, "ACI.ContainerInstanceCommand.json");
+
+            if (!string.IsNullOrEmpty(keyVaultName))
+            {
+                template.SelectToken("$.parameters.keyVaultName")["defaultValue"] = keyVaultName;
+            }
+            if (!string.IsNullOrEmpty(secretName))
+            {
+                template.SelectToken("$.parameters.secretName")["defaultValue"] = secretName;
+            }
+
+            return Ok(template);
+
+        }
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/retrieveCertificate")]
+        public async Task<IActionResult> retrieveCertificate([FromServices] IOptions<EndpointOptions> endpoints)
+        {
+
+            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.retrieveCertificate.json");
+            return Ok(template);
+
+        }
+        private static ConcurrentDictionary<string, DateTimeOffset> _delays = new ConcurrentDictionary<string, DateTimeOffset>();
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/ManagedIdentity/roleAssignments")]
+        public async Task<IActionResult> DoRoleAssignment([FromServices] IOptions<EndpointOptions> endpoints, string id)
+        {
+            var delayUntil = _delays.GetOrAdd(id, DateTimeOffset.UtcNow.AddSeconds(30));
+
+            await Task.Delay(delayUntil.Subtract(DateTimeOffset.UtcNow));
+            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.roleAssignments.json");
+            return Ok(template);
+
+        }
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/retrieveAndParseCertificate")]
+        public async Task<IActionResult> retrieveAndParseCertificate([FromServices] IOptions<EndpointOptions> endpoints, string id)
+        {
+            var delayUntil = _delays.GetOrAdd(id, DateTimeOffset.UtcNow.AddSeconds(60));
+
+            await Task.Delay(delayUntil.Subtract(DateTimeOffset.UtcNow));
+            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.retrieveAndParseCertificate.json");
+            return Ok(template);
+
+        }
+
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/parseCertificate")]
+        public async Task<IActionResult> parseCertificate([FromServices] IOptions<EndpointOptions> endpoints, string certificate)
+        {
+
+            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.parseCertificate.json");
+
+
+            return Ok(template);
+
+        }
+        private X509Certificate2 buildSelfSignedServerCertificate(string CertificateName,string password)
+        {
+            SubjectAlternativeNameBuilder sanBuilder = new SubjectAlternativeNameBuilder();
+            sanBuilder.AddIpAddress(IPAddress.Loopback);
+            sanBuilder.AddIpAddress(IPAddress.IPv6Loopback);
+            sanBuilder.AddDnsName("localhost");
+            sanBuilder.AddDnsName(Environment.MachineName);
+
+            X500DistinguishedName distinguishedName = new X500DistinguishedName($"CN={CertificateName}");
+
+            using (RSA rsa = RSA.Create(2048*2))
+            {
+                var request = new CertificateRequest(distinguishedName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+
+                request.CertificateExtensions.Add(
+                    new X509KeyUsageExtension(X509KeyUsageFlags.DataEncipherment | X509KeyUsageFlags.KeyEncipherment | X509KeyUsageFlags.DigitalSignature, false));
+
+
+                request.CertificateExtensions.Add(
+                   new X509EnhancedKeyUsageExtension(
+                       new OidCollection { new Oid("1.3.6.1.5.5.7.3.1") }, false));
+
+                request.CertificateExtensions.Add(sanBuilder.Build());
+
+                var certificate = request.CreateSelfSigned(new DateTimeOffset(DateTime.UtcNow.AddDays(-1)), new DateTimeOffset(DateTime.UtcNow.AddDays(3650)));
+                certificate.FriendlyName = CertificateName;
+                return certificate;
+               // return new X509Certificate2(certificate.Export(X509ContentType.Pfx, password), password, X509KeyStorageFlags.MachineKeySet);
+            }
+        }
+
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo/parameters")]
         public IActionResult GetCertificateParameters([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName)
         {
             var password = "";
+            X509Certificate2 x509Certificate = null;
 
-            var cert = Certificate.CreateSelfSignCertificatePfx($"CN={keyVaultName}", DateTime.UtcNow, DateTime.UtcNow.AddYears(1), password);
+           
 
-            var x509Certificate = new X509Certificate2(cert, password, X509KeyStorageFlags.Exportable);
-            Console.WriteLine($"Certificate {x509Certificate.Issuer} created with thumbprint {x509Certificate.Thumbprint}");
+           // bool isWindows = System.Runtime.InteropServices.RuntimeInformation
+                                //               .IsOSPlatform(OSPlatform.Windows);
+            //if (isWindows)
+            //{
+            //    var cert = Certificate.CreateSelfSignCertificatePfx($"CN={keyVaultName}", DateTime.UtcNow, DateTime.UtcNow.AddYears(1), password);
+            //    x509Certificate = new X509Certificate2(cert, password, X509KeyStorageFlags.Exportable);
+            //    Console.WriteLine($"Certificate {x509Certificate.Issuer} created with thumbprint {x509Certificate.Thumbprint}");
+
+            //}
+            //else
+            {
+                x509Certificate = buildSelfSignedServerCertificate(keyVaultName,password);
+                Console.WriteLine($"UNIX:Certificate {x509Certificate.Issuer} created with thumbprint {x509Certificate.Thumbprint}");
+
+            }
+
 
 
 

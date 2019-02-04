@@ -164,7 +164,7 @@ namespace DotNetDevOps.Web
                         Ssl = new SslOptions
                         {
                             Enabled = true,
-                            SignerEmail = "info@kjeldager.com",
+                            SignerEmail = "info@dotnetdevops.org",
                             UseHttp01Challenge = false
                         },
                         Properties = new Dictionary<string, object> { ["www301"]= true , ["cf-real-ip"]= true ,["CloudFlareZoneId"]="93ff89ba4caa7ea02c70d27ca9fd9e2e" },
@@ -178,7 +178,7 @@ namespace DotNetDevOps.Web
                         Ssl = new SslOptions
                         {
                             Enabled = true,
-                            SignerEmail = "info@kjeldager.com",
+                            SignerEmail = "info@dotnetdevops.org",
                             UseHttp01Challenge = false
                         },
                         Properties = new Dictionary<string, object> {  ["cf-real-ip"]= true ,["CloudFlareZoneId"]="93ff89ba4caa7ea02c70d27ca9fd9e2e"  },

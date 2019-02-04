@@ -91,6 +91,21 @@
         }
       }
     },
+    //{
+    //  "name": "CreateCertificate",
+    //  "type": "Microsoft.Resources/deployments",
+    //  "apiVersion": "2016-09-01",
+    //  "properties": {
+    //    "mode": "Incremental",
+    //    "templateLink": {
+    //      "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ACI/commands/certificate?secretName=test&keyVaultName=',reference('DeployKeyvault').outputs.keyVaultName.value)]",
+    //      "contentVersion": "1.0.0.0"
+    //    },
+    //    "parameters": {
+
+    //    }
+    //  }
+    //},
     {
       "name": "CreateServiceFabricCluster",
       "type": "Microsoft.Resources/deployments",

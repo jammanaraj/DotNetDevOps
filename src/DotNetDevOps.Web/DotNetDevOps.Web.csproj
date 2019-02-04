@@ -9,10 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Templates\ACI\ContainerInstanceCommand.json" />
     <Content Remove="Templates\Applications\Carshopper.json" />
     <Content Remove="Templates\Applications\DotNetDevOps.json" />
     <Content Remove="Templates\Applications\EarthML.Pipelines.json" />
     <Content Remove="Templates\Applications\FabricGateway.json" />
+    <Content Remove="Templates\KeyVault\parseCertificate.json" />
+    <Content Remove="Templates\KeyVault\retrieveAndParseCertificate.json" />
+    <Content Remove="Templates\KeyVault\retrieveCertificate.json" />
+    <Content Remove="Templates\KeyVault\roleAssignments.json" />
     <Content Remove="Templates\ServiceBus\bus.json" />
     <Content Remove="Templates\ServiceFabric\fabric.json" />
     <Content Remove="Templates\ServiceFabric\GenericApplication.json" />
@@ -32,10 +37,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Templates\ACI\ContainerInstanceCommand.json" />
     <EmbeddedResource Include="Templates\Applications\DotNetDevOps.json" />
     <EmbeddedResource Include="Templates\Applications\FabricGateway.json" />
     <EmbeddedResource Include="Templates\Applications\Carshopper.json" />
     <EmbeddedResource Include="Templates\Applications\EarthML.Pipelines.json" />
+    <EmbeddedResource Include="Templates\KeyVault\retrieveAndParseCertificate.json" />
+    <EmbeddedResource Include="Templates\KeyVault\roleAssignments.json" />
+    <EmbeddedResource Include="Templates\KeyVault\parseCertificate.json" />
+    <EmbeddedResource Include="Templates\KeyVault\retrieveCertificate.json" />
     <EmbeddedResource Include="Templates\ServiceBus\bus.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -61,7 +71,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
 
-    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.1.2-ci-20190131-03-ci" />
+    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.1.2-ci-20190202-01-ci" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.2" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
