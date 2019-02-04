@@ -73,7 +73,7 @@ namespace DotNetDevOps.Web
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
 
-            var host = new FabricHostBuilder()
+            var builder = new FabricHostBuilder()
               //Add fabric configuration provider
               .ConfigureAppConfiguration((context, configurationBuilder) =>
               {
@@ -104,15 +104,15 @@ namespace DotNetDevOps.Web
             if (args.Contains("--serviceFabric"))
             {
                 // config.AddServiceFabricConfig("Config"); // Add Service Fabric configuration settings.
-                await RunFabric(host);
+                await RunFabric(builder);
             }
             else
             {
-                await RunIis(host);
+                await RunIis(builder);
             }
         }
 
-        private static async Task RunIis(IHostBuilder container)
+        private static async Task RunIis(IHostBuilder builder)
         {
             Log.Logger = new LoggerConfiguration()
              .MinimumLevel.Debug()
@@ -121,7 +121,7 @@ namespace DotNetDevOps.Web
              .WriteTo.Console()
              .CreateLogger();
 
-            var app = container.Build();
+            var app = builder.Build();
 
             var host = new WebHostBuilder()
               .UseKestrel()
@@ -151,10 +151,10 @@ namespace DotNetDevOps.Web
             await app.StopAsync();
         }
 
-        private static async Task RunFabric(IHostBuilder container)
+        private static async Task RunFabric(IHostBuilder builder)
         {
 
-            container.WithKestrelHosting<Startup>("DotNETDevOps.Web.ServiceType",
+            builder.WithKestrelHosting<Startup>("DotNETDevOps.Web.ServiceType",
                 new KestrelHostingServiceOptions
                 {
                     GatewayOptions = new GatewayOptions
@@ -187,7 +187,7 @@ namespace DotNetDevOps.Web
                     }
                 });
 
-            await container.Build().RunAsync();
+            await builder.Build().RunAsync();
         }
     }
 }
