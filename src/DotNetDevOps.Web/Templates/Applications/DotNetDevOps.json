@@ -9,11 +9,7 @@
         "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only."
       }
     },
-    "gatewayToken": {
-      "type": "securestring"
-
-
-    },
+    "upgrade": {"type": "bool", "defaultValue": true},
     "cloudflareSecretValue": {
 
       "type": "securestring",
@@ -29,7 +25,8 @@
     "gatewayUrl": "[concat('https://',toLower(take(resourceGroup().name,23)),'.westeurope.cloudapp.azure.com')]",
     "dotnetdevopsApplicationType": "DotNETDevOps.ApplicationType",
     "dotnetdevopsPackageUrl": "[concat('https://cdn.dotnetdevops.org/sfapps/',variables('dotnetdevopsApplicationType'),'/ci/latest.sfpkg')]",
-    "cloudflareSecretName": "CloudFlare"    
+    "cloudflareSecretName": "CloudFlare",
+    "applicationName": "DotNETDevOps.Application"
   },
   "resources": [
     {
@@ -57,21 +54,21 @@
         "value": "[parameters('cloudflareSecretValue')]"
       }
     },
-    {
-      "name": "GetApplications",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2016-09-01",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/SInnovations.Gateway/Applications?gatewayUrl=',uricomponent(variables('gatewayUrl')),'&token=',uricomponent(parameters('gatewayToken')))]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-        }
-      }
+    //{
+    //  "name": "GetApplications",
+    //  "type": "Microsoft.Resources/deployments",
+    //  "apiVersion": "2016-09-01",
+    //  "properties": {
+    //    "mode": "Incremental",
+    //    "templateLink": {
+    //      "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/SInnovations.Gateway/Applications?gatewayUrl=',uricomponent(variables('gatewayUrl')),'&token=',uricomponent(parameters('gatewayToken')))]",
+    //      "contentVersion": "1.0.0.0"
+    //    },
+    //    "parameters": {
+    //    }
+    //  }
 
-    },
+    //},
     {
       "name": "CreateDotNETDevOpsApplication",
       "type": "Microsoft.Resources/deployments",
@@ -83,8 +80,11 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "applications": { "value": "[reference('GetApplications').outputs]" },
-          "applicationName": { "value": "DotNETDevOps.Application" },
+          //  "applications": { "value": "[reference('GetApplications').outputs]" },
+          "applications": {
+            "value": "[if(parameters('upgrade'),json(concat('{\"', variables('applicationName'), reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('applicationName')),'2017-07-01-preview').typeName,reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('applicationName')),'2017-07-01-preview').typeVersion, '\":true }')),json('{}'))]"
+          },
+          "applicationName": { "value": "[variables('applicationName')]" },
           "applicationParameters": {
             "value": {
 
