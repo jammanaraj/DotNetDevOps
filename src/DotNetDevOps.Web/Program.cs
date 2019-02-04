@@ -91,6 +91,7 @@ namespace DotNetDevOps.Web
                 .ConfigureSerilogging((context, logConfig) =>
                     logConfig.MinimumLevel.Information()
                     .Enrich.FromLogContext()
+                    .WriteTo.File("trace.log", retainedFileCountLimit: 5, fileSizeLimitBytes: 1024 * 1024 * 10)
                     .WriteTo.LiterateConsole(outputTemplate: LiterateLogTemplate)
                 )
                 .ConfigureApplicationInsights()
