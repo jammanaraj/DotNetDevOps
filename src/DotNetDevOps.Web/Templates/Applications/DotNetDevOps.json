@@ -33,6 +33,22 @@
   },
   "resources": [
     {
+      "name": "UpgradeGateway",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/FabricGateway')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+
+
+        }
+      }
+    },
+    {
       "condition": "[not(empty(parameters('cloudflareSecretValue')))]",
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2015-06-01",
