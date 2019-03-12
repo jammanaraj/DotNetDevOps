@@ -71,7 +71,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
 
-    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.1.2-ci-20190204-03-ci" />
+    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.2.0-ci-20190312-01-ci" />
 
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />

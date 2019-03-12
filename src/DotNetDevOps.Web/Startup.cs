@@ -13,11 +13,10 @@ namespace DotNetDevOps.Web
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-
-
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest); 
             services.AddHsts(o => { o.IncludeSubDomains = false; o.Preload = true; });
             services.AddHttpsRedirection(o => { });
+
 
         }
  
@@ -30,8 +29,7 @@ namespace DotNetDevOps.Web
             {
                 app.UseDeveloperExceptionPage();
             }
-            // app.UseHttpsRedirection();
-            //app.UseHsts();
+           
 
             app.UseStaticFiles();
 

@@ -73,7 +73,7 @@ namespace DotNetDevOps.Web
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
 
-            var builder = new FabricHostBuilder()
+            var builder = new FabricHostBuilder(args)
               //Add fabric configuration provider
               .ConfigureAppConfiguration((context, configurationBuilder) =>
               {
@@ -87,6 +87,12 @@ namespace DotNetDevOps.Web
                   {
                       configurationBuilder.AddServiceFabricConfig("Config");
                   }
+              }).ConfigureServices((context, services) =>
+              {
+
+                  services.WithKestrelHosting<Startup>(Constants.DotNETDevOpsServiceType, Factory);
+
+
               })
                 .ConfigureSerilogging((context, logConfig) =>
                     logConfig.MinimumLevel.Information()
@@ -99,78 +105,29 @@ namespace DotNetDevOps.Web
                 .Configure<EndpointOptions>("Endpoints");
 
 
+            await builder.RunConsoleAsync();
 
-
-            if (args.Contains("--serviceFabric"))
-            {
-                // config.AddServiceFabricConfig("Config"); // Add Service Fabric configuration settings.
-                await RunFabric(builder);
-            }
-            else
-            {
-                await RunIis(builder);
-            }
+           
         }
 
-        private static async Task RunIis(IHostBuilder builder)
+        private static KestrelHostingServiceOptions Factory(IComponentContext arg)
         {
-            Log.Logger = new LoggerConfiguration()
-             .MinimumLevel.Debug()
-             .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-             .Enrich.FromLogContext()
-             .WriteTo.Console()
-             .CreateLogger();
-
-            var app = builder.Build();
-
-            var host = new WebHostBuilder()
-              .UseKestrel()
-              .ConfigureServices((context, services) =>
-              {
-
-                  services.AddSingleton(app.Services.GetService<ILifetimeScope>().BeginLifetimeScope());
-                  services.AddSingleton(sp => sp.GetRequiredService<ILifetimeScope>().Resolve<IServiceProviderFactory<IServiceCollection>>());
-              })
-              .UseContentRoot(Directory.GetCurrentDirectory())
-              .UseWebRoot("artifacts/app")
-              .ConfigureLogging(logbuilder =>
-              {
-
-                  logbuilder.AddSerilog();
-              })
-              .UseIISIntegration()
-              .UseStartup<Startup>()
-              .UseApplicationInsights()
-              .Build();
-
-
-            await app.StartAsync();
-
-            await host.RunAsync();
-
-            await app.StopAsync();
-        }
-
-        private static async Task RunFabric(IHostBuilder builder)
-        {
-
-            builder.WithKestrelHosting<Startup>("DotNETDevOps.Web.ServiceType",
-                new KestrelHostingServiceOptions
+            return new KestrelHostingServiceOptions
+            {
+                GatewayOptions = new GatewayOptions
                 {
-                    GatewayOptions = new GatewayOptions
+                    Key = Constants.DotNETDevOpsServiceType,
+                    ServerName = "www.dotnetdevops.org",
+                    ReverseProxyLocation = "/",
+                    Ssl = new SslOptions
                     {
-                        Key = "DotNETDevOps.Web.ServiceType",
-                        ServerName = "www.dotnetdevops.org",
-                        ReverseProxyLocation = "/",
-                        Ssl = new SslOptions
-                        {
-                            Enabled = true,
-                            SignerEmail = "info@dotnetdevops.org",
-                            UseHttp01Challenge = false
-                        },
-                        Properties = new Dictionary<string, object> { ["www301"]= true , ["cf-real-ip"]= true ,["CloudFlareZoneId"]="93ff89ba4caa7ea02c70d27ca9fd9e2e" },
+                        Enabled = true,
+                        SignerEmail = "info@dotnetdevops.org",
+                        UseHttp01Challenge = false
                     },
-                    AdditionalGateways = new[]
+                    Properties = new Dictionary<string, object> { ["www301"] = true, ["cf-real-ip"] = true, ["CloudFlareZoneId"] = "93ff89ba4caa7ea02c70d27ca9fd9e2e" },
+                },
+                AdditionalGateways = new[]
                     {
                         new GatewayOptions{
                         Key = "DotNETDevOps.ServiceProvider",
@@ -185,9 +142,10 @@ namespace DotNetDevOps.Web
                         Properties = new Dictionary<string, object> {  ["cf-real-ip"]= true ,["CloudFlareZoneId"]="93ff89ba4caa7ea02c70d27ca9fd9e2e"  },
                     },
                     }
-                });
+            };
 
-            await builder.Build().RunAsync();
         }
+ 
+    
     }
 }
