@@ -8,8 +8,9 @@ function npmcopy(grunt) {
 
     for (var key in data) {
         var copy = [];
+        var packageName = null;
         if (typeof data[key] === "string") {
-            var packageName = data[key].split('/')[0];
+            packageName = data[key].split('/')[0];
             if (packageName[0] === "@")
                 packageName += "/" + data[key].split('/')[1];
 
@@ -19,7 +20,7 @@ function npmcopy(grunt) {
         } else {
             for (var i in data[key]) {
 
-                var packageName = data[key][i].split('/')[0];
+                packageName = data[key][i].split('/')[0];
                 if (packageName[0] === "@")
                     packageName += "/" + data[key][i].split('/')[1];
 
