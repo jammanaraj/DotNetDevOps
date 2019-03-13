@@ -156,7 +156,7 @@
     "lbApiVersion": "2015-06-15",
     "vNetApiVersion": "2015-06-15",
     "storageApiVersion": "2016-01-01",
-    "publicIPApiVersion": "2015-06-15",
+    "publicIPApiVersion": "2016-03-30",
     "applicationDiagnosticsStorageAccountName": "[toLower(concat(uniqueString(resourceGroup().id), '3' ))]",
     "supportLogStorageAccountName": "[toLower( concat( uniqueString(resourceGroup().id),'2'))]",
     "backendNatPort": 3389,
@@ -252,29 +252,29 @@
         "clusterName": "[parameters('clusterName')]"
       }
     },
-    {
-      "apiVersion": "[variables('publicIPApiVersion')]",
-      "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat(variables('lbIPName'),'-','0')]",
-      "location": "[variables('computeLocation')]",
-      "properties": {
-        "dnsSettings": {
-          "domainNameLabel": "[variables('dnsName')]"
-        },
-        "publicIPAllocationMethod": "Dynamic"
-      },
-      "tags": {
-        "resourceType": "Service Fabric",
-        "clusterName": "[parameters('clusterName')]"
-      }
-    },
+    //{
+    //  "apiVersion": "[variables('publicIPApiVersion')]",
+    //  "type": "Microsoft.Network/publicIPAddresses",
+    //  "name": "[concat(variables('lbIPName'),'-','0')]",
+    //  "location": "[variables('computeLocation')]",
+    //  "properties": {
+    //    "dnsSettings": {
+    //      "domainNameLabel": "[variables('dnsName')]"
+    //    },
+    //    "publicIPAllocationMethod": "Dynamic"
+    //  },
+    //  "tags": {
+    //    "resourceType": "Service Fabric",
+    //    "clusterName": "[parameters('clusterName')]"
+    //  }
+    //},
     {
       "apiVersion": "[variables('lbApiVersion')]",
       "type": "Microsoft.Network/loadBalancers",
       "name": "[concat('LB','-', parameters('clusterName'),'-',variables('vmNodeType0Name'))]",
       "location": "[variables('computeLocation')]",
       "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','0'))]"
+      //  "[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','0'))]"
       ],
       "properties": {
         "frontendIPConfigurations": [
@@ -546,13 +546,26 @@
 
 
             ]
+          },
+          {
+            "name": "EventStoreService",
+            "parameters": [
+              {
+                "name": "TargetReplicaSetSize",
+                "value": "3"
+              },
+              {
+                "name": "MinReplicaSetSize",
+                "value": "1"
+              }
+            ]
           }
         ],
         "addonFeatures": [
           "DnsService",
           "RepairManager"
         ],
-        "managementEndpoint": "[concat('https://',reference(concat(variables('lbIPName'),'-','0')).dnsSettings.fqdn,':',variables('nt0fabricHttpGatewayPort'))]",
+        "managementEndpoint": "[concat('https://',reference(concat('Microsoft.Network/publicIPAddresses/',variables('lbIPName'),'-','0'),variables('publicIPApiVersion')).dnsSettings.fqdn,':',variables('nt0fabricHttpGatewayPort'))]",
         "nodeTypes": [
           {
             "name": "[variables('vmNodeType0Name')]",
@@ -587,7 +600,7 @@
   "outputs": {
     "fqdn": {
       "type": "string",
-      "value": "[reference(concat(variables('lbIPName'),'-','0')).dnsSettings.fqdn]"
+      "value": "[reference(concat('Microsoft.Network/publicIPAddresses/',variables('lbIPName'),'-','0'),variables('publicIPApiVersion')).dnsSettings.fqdn]"
     },
     "applicationStorageName": {
       "type": "string",

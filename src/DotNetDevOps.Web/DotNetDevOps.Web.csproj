@@ -21,6 +21,7 @@
     <Content Remove="Templates\ServiceBus\bus.json" />
     <Content Remove="Templates\ServiceFabric\fabric.json" />
     <Content Remove="Templates\ServiceFabric\GenericApplication.json" />
+    <Content Remove="Templates\ServiceFabric\ipaddresses.json" />
     <Content Remove="Templates\ServiceFabric\msi.json" />
     <Content Remove="Templates\ServiceFabric\root.json" />
     <Content Remove="Templates\ServiceFabric\secret.json" />
@@ -51,6 +52,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Templates\ServiceFabric\app.json" />
     <EmbeddedResource Include="Templates\ServiceFabric\GenericApplication.json" />
+    <EmbeddedResource Include="Templates\ServiceFabric\ipaddresses.json" />
     <EmbeddedResource Include="Templates\SInnovations.Gateway\Applications.json" />
     <EmbeddedResource Include="Templates\SInnovations.Gateway\EncryptParameter.json" />
     <EmbeddedResource Include="Templates\VMSS\dotnetcore.ps1" />

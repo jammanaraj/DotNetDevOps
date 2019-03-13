@@ -52,7 +52,7 @@
     "durabilityLevel": {
       "type": "string",
       "defaultValue": "Bronze",
-      "allowedValues": [ "Gold","Silver","Bronze" ],
+      "allowedValues": [ "Gold", "Silver", "Bronze" ],
       "metadata": {
         "description": "The durability level"
       }
@@ -76,6 +76,19 @@
       }
     },
     {
+      "name": "DeployIpAddresses",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/IpAddresses?additionalIpAddresses=',parameters('additionalIpAddresses'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {}
+      }
+    },
+    {
       "name": "CreateCertificate",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2016-09-01",
@@ -86,7 +99,7 @@
           "contentVersion": "1.0.0.0"
         },
         "parametersLink": {
-          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo/parameters?secretName=test&keyVaultName=',reference('DeployKeyvault').outputs.keyVaultName.value)]",
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo/parameters?secretName=test&keyVaultName=',reference('DeployKeyvault').outputs.keyVaultName.value,'&dns=',reference('DeployIpAddresses').outputs.dns.value)]",
           "contentVersion": "1.0.0.0"
         }
       }

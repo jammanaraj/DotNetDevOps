@@ -1,0 +1,50 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "[toLower(take(resourceGroup().name,23))]",
+      "metadata": {
+        "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only"
+      }
+    },
+    "clusterLocation": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location of the Cluster"
+      }
+    }
+  },
+  "variables": {
+    "lbIPName": "PublicIP-LB-FE",
+    "computeLocation": "[parameters('clusterLocation')]",
+    "dnsName": "[toLower(take(resourceGroup().name,63))]",
+    "publicIPApiVersion": "2015-06-15"
+  },
+  "resources": [
+    {
+      "apiVersion": "[variables('publicIPApiVersion')]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[concat(variables('lbIPName'),'-','0')]",
+      "location": "[variables('computeLocation')]",
+      "properties": {
+        "dnsSettings": {
+          "domainNameLabel": "[variables('dnsName')]"
+        },
+        "publicIPAllocationMethod": "Dynamic"
+      },
+      "tags": {
+        "resourceType": "Service Fabric",
+        "clusterName": "[parameters('clusterName')]"
+      }
+    }
+  ],
+  "outputs": {
+    "dns": {
+      "type": "string",
+      "value": "[reference(concat(variables('lbIPName'),'-','0')).dnsSettings.fqdn]"
+    }
+  }
+}

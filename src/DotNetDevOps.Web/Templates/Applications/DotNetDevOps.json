@@ -25,7 +25,7 @@
     "gatewayUrl": "[concat('https://',toLower(take(resourceGroup().name,23)),'.westeurope.cloudapp.azure.com')]",
     "dotnetdevopsApplicationType": "DotNETDevOps.ApplicationType",
     "dotnetdevopsPackageUrl": "[concat('https://cdn.dotnetdevops.org/sfapps/',variables('dotnetdevopsApplicationType'),'/ci/latest.sfpkg')]",
-    "cloudflareSecretName": "CloudFlare",
+    "cloudflareSecretName": "CloudFlare-93ff89ba4caa7ea02c70d27ca9fd9e2e",
     "applicationName": "DotNETDevOps.Application"
   },
   "resources": [

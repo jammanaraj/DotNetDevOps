@@ -89,7 +89,8 @@ namespace DotNetDevOps.Web
                   }
               }).ConfigureServices((context, services) =>
               {
-
+                  services.Configure<KestrelStatelessServiceHostOptions>(o=> { o.UseWebRoot = context.HostingEnvironment.IsDevelopment() ?"artifacts/app" : "wwwroot";
+        });
                   services.WithKestrelHosting<Startup>(Constants.DotNETDevOpsServiceType, Factory);
 
 

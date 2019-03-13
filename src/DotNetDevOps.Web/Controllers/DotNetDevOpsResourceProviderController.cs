@@ -136,18 +136,24 @@ namespace DotNetDevOps.Web
             return Ok(template);
 
         }
-        private X509Certificate2 buildSelfSignedServerCertificate(string CertificateName,string password)
+        private X509Certificate2 buildSelfSignedServerCertificate(string CertificateName,string password,string dns)
         {
+          
             SubjectAlternativeNameBuilder sanBuilder = new SubjectAlternativeNameBuilder();
             sanBuilder.AddIpAddress(IPAddress.Loopback);
             sanBuilder.AddIpAddress(IPAddress.IPv6Loopback);
-            sanBuilder.AddDnsName("localhost");
-            sanBuilder.AddDnsName(Environment.MachineName);
+            if (!string.IsNullOrEmpty(dns))
+            {
+                sanBuilder.AddDnsName(dns);
+            }
+          // 
+          //  sanBuilder.AddDnsName(Environment.MachineName);
 
             X500DistinguishedName distinguishedName = new X500DistinguishedName($"CN={CertificateName}");
 
-            using (RSA rsa = RSA.Create(2048*2))
+            using (RSA rsa = new RSACryptoServiceProvider(2048 * 2, new CspParameters(24, "Microsoft Enhanced RSA and AES Cryptographic Provider", Guid.NewGuid().ToString())))
             {
+               
                 var request = new CertificateRequest(distinguishedName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 
                 request.CertificateExtensions.Add(
@@ -156,7 +162,7 @@ namespace DotNetDevOps.Web
 
                 request.CertificateExtensions.Add(
                    new X509EnhancedKeyUsageExtension(
-                       new OidCollection { new Oid("1.3.6.1.5.5.7.3.1") }, false));
+                       new OidCollection { new Oid("1.3.6.1.5.5.7.3.1"), new Oid("1.3.6.1.5.5.7.3.2") }, false));
 
                 request.CertificateExtensions.Add(sanBuilder.Build());
 
@@ -172,15 +178,15 @@ namespace DotNetDevOps.Web
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo/parameters")]
-        public IActionResult GetCertificateParameters([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName)
+        public IActionResult GetCertificateParameters([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName, string dns)
         {
             var password = "";
             X509Certificate2 x509Certificate = null;
 
-           
 
-           // bool isWindows = System.Runtime.InteropServices.RuntimeInformation
-                                //               .IsOSPlatform(OSPlatform.Windows);
+
+            bool isWindows = System.Runtime.InteropServices.RuntimeInformation
+                                               .IsOSPlatform(OSPlatform.Windows);
             //if (isWindows)
             //{
             //    var cert = Certificate.CreateSelfSignCertificatePfx($"CN={keyVaultName}", DateTime.UtcNow, DateTime.UtcNow.AddYears(1), password);
@@ -190,7 +196,7 @@ namespace DotNetDevOps.Web
             //}
             //else
             {
-                x509Certificate = buildSelfSignedServerCertificate(keyVaultName,password);
+                x509Certificate =  buildSelfSignedServerCertificate(keyVaultName,password,dns);
                 Console.WriteLine($"UNIX:Certificate {x509Certificate.Issuer} created with thumbprint {x509Certificate.Thumbprint}");
 
             }
@@ -225,6 +231,43 @@ namespace DotNetDevOps.Web
                 } }
             }).ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
 
+        }
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/IpAddresses")]
+        public async Task<IActionResult> GetVaultsTemplate([FromServices] IOptions<EndpointOptions> endpoints, int additionalIpAddresses = 0)
+        {
+            var template = await LoadTemplateAsync(endpoints.Value, "ServiceFabric.ipaddresses.json");
+
+            if (additionalIpAddresses > 0)
+            {
+                var resources = template.SelectToken("$.resources") as JArray;
+            
+
+                for (var i = 1; i <= additionalIpAddresses; i++)
+                {
+
+
+                    resources.Add(JToken.FromObject(new
+                    {
+                        apiVersion = "[variables('publicIPApiVersion')]",
+                        type = "Microsoft.Network/publicIPAddresses",
+                        name = $"[concat(variables('lbIPName'),'-','{i}')]",
+                        location = "[variables('computeLocation')]",
+                        properties = new
+                        {
+                            publicIPAllocationMethod = "Dynamic",
+                        },
+                        tags = new
+                        {
+                            resourceType = "Service Fabric",
+                            clusterName = "[parameters('clusterName')]"
+                        }
+                    }));
+
+                }
+            }
+
+                    return Ok(template);
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/vaults/demo")]
@@ -370,29 +413,29 @@ namespace DotNetDevOps.Web
             {
                 var resources = template.SelectToken("$.resources") as JArray;
                 var lb = resources.SelectToken("$[?(@.type == 'Microsoft.Network/loadBalancers')]");
-                var lbDepsn = lb.SelectToken("$.dependsOn") as JArray;
+               // var lbDepsn = lb.SelectToken("$.dependsOn") as JArray;
                 var frontendIPConfigurations = lb.SelectToken("$.properties.frontendIPConfigurations") as JArray;
 
                 for (var i = 1; i <= additionalIpAddresses; i++)
                 {
 
 
-                    resources.Add(JToken.FromObject(new
-                    {
-                        apiVersion = "[variables('publicIPApiVersion')]",
-                        type = "Microsoft.Network/publicIPAddresses",
-                        name = $"[concat(variables('lbIPName'),'-','{i}')]",
-                        location = "[variables('computeLocation')]",
-                        properties = new
-                        {
-                            publicIPAllocationMethod = "Dynamic",
-                        },
-                        tags = new
-                        {
-                            resourceType = "Service Fabric",
-                            clusterName = "[parameters('clusterName')]"
-                        }
-                    }));
+                    //resources.Add(JToken.FromObject(new
+                    //{
+                    //    apiVersion = "[variables('publicIPApiVersion')]",
+                    //    type = "Microsoft.Network/publicIPAddresses",
+                    //    name = $"[concat(variables('lbIPName'),'-','{i}')]",
+                    //    location = "[variables('computeLocation')]",
+                    //    properties = new
+                    //    {
+                    //        publicIPAllocationMethod = "Dynamic",
+                    //    },
+                    //    tags = new
+                    //    {
+                    //        resourceType = "Service Fabric",
+                    //        clusterName = "[parameters('clusterName')]"
+                    //    }
+                    //}));
 
 
 
@@ -401,7 +444,7 @@ namespace DotNetDevOps.Web
 
 
 
-                    lbDepsn.Add($"[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','{i}'))]");
+              //      lbDepsn.Add($"[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','{i}'))]");
 
 
                     frontendIPConfigurations.Add(JToken.FromObject(new
