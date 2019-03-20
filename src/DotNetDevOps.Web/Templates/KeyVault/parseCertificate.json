@@ -12,6 +12,10 @@
     "thumbprint": {
       "type": "string",
       "value": ""
+    },
+    "value": {
+      "type": "string",
+      "value": ""
     }
   }
 }

@@ -2,16 +2,39 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "certificate": { "type": "string" }
+    "certificate": { "type": "securestring" },
+    "value": { "type": "securestring" },
+    "encrypted": {
+      "type": "bool"
+    }
   },
   "variables": {},
   "resources": [
-    
+
+    {
+      "name": "ParseCertificateInformation",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/parseCertificate?certificate=',uricomponent(parameters('certificate')),'&encrypted=',parameters('encrypted'),'&value=',uricomponent(parameters('value')))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+
+        }
+      }
+    }
   ],
   "outputs": {
-    "certificate": {
+    "thumbprint": {
       "type": "string",
-      "value": "[parameters('certificate')]"
+      "value": "[reference('ParseCertificateInformation').outputs.thumbprint.value]"
+    },
+    "value": {
+      "type": "string",
+      "value": "[reference('ParseCertificateInformation').outputs.value.value]"
     }
   }
 }

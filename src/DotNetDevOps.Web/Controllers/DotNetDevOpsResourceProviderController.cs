@@ -11,13 +11,20 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Certificates;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Azure.KeyVault;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -75,7 +82,7 @@ namespace DotNetDevOps.Web
 
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/ACI/commands/certificate")]
-        public async  Task<IActionResult> ACICommand([FromServices] IOptions<EndpointOptions> endpoints,string keyVaultName, string secretName)
+        public async Task<IActionResult> ACICommand([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName)
         {
 
             var template = await LoadTemplateAsync(endpoints.Value, "ACI.ContainerInstanceCommand.json");
@@ -117,9 +124,13 @@ namespace DotNetDevOps.Web
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/retrieveAndParseCertificate")]
         public async Task<IActionResult> retrieveAndParseCertificate([FromServices] IOptions<EndpointOptions> endpoints, string id)
         {
-            var delayUntil = _delays.GetOrAdd(id, DateTimeOffset.UtcNow.AddSeconds(60));
+            if (!string.IsNullOrEmpty(id))
+            {
+                var delayUntil = _delays.GetOrAdd(id, DateTimeOffset.UtcNow.AddSeconds(60));
 
-            await Task.Delay(delayUntil.Subtract(DateTimeOffset.UtcNow));
+                await Task.Delay(delayUntil.Subtract(DateTimeOffset.UtcNow));
+            }
+
             var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.retrieveAndParseCertificate.json");
             return Ok(template);
 
@@ -127,18 +138,52 @@ namespace DotNetDevOps.Web
 
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/parseCertificate")]
-        public async Task<IActionResult> parseCertificate([FromServices] IOptions<EndpointOptions> endpoints, string certificate)
+        public async Task<IActionResult> parseCertificate([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDataProtector dataProtector, string certificate, string value, bool encrypted = false)
         {
 
-            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.parseCertificate.json");
+            //            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.parseCertificate.json");
+
+            var cert = new X509Certificate2(Convert.FromBase64String(certificate));
 
 
-            return Ok(template);
+
+            return Content(JObject.FromObject(new Dictionary<string, object>
+                {
+                    {"$schema" ,"https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"},
+                    {"contentVersion","1.0.0.0" },
+                      { "resources",new object[0]},
+                    {
+                        "outputs", new {
+                            thumbprint=new {
+                                type="string",
+                                value=cert.Thumbprint
+                            },
+                            value = new {
+                                type="string",
+                                value=  string.IsNullOrEmpty(value) ? "": Encrypt(cert,encrypted? Encoding.Unicode.GetString( dataProtector.Unprotect(Base64.DecodeToByteArray(value))):value)// 
+                            }
+                        }
+                    }
+                    }).ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+
+
+            //  return Ok(template);
 
         }
-        private X509Certificate2 buildSelfSignedServerCertificate(string CertificateName,string password,string dns)
+
+        private string Encrypt(X509Certificate2 cert, string value)
         {
-          
+
+            var encoded = Encoding.Unicode.GetBytes(value);
+            var content = new ContentInfo(encoded);
+            var env = new EnvelopedCms(content);
+            env.Encrypt(new CmsRecipient(cert));
+            return Convert.ToBase64String(env.Encode());
+        }
+
+        private X509Certificate2 buildSelfSignedServerCertificate(string CertificateName, string password, string dns)
+        {
+
             SubjectAlternativeNameBuilder sanBuilder = new SubjectAlternativeNameBuilder();
             sanBuilder.AddIpAddress(IPAddress.Loopback);
             sanBuilder.AddIpAddress(IPAddress.IPv6Loopback);
@@ -146,14 +191,15 @@ namespace DotNetDevOps.Web
             {
                 sanBuilder.AddDnsName(dns);
             }
-          // 
-          //  sanBuilder.AddDnsName(Environment.MachineName);
+            // 
+            //  sanBuilder.AddDnsName(Environment.MachineName);
 
             X500DistinguishedName distinguishedName = new X500DistinguishedName($"CN={CertificateName}");
 
-            using (RSA rsa = new RSACryptoServiceProvider(2048 * 2, new CspParameters(24, "Microsoft Enhanced RSA and AES Cryptographic Provider", Guid.NewGuid().ToString())))
+            using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider(2048 * 2, new CspParameters(24, "Microsoft Enhanced RSA and AES Cryptographic Provider", Guid.NewGuid().ToString())))
             {
-               
+                rsa.PersistKeyInCsp = false;
+
                 var request = new CertificateRequest(distinguishedName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 
                 request.CertificateExtensions.Add(
@@ -166,14 +212,21 @@ namespace DotNetDevOps.Web
 
                 request.CertificateExtensions.Add(sanBuilder.Build());
 
-                var certificate = request.CreateSelfSigned(new DateTimeOffset(DateTime.UtcNow.AddDays(-1)), new DateTimeOffset(DateTime.UtcNow.AddDays(3650)));
-                 bool isWindows = System.Runtime.InteropServices.RuntimeInformation
-                               .IsOSPlatform(OSPlatform.Windows);
-                if(isWindows)
-                    certificate.FriendlyName = CertificateName;
 
-                return certificate;
-               // return new X509Certificate2(certificate.Export(X509ContentType.Pfx, password), password, X509KeyStorageFlags.MachineKeySet);
+                using (X509Certificate2 cert = request.CreateSelfSigned(new DateTimeOffset(DateTime.UtcNow.AddDays(-1)), new DateTimeOffset(DateTime.UtcNow.AddDays(3650))))
+                {
+
+                    bool isWindows = System.Runtime.InteropServices.RuntimeInformation
+                                  .IsOSPlatform(OSPlatform.Windows);
+                    if (isWindows)
+                        cert.FriendlyName = CertificateName;
+
+                    // Export the PFX using the current key.  Re-import it with no flags to
+                    // make it a normal "perphemeral" key behavior.
+                    return new X509Certificate2(cert.Export(X509ContentType.Pkcs12), "", X509KeyStorageFlags.Exportable);
+                }
+
+                // return new X509Certificate2(certificate.Export(X509ContentType.Pfx, password), password, X509KeyStorageFlags.MachineKeySet);
             }
         }
 
@@ -196,7 +249,7 @@ namespace DotNetDevOps.Web
             //}
             //else
             {
-                x509Certificate =  buildSelfSignedServerCertificate(keyVaultName,password,dns);
+                x509Certificate = buildSelfSignedServerCertificate(keyVaultName, password, dns);
                 Console.WriteLine($"UNIX:Certificate {x509Certificate.Issuer} created with thumbprint {x509Certificate.Thumbprint}");
 
             }
@@ -241,7 +294,7 @@ namespace DotNetDevOps.Web
             if (additionalIpAddresses > 0)
             {
                 var resources = template.SelectToken("$.resources") as JArray;
-            
+
 
                 for (var i = 1; i <= additionalIpAddresses; i++)
                 {
@@ -267,7 +320,7 @@ namespace DotNetDevOps.Web
                 }
             }
 
-                    return Ok(template);
+            return Ok(template);
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/vaults/demo")]
@@ -295,7 +348,7 @@ namespace DotNetDevOps.Web
             foreach (var correlationMapping in correlationMappings)
             {
                 var parts = correlationMapping.Split(":");
-                if(parts[0] == "topic")
+                if (parts[0] == "topic")
                 {
                     var topic = topicTemplate.DeepClone();
                     topic.SelectToken("$.name").Replace(parts[1]);
@@ -305,7 +358,7 @@ namespace DotNetDevOps.Web
             }
 
 
-                for (var j = 0; j < topicSCaleCount; j++)
+            for (var j = 0; j < topicSCaleCount; j++)
             {
                 var copy = topicTemplate.DeepClone();
                 var topicName = $"[concat(parameters('serviceBusTopicName'),'{String.Format("{0:000}", j)}')]";
@@ -316,7 +369,7 @@ namespace DotNetDevOps.Web
                 var subscriptionResources = copy.SelectToken("$.resources") as JArray;
                 var subscriptionTemplate = subscriptionResources.First; subscriptionTemplate.Remove();
 
-                foreach(var correlationMapping in correlationMappings)
+                foreach (var correlationMapping in correlationMappings)
                 {
                     var parts = correlationMapping.Split(":"); //topic:pipelines-signalr:EarthMLPipelines.Signalr
                     switch (parts.First())
@@ -325,7 +378,7 @@ namespace DotNetDevOps.Web
 
                             var topicSubscription = subscriptionTemplate.DeepClone();
                             topicSubscription.SelectToken("$.name").Replace($"sub2{parts[1]}");
-                            topicSubscription.SelectToken("$.dependsOn").Replace(JToken.FromObject(new[] { topicName,parts[1]}));
+                            topicSubscription.SelectToken("$.dependsOn").Replace(JToken.FromObject(new[] { topicName, parts[1] }));
                             topicSubscription.SelectToken("$.properties.forwardTo").Replace(parts[1]);
 
                             subscriptionResources.Add(topicSubscription);
@@ -349,13 +402,13 @@ namespace DotNetDevOps.Web
 
 
             }
-            
-        
+
+
 
             return Ok(template);
         }
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/servicefabric/clusters/demo")]
-        public async Task<IActionResult> GetClusterTemplate([FromServices] IOptions<EndpointOptions> endpoints, bool? withDocker, string vmImagePublisher = "MicrosoftWindowsServer", int additionalIpAddresses = 0, string durabilityLevel="Bronze")
+        public async Task<IActionResult> GetClusterTemplate([FromServices] IOptions<EndpointOptions> endpoints, bool? withDocker, string vmImagePublisher = "MicrosoftWindowsServer", int additionalIpAddresses = 0, string durabilityLevel = "Bronze")
         {
 
             JToken template = await LoadTemplateAsync(endpoints.Value, "ServiceFabric.fabric.json");
@@ -413,7 +466,7 @@ namespace DotNetDevOps.Web
             {
                 var resources = template.SelectToken("$.resources") as JArray;
                 var lb = resources.SelectToken("$[?(@.type == 'Microsoft.Network/loadBalancers')]");
-               // var lbDepsn = lb.SelectToken("$.dependsOn") as JArray;
+                // var lbDepsn = lb.SelectToken("$.dependsOn") as JArray;
                 var frontendIPConfigurations = lb.SelectToken("$.properties.frontendIPConfigurations") as JArray;
 
                 for (var i = 1; i <= additionalIpAddresses; i++)
@@ -439,12 +492,12 @@ namespace DotNetDevOps.Web
 
 
 
-                  
 
 
 
 
-              //      lbDepsn.Add($"[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','{i}'))]");
+
+                    //      lbDepsn.Add($"[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','{i}'))]");
 
 
                     frontendIPConfigurations.Add(JToken.FromObject(new
@@ -467,7 +520,7 @@ namespace DotNetDevOps.Web
                     gatewayhttp.SelectToken("$.properties.probe.id").Replace($"[concat(variables('lbID0'),'/probes/AppPortProbe-{i}')]");
                     (lb.SelectToken("$.properties.loadBalancingRules") as JArray).Add(gatewayhttp);
 
-                   
+
 
                     var gatewayhttps = lb.SelectToken("$.properties.loadBalancingRules[?(@.name == 'GatewayHttps')]").DeepClone();
                     gatewayhttps.SelectToken("$.name").Replace($"Gateway{i}Https");
@@ -512,7 +565,7 @@ namespace DotNetDevOps.Web
             JToken template = await LoadTemplateAsync(endpoints.Value, "SInnovations.Gateway.EncryptParameter.json");
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            var encryptet =await client.PostAsJsonAsync($"{gatewayUrl}/providers/ServiceFabricGateway.Fabric/security/encryptParameter", new
+            var encryptet = await client.PostAsJsonAsync($"{gatewayUrl}/providers/ServiceFabricGateway.Fabric/security/encryptParameter", new
             {
                 value = value
             });
@@ -521,8 +574,8 @@ namespace DotNetDevOps.Web
             var envelope = new EnvelopedCms();
             envelope.Decode(encryptedBytes);
 
-           var RecipientInfo= envelope.RecipientInfos.Cast<RecipientInfo>().First();
-            json["recipient"] = JToken.FromObject( RecipientInfo.RecipientIdentifier.Value);
+            var RecipientInfo = envelope.RecipientInfos.Cast<RecipientInfo>().First();
+            json["recipient"] = JToken.FromObject(RecipientInfo.RecipientIdentifier.Value);
             template.SelectToken("$.outputs.secret.value").Replace(json);
 
             return Ok(template);
@@ -539,10 +592,10 @@ namespace DotNetDevOps.Web
 
 
             var applications = JArray.Parse(await client.GetStringAsync(url));
-            
-            foreach(var obj in applications)
+
+            foreach (var obj in applications)
             {
-                template.SelectToken("$.outputs")[$"{obj["applicationName"].ToString().Replace("fabric:/","")}{obj["applicationTypeName"]}{obj["applicationTypeVersion"]}"] = JToken.FromObject(new { type = "bool", value = true });
+                template.SelectToken("$.outputs")[$"{obj["applicationName"].ToString().Replace("fabric:/", "")}{obj["applicationTypeName"]}{obj["applicationTypeVersion"]}"] = JToken.FromObject(new { type = "bool", value = true });
 
             }
 
@@ -585,7 +638,7 @@ namespace DotNetDevOps.Web
                        }
                    }).GetAwaiter().GetResult();
                });
-          
+
 
             template.SelectToken("$.parameters.appPackageUrl.defaultValue").Replace(packageUrl);
             template.SelectToken("$.parameters.applicationTypeName.defaultValue").Replace(deploymentModel.ApplicationTypeName);
@@ -623,13 +676,13 @@ namespace DotNetDevOps.Web
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/vmss/scalesets/demo")]
-        public async Task<IActionResult> GetVmssTemplate([FromServices] IOptions<EndpointOptions> endpoints, bool? withdocker, bool? withExtensions, bool withAutoscale=false, string vmImagePublisher = "MicrosoftWindowsServer")
+        public async Task<IActionResult> GetVmssTemplate([FromServices] IOptions<EndpointOptions> endpoints, bool? withdocker, bool? withExtensions, bool withAutoscale = false, string vmImagePublisher = "MicrosoftWindowsServer")
         {
 
             JToken template = await LoadTemplateAsync(endpoints.Value, "VMSS.vmss.json");
 
 
-            if(vmImagePublisher == "Canonical")
+            if (vmImagePublisher == "Canonical")
             {
                 template.SelectToken("$.resources[0].properties.virtualMachineProfile.osProfile.secrets[0].vaultCertificates[0].certificateStore").Parent.Remove();
 
@@ -666,7 +719,7 @@ namespace DotNetDevOps.Web
 
             foreach (var ext in template.SelectToken("$.resources[0].properties.virtualMachineProfile.extensionProfile.extensions").ToArray())
             {
-                
+
 
                 if (!withExtensions2 && (!(ext.SelectToken("initial")?.ToObject<bool>() ?? false)))
                 {
@@ -674,11 +727,11 @@ namespace DotNetDevOps.Web
 
 
                 }
-                
+
                 ext.SelectToken("initial")?.Parent.Remove();
 
-              //  JArray copy = template.SelectToken("$.resources[1].properties.template.resources[0].properties.virtualMachineProfile.extensionProfile.extensions") as JArray;
-               // copy.Add(ext.DeepClone());
+                //  JArray copy = template.SelectToken("$.resources[1].properties.template.resources[0].properties.virtualMachineProfile.extensionProfile.extensions") as JArray;
+                // copy.Add(ext.DeepClone());
             }
             template.SelectToken("$.resources[1]").Remove();
 
@@ -694,36 +747,134 @@ namespace DotNetDevOps.Web
             return Ok(template);
         }
 
-        [HttpGet("providers/DotNetDevOps.AzureTemplates/deploy/{*path}")]
-         public IActionResult DeployRedirect([FromServices] IOptions<EndpointOptions> endpoints)
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/deploy/applications/{name}")]
+        public async Task<IActionResult> DeployRedirect([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDistributedCache cache, string name, string userId, [FromServices] IDataProtector dataProtector)
         {
             var url = $"{endpoints.Value.ResourceApiEndpoint}{Request.Path}{Request.QueryString}".Replace("DotNetDevOps.AzureTemplates/deploy/", "DotNetDevOps.AzureTemplates/templates/");
+
+            var template = await LoadTemplateAsync(endpoints.Value, $"Applications.{name.Replace('-', '.')}.json");
+
+
+            var parameters = template.SelectToken("$.parameters") as JObject;
+            foreach (var prop in parameters.Properties())
+            {
+                var reference = prop.Value.SelectToken("$.reference");
+                if (reference != null)
+                {
+                    var vault = prop.Value.SelectToken("$.reference.keyVault").ToString();
+                    var secret = prop.Value.SelectToken("$.reference.secretName").ToString();
+
+
+                    var redirectUri = "";
+                    var client = new KeyVaultClient(async (string authority, string resource, string scope) =>
+                    {
+
+                        var id = Guid.NewGuid().ToString("N");
+                        userId = userId ?? reference.SelectToken("$.login_hint")?.ToString();
+                        var ctx = new AuthenticationContext(authority, new AdalDistributedTokenCache(cache, userId));
+                        AuthenticationResult result = null;
+                        try
+                        {
+                            result = await ctx.AcquireTokenSilentAsync(resource, "348f8c76-1a9d-4fcb-bb7b-26f785495226");
+                        }
+                        catch (AdalException adalException)
+                        {
+                            if (adalException.ErrorCode == AdalError.FailedToAcquireTokenSilently
+                             || adalException.ErrorCode == AdalError.InteractionRequired)
+                            {
+
+                                //AuthenticationContext authContext = new AuthenticationContext(authority);
+                                //ClientCredential credential = new ClientCredential(clientId, secret);
+                                //string userObjectID = ClaimsPrincipal.Current.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+                                //AuthenticationResult result = await authContext.AcquireTokenSilentAsync(resource, credential, new UserIdentifier(userObjectID, UserIdentifierType.UniqueId));
+                                //
+
+                                var state = Base64.Encode(JsonConvert.SerializeObject(new { authority, resource, scope, redirectUri = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}{HttpContext.Request.QueryString}" }));
+                                var uri = await ctx.GetAuthorizationRequestUrlAsync(resource, "348f8c76-1a9d-4fcb-bb7b-26f785495226", new Uri(
+                                    endpoints.Value.ResourceApiEndpoint + "/oidc-signin"), UserIdentifier.AnyUser, $"state={state}&nonce={Guid.NewGuid()}&response_mode=form_post&login_hint={reference.SelectToken("$.login_hint")}");
+
+                                redirectUri = uri.ToString().Replace("response_type=code", "response_type=code id_token");
+
+                                //  await cache.SetAsync("kv_item_" + id, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { authority,resource,scope,redirectUri = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}{HttpContext.Request.Path}{HttpContext.Request.QueryString}" })));
+
+                                throw new Exception("AuthenticationNeeded");
+
+
+
+
+                            }
+                        }
+
+                        return result?.AccessToken;
+                    });
+
+                    var param = prop.Value;
+                    try
+                    {
+                        var value = await client.GetSecretAsync($"https://{vault.Split('/').Last()}.vault.azure.net", secret);
+
+                        param["defaultValue"] = value.Value;
+                        url = url + $"{(url.Contains('?') ? '&' : '?')}{prop.Name}= {Base64.Encode(dataProtector.Protect(Encoding.Unicode.GetBytes(value.Value)))}";
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex.Message == "AuthenticationNeeded")
+                        {
+                            return Redirect(redirectUri);
+                        }
+                    }
+
+                    reference.Parent.Remove();
+
+                }
+            }
+
 
 
             return Redirect(
                 $"https://portal.azure.com/#create/Microsoft.Template/uri/{WebUtility.UrlEncode(url)}");
 
         }
-        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/applications/{name}")]
-        public async Task<IActionResult> GetEarthMLPipeliens([FromServices] IOptions<EndpointOptions> endpoints, string name)
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/deploy/{*path}")]
+        public async Task<IActionResult> DeployRedirect([FromServices] IOptions<EndpointOptions> endpoints)
         {
-            var template = await LoadTemplateAsync(endpoints.Value, $"Applications.{name.Replace('-','.')}.json");
+            var url = $"{endpoints.Value.ResourceApiEndpoint}{Request.Path}{Request.QueryString}".Replace("DotNetDevOps.AzureTemplates/deploy/", "DotNetDevOps.AzureTemplates/templates/");
+
+            return Redirect(
+            $"https://portal.azure.com/#create/Microsoft.Template/uri/{WebUtility.UrlEncode(url)}");
+
+        }
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/applications/{name}")]
+        public async Task<IActionResult> GetApplicationTemplate([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDataProtector dataProtector, string name)
+        {
+            var template = await LoadTemplateAsync(endpoints.Value, $"Applications.{name.Replace('-', '.')}.json");
 
             var parameters = template.SelectToken("$.parameters") as JObject;
-            foreach(var prop in parameters.Properties())
+            foreach (var prop in parameters.Properties())
             {
-                if(Request.Query.ContainsKey(prop.Name))
+                var reference = prop.Value.SelectToken("$.reference");
+                if (reference != null)
+                {
+                    reference.Parent.Remove();
+                }
+
+                if (Request.Query.ContainsKey(prop.Name))
                 {
                     var param = prop.Value;
-                    param["defaultValue"] = Request.Query[prop.Name].FirstOrDefault();
+                    param["defaultValue"] = Request.Query[prop.Name].FirstOrDefault(); // reference != null? Encoding.Unicode.GetString( dataProtector.Unprotect(Base64.DecodeToByteArray(Request.Query[prop.Name]))) :  Request.Query[prop.Name].FirstOrDefault();
                 }
+
+
             }
+
+
 
             return Ok(template);
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/demo")]
-        public async Task<IActionResult> GetDemoTemplate([FromServices] IOptions<EndpointOptions> endpoints, bool? withApp, bool? withDocker, string vmImagePublisher = "MicrosoftWindowsServer", string gatewayVersionPrefix="ci")
+        public async Task<IActionResult> GetDemoTemplate([FromServices] IOptions<EndpointOptions> endpoints, bool? withApp, bool? withDocker, string vmImagePublisher = "MicrosoftWindowsServer", string gatewayVersionPrefix = "ci")
         {
             var template = await LoadTemplateAsync(endpoints.Value, "ServiceFabric.root.json");
 
@@ -749,8 +900,8 @@ namespace DotNetDevOps.Web
 
 
                     template.SelectToken("$.parameters.gatewayVersion.allowedValues").Replace(JArray.FromObject(folders));
-                    template.SelectToken("$.parameters.gatewayVersion.defaultValue").Replace(folders.FirstOrDefault(k=>k.StartsWith(gatewayVersionPrefix)));
-                 //   template
+                    template.SelectToken("$.parameters.gatewayVersion.defaultValue").Replace(folders.FirstOrDefault(k => k.StartsWith(gatewayVersionPrefix)));
+                    //   template
 
 
                 }
@@ -782,7 +933,7 @@ namespace DotNetDevOps.Web
 
 
 
-           
+
 
 
 
@@ -790,5 +941,43 @@ namespace DotNetDevOps.Web
         }
 
 
+    }
+    public static class Base64
+    {
+        static readonly char[] padding = { '=' };
+        public static string Encode(string str)
+        {
+            return System.Convert.ToBase64String(Encoding.UTF8.GetBytes(str))
+            .TrimEnd(padding).Replace('+', '-').Replace('/', '_');
+        }
+        public static string Encode(byte[] str)
+        {
+            return System.Convert.ToBase64String(str)
+            .TrimEnd(padding).Replace('+', '-').Replace('/', '_');
+        }
+        public static string Decode(string str)
+        {
+            string incoming = str
+    .Replace('_', '/').Replace('-', '+');
+            switch (str.Length % 4)
+            {
+                case 2: incoming += "=="; break;
+                case 3: incoming += "="; break;
+            }
+            byte[] bytes = Convert.FromBase64String(incoming);
+            return Encoding.UTF8.GetString(bytes);
+        }
+        public static byte[] DecodeToByteArray(string str)
+        {
+            string incoming = str
+    .Replace('_', '/').Replace('-', '+');
+            switch (str.Length % 4)
+            {
+                case 2: incoming += "=="; break;
+                case 3: incoming += "="; break;
+            }
+            byte[] bytes = Convert.FromBase64String(incoming);
+            return bytes;
+        }
     }
 }

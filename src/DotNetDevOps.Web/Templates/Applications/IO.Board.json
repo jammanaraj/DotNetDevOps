@@ -1,0 +1,131 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+
+    "AzureADServicePrincipal": {
+      "type": "securestring",
+      "reference": {
+        "keyVault": "/subscriptions/0fd7128b-5305-49da-a400-b7a37feb271c/resourceGroups/io-board/providers/Microsoft.KeyVault/vaults/io-board",
+        "secretName": "AzureManagementClientCredentials",
+        "login_hint": "pks@s-innovations.net"
+      }
+    },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": "[toLower(take(resourceGroup().name,24))]",
+      "metadata": {
+        "description": "Name of the Vault"
+      }
+    },
+    "instrumentationKey": {
+      "type": "string",
+      "defaultValue": "68ade5a5-d8f2-41ac-bd10-b3bbe03ee855"
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "Production"
+    },
+    "intanceCount": {
+      "type": "string",
+      "defaultValue": "2"
+    },
+
+    "keyVaultUri": {
+      "type": "string",
+      "defaultValue": "https://io-board.vault.azure.net/"
+    }
+  },
+  "variables": {
+    "clusterLocation": "[resourcegroup().location]",
+    "gatewayApplicationName": "IO-Board.GatewayApplication",
+    "gatewayPackageUrl": "[concat('https://cdn.dotnetdevops.org/sfapps/S-Innovations.ServiceFabric.GatewayApplicationType/ci/latest.sfpkg')]",
+    "applicationpackageUrl": "https://cdn.io-board.com/sfapps/IO-Board.ApplicationType/ci/latest.sfpkg"
+  },
+  "resources": [
+    {
+      "name": "RetriveAndParseCertificateInformation",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/retrieveAndParseCertificate",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "secretName": { "value": "test" },
+          "keyVaultName": { "value": "[parameters('keyVaultName')]" },
+          "value": { "value": "[parameters('AzureADServicePrincipal')]" },
+          "encrypted": { "value": true }
+        }
+      }
+    },
+    {
+      "name": "GreateGatewayApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',variables('gatewayPackageUrl'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": { "value": {} },
+          "applicationName": { "value": "[variables('gatewayApplicationName')]" },
+          "applicationParameters": {
+            "value": {
+              "APPLICATION_INSIGHTS": "[parameters('instrumentationKey')]",
+              "ASPNETCORE_ENVIRONMENT": "[parameters('environment')]",
+              "ApplicationStorageAccountId": "/subscriptions/0fd7128b-5305-49da-a400-b7a37feb271c/resourceGroups/io-board/providers/Microsoft.Storage/storageAccounts/ioboard",
+              "Azure.KeyVault.Uri": "[parameters('keyVaultUri')]",
+              "AzureADServicePrincipal": "[reference('RetriveAndParseCertificateInformation').outputs.value.value]",
+              "AzureResourceManagerCertThumbrint": "[reference('RetriveAndParseCertificateInformation').outputs.thumbprint.value]",
+              "GatewayProperties": "{'CloudFlareZoneId':'fff7db212450666eaf8518a090c3ab88'}",
+              "GatewayReverseProxyLocation": "/gateway/",
+              "GatewayServerName": "gate.io-board.com",
+              "GatewayService_InstanceCount": "[parameters('intanceCount')]",
+              "GatewayService_Ports_Http": "9080",
+              "GatewayService_Ports_Https": "9443",
+              "TenantId": "802626c6-0f5c-4293-a8f5-198ecd481fe3"
+            }
+          }
+
+        }
+      }
+    },
+    {
+      "name": "CreateIO-BoardApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "dependsOn": [ "GreateGatewayApplication" ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',variables('applicationpackageUrl'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": { "value": {} },
+          "applicationName": { "value": "IO-Board.Application" },
+          "applicationParameters": {
+            "value": {
+              "IO-Board.Portal_InstanceCount": "2",
+              "IO-Board.StorageService_InstanceCount": "2",
+              "IO-Board.IdentityService_InstanceCount": "2",
+              "IO-Board_Environment": "Production",
+              "IO-Board_PortalUrl": "https://io-board.com",
+              "IO-Board_GatewayApplication": "[variables('gatewayApplicationName')]",
+              "IO-Board_ApplicationInsights": "[parameters('instrumentationKey')]",
+              "IO-Board_Authority": "https://login.io-board.com",
+              "IO-Board_ResourceApi": "https://api.io-board.com"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

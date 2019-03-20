@@ -1,0 +1,78 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "[toLower(take(resourceGroup().name,23))]",
+      "metadata": {
+        "description": "Name of your cluster - Between 3 and 23 characters. Letters and numbers only."
+      }
+    },
+    "instrumentationKey": {
+      "type": "string",
+      "defaultValue": "68ade5a5-d8f2-41ac-bd10-b3bbe03ee855"
+    }   
+  },
+  "variables": {
+    "clusterLocation": "[resourcegroup().location]",
+    "gatewayApplicationName": "IO-Board.GatewayApplication",
+    "applicationName": "IO-Board.Application",
+    "gatewayPackageUrl": "[concat('https://cdn.dotnetdevops.org/sfapps/S-Innovations.ServiceFabric.GatewayApplicationType/ci/latest.sfpkg')]",
+    "applicationpackageUrl": "https://cdn.io-board.com/sfapps/IO-Board.ApplicationType/ci/latest.sfpkg",
+    "gatewayParameters": {
+      "APPLICATION_INSIGHTS": "[parameters('instrumentationKey')]"
+    },
+    "applicationParameters": {
+      "IO-Board_ApplicationInsights": "[parameters('instrumentationKey')]"
+    }
+  },
+  "resources": [
+    {
+      "name": "UpgradeGatewayApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',variables('gatewayPackageUrl'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": {
+            "value": "[union(json(concat('{\"', variables('gatewayApplicationName'), reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('gatewayApplicationName')),'2017-07-01-preview').typeName,reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('gatewayApplicationName')),'2017-07-01-preview').typeVersion, '\":true }')),variables('gatewayParameters'))]"
+          },
+          "applicationName": { "value": "[variables('gatewayApplicationName')]" },
+          "applicationParameters": {
+            "value": "[reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'), variables('gatewayApplicationName')),'2017-07-01-preview').parameters]"
+          }
+
+
+        }
+      }
+    },
+    {
+      "name": "UpgradeIO-BoardApplication",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2016-09-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/ServiceFabric/applications/GenericApplication?packageUrl=',variables('applicationpackageUrl'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "applications": {
+            "value": "[union(json(concat('{\"', variables('applicationName'), reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('applicationName')),'2017-07-01-preview').typeName,reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'),variables('applicationName')),'2017-07-01-preview').typeVersion, '\":true }')),variables('applicationParameters'))]"
+          },
+          "applicationName": { "value": "[variables('applicationName')]" },
+          "applicationParameters": {
+            "value": "[reference(resourceId('Microsoft.ServiceFabric/clusters/applications',parameters('clusterName'), variables('applicationName')),'2017-07-01-preview').parameters]"
+          }
+
+
+        }
+      }
+    }
+  ]
+}

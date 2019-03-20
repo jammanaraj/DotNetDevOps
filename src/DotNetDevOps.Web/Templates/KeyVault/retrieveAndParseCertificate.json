@@ -8,6 +8,12 @@
     "keyVaultName": {
       "type": "string"
 
+    },
+    "value": {
+      "type": "securestring"
+    },
+    "encrypted": {
+      "type": "bool"
     }
   },
   "variables": {},
@@ -26,6 +32,8 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
+          "encrypted": {"value": "[parameters('encrypted')]"},
+          "value": { "value": "[parameters('value')]" },
           "certificate": {
             "reference": {
               "keyVault": {
@@ -36,34 +44,20 @@
           }
         }
       }
-    },
-    {
-      "name": "ParseCertificateInformation",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2016-09-01",
-      "dependsOn": [
-        "RetriveCertificateInformation"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/parseCertificate?certificate=',reference('RetriveCertificateInformation').outputs.certificate)]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-
-        }
-      }
     }
   ],
   "outputs": {
     "thumbprint": {
       "type": "string",
-      "value": "[reference('ParseCertificateInformation').outputs.thumbprint]"
+      "value": "[reference('RetriveCertificateInformation').outputs.thumbprint.value]"
     },
     "certificateUrlValue": {
       "type": "string",
       "value": "[reference(resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults/secrets', parameters('keyVaultName'), parameters('secretName')), '2015-06-01').secretUriWithVersion]"
+    },
+    "value": {
+      "type": "string",
+      "value": "[reference('RetriveCertificateInformation').outputs.value.value]"
     }
   }
 }

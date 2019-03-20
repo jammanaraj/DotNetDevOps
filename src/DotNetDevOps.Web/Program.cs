@@ -20,6 +20,7 @@ using DotNetDevOps.ServiceFabric.Hosting;
 using SInnovations.ServiceFabric.RegistrationMiddleware.AspNetCore.Configuration;
 using Microsoft.Extensions.Hosting;
 using Autofac;
+using Microsoft.WindowsAzure.Storage;
 
 namespace DotNetDevOps.Web
 {
@@ -93,6 +94,7 @@ namespace DotNetDevOps.Web
         });
                   services.WithKestrelHosting<Startup>(Constants.DotNETDevOpsServiceType, Factory);
 
+                  services.AddSingleton(CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=dotnetdevops;AccountKey=eH1s0uL4zucn4U/rIm3iQQRghOx2nGv4NO+wOaHiSXj1mC0EXcQ7mL/ji0NbmgTAJe1Ov2opVPp9j5BD9nqWew==;EndpointSuffix=core.windows.net"));
 
               })
                 .ConfigureSerilogging((context, logConfig) =>

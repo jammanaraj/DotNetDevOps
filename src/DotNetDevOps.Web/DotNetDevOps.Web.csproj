@@ -14,6 +14,8 @@
     <Content Remove="Templates\Applications\DotNetDevOps.json" />
     <Content Remove="Templates\Applications\EarthML.Pipelines.json" />
     <Content Remove="Templates\Applications\FabricGateway.json" />
+    <Content Remove="Templates\Applications\IO.Board.json" />
+    <Content Remove="Templates\Applications\IO.Board.Update.json" />
     <Content Remove="Templates\KeyVault\parseCertificate.json" />
     <Content Remove="Templates\KeyVault\retrieveAndParseCertificate.json" />
     <Content Remove="Templates\KeyVault\retrieveCertificate.json" />
@@ -39,6 +41,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Templates\ACI\ContainerInstanceCommand.json" />
+    <EmbeddedResource Include="Templates\Applications\IO.Board.Update.json" />
+    <EmbeddedResource Include="Templates\Applications\IO.Board.json" />
     <EmbeddedResource Include="Templates\Applications\DotNetDevOps.json" />
     <EmbeddedResource Include="Templates\Applications\FabricGateway.json" />
     <EmbeddedResource Include="Templates\Applications\Carshopper.json" />
