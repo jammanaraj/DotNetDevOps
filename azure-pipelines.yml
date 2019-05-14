@@ -39,8 +39,8 @@ stages:
         #verbosityRestore: 'detailed' # Options: quiet, minimal, normal, detailed, diagnostic
     
     - task: Npm@1
-        displayName: 'npm install'
-        inputs:
+      displayName: 'npm install'
+      inputs:
         workingDir: 'src\DotNetDevOps.Web'
         verbose: false
 
