@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <IsServiceFabricServiceProject>True</IsServiceFabricServiceProject>
     <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
     <RootNamespace>DotNetDevOps</RootNamespace>
     <LangVersion>latest</LangVersion>
+    
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,9 +51,7 @@
     <EmbeddedResource Include="Templates\KeyVault\roleAssignments.json" />
     <EmbeddedResource Include="Templates\KeyVault\parseCertificate.json" />
     <EmbeddedResource Include="Templates\KeyVault\retrieveCertificate.json" />
-    <EmbeddedResource Include="Templates\ServiceBus\bus.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="Templates\ServiceBus\bus.json" />
     <EmbeddedResource Include="Templates\ServiceFabric\app.json" />
     <EmbeddedResource Include="Templates\ServiceFabric\GenericApplication.json" />
     <EmbeddedResource Include="Templates\ServiceFabric\ipaddresses.json" />
@@ -76,9 +74,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
-
-    <PackageReference Include="S-Innovations.ServiceFabric.RegistrationMiddleware.AspNetCore" Version="2.2.0-ci-20190312-01-ci" />
-
+    <PackageReference Include="Microsoft.Azure.KeyVault" Version="3.0.3" />
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.0.5" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.2" />

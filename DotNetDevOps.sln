@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26923.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28902.138
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{88B0C0BE-3A4C-496F-8914-8793002DEEA0}"
 EndProject
@@ -9,13 +9,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3CA4699D-205
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNetDevOps.Web", "src\DotNetDevOps.Web\DotNetDevOps.Web.csproj", "{F016374C-8654-44AF-A7D0-D45352F95803}"
 EndProject
-Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "DotNetDevOps.Application", "src\DotNetDevOps.Application\DotNetDevOps.Application.sfproj", "{490BBCF7-5273-4003-8D27-EA275C583A41}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D1E4B8EC-0835-41DA-B0B3-1D1B16D8AAE9}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		azure-pipelines.yml = azure-pipelines.yml
+		global.json = global.json
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNETDevOps.FunctionHost", "functions\DotNETDevOps.FunctionHost\DotNETDevOps.FunctionHost.csproj", "{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "functions", "functions", "{D59D4BB7-285F-4C9F-8B5F-6698E5F32656}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,19 +37,21 @@ Global
 		{F016374C-8654-44AF-A7D0-D45352F95803}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F016374C-8654-44AF-A7D0-D45352F95803}.Release|x64.ActiveCfg = Release|Any CPU
 		{F016374C-8654-44AF-A7D0-D45352F95803}.Release|x64.Build.0 = Release|Any CPU
-		{490BBCF7-5273-4003-8D27-EA275C583A41}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{490BBCF7-5273-4003-8D27-EA275C583A41}.Debug|x64.ActiveCfg = Debug|x64
-		{490BBCF7-5273-4003-8D27-EA275C583A41}.Debug|x64.Build.0 = Debug|x64
-		{490BBCF7-5273-4003-8D27-EA275C583A41}.Release|Any CPU.ActiveCfg = Release|x64
-		{490BBCF7-5273-4003-8D27-EA275C583A41}.Release|x64.ActiveCfg = Release|x64
-		{490BBCF7-5273-4003-8D27-EA275C583A41}.Release|x64.Build.0 = Release|x64
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Debug|x64.Build.0 = Debug|Any CPU
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Release|x64.ActiveCfg = Release|Any CPU
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{F016374C-8654-44AF-A7D0-D45352F95803} = {3CA4699D-2057-4D75-9A63-017615DCF550}
-		{490BBCF7-5273-4003-8D27-EA275C583A41} = {3CA4699D-2057-4D75-9A63-017615DCF550}
+		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2} = {D59D4BB7-285F-4C9F-8B5F-6698E5F32656}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFF22EB7-22A2-4A95-B4D5-4A93A06FCD92}

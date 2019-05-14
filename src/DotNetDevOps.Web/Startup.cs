@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -15,7 +14,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -336,6 +334,12 @@ namespace DotNetDevOps.Web
 
     public class Startup
     {
+        private readonly IConfiguration configuration;
+
+        public Startup(IConfiguration configuration)
+        {
+            this.configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
@@ -349,10 +353,13 @@ namespace DotNetDevOps.Web
             services.AddHsts(o => { o.IncludeSubDomains = false; o.Preload = true; });
             services.AddHttpsRedirection(o => { });
 
+            services.AddSingleton(CloudStorageAccount.Parse(configuration.GetValue<string>("storage:connectionString")));
+
+
             //services.AddAuthentication()
             //     .AddOpenIdConnect(opts =>
             //     {
-                     
+
             //         opts.CallbackPath = "signin-oidc";
             //         opts.CorrelationCookie.Path = "signin-oidc";
             //         opts.NonceCookie.Path = "signin-oidc";
@@ -382,8 +389,8 @@ namespace DotNetDevOps.Web
             //     });
 
         }
- 
- 
+
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -410,7 +417,7 @@ namespace DotNetDevOps.Web
                     var obj = JToken.Parse(Base64.Decode(state));
 
 
-                    var credential = new ClientCredential("348f8c76-1a9d-4fcb-bb7b-26f785495226", "0]&B]6{yx6._:;__[y0.D&$+-e=L;m{]");
+                    var credential = new ClientCredential("348f8c76-1a9d-4fcb-bb7b-26f785495226", configuration.GetValue<string>("app:secret"));
 
                     string userId = user.Claims.FirstOrDefault(v=>v.Type == "upn").Value;
 

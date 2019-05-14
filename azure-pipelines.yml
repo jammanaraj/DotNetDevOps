@@ -1,288 +1,78 @@
-resources:
-
-- repo: self
-
-
-
-pool:
-
-  vmImage: Hosted VS2017
-
-  demands:
-
-  - msbuild
-
-  - visualstudio
-
-  - azureps
-
-  - Cmd
-
-
-
-#Your build pipeline references an undefined variable named ‘Parameters.solution’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references an undefined variable named ‘Parameters.solution’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
-
-#Your build pipeline references an undefined variable named ‘Parameters.serviceFabricProject’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references the ‘BuildConfiguration’ variable, which you’ve selected to be settable at queue time. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab, and then select the option to make it settable at queue time. See https://go.microsoft.com/fwlink/?linkid=865971
-
-#Your build pipeline references an undefined variable named ‘featureName’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references an undefined variable named ‘AppVersion’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references an undefined variable named ‘AppVersion’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references an undefined variable named ‘ApplicationType’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references an undefined variable named ‘featureName’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references an undefined variable named ‘ApplicationType’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-#Your build pipeline references an undefined variable named ‘featureName’. Create or edit the build pipeline for this YAML file, define the variable on the Variables tab. See https://go.microsoft.com/fwlink/?linkid=865972
-
-variables:
-
-  BuildPlatform: 'x64'
-
-
-
-steps:
-
-- task: NuGetToolInstaller@0
-
-  displayName: 'Use NuGet 4.4.1'
-
-  inputs:
-
-    versionSpec: 4.4.1
-
-
-
-- task: NuGetCommand@2
-
-  displayName: 'NuGet restore'
-
-  inputs:
-
-    restoreSolution: '$(Parameters.solution)'
-
-    feedsToUse: config
-
-    nugetConfigPath: nuget.config
-
-
-
-- task: VSBuild@1
-
-  displayName: 'Build solution **\*.sln'
-
-  inputs:
-
-    solution: '$(Parameters.solution)'
-
-    msbuildArgs: '/p:Deterministic=true /p:PathMap=$(Agent.BuildDirectory)=C:\'
-
-    platform: '$(BuildPlatform)'
-
-    configuration: '$(BuildConfiguration)'
-
-
-
-- task: VSBuild@1
-
-  displayName: 'Build solution **\*.sfproj'
-
-  inputs:
-
-    solution: '$(Parameters.serviceFabricProject)'
-
-    msbuildArgs: '/t:Package /p:PackageLocation=$(build.artifactstagingdirectory)\applicationpackage'
-
-    platform: '$(BuildPlatform)'
-
-    configuration: '$(BuildConfiguration)'
-
-
-
-- task: VSTSBuildInfoTask@1
-
-  displayName: 'Creating Build Artifact'
-
-  inputs:
-
-    OutPutFileName: '$(build.artifactstagingdirectory)\buildinfo.json'
-
-    FeatureRegexPattern: '[^/]+(?=/$|$)'
-
-    FeatureVariableName: featureName
-
-
-
-- task: CopyFiles@2
-
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)\pdbs'
-
-  inputs:
-
-    SourceFolder: '$(build.artifactstagingdirectory)\applicationpackage'
-
-    Contents: '**\*.pdb'
-
-    TargetFolder: '$(build.artifactstagingdirectory)\pdbs'
-
-
-
-- task: DeleteFiles@1
-
-  displayName: 'Delete files from $(build.artifactstagingdirectory)\applicationpackage'
-
-  inputs:
-
-    SourceFolder: '$(build.artifactstagingdirectory)\applicationpackage'
-
-    Contents: '**\*.pdb'
-
-
-
-- task: ServiceFabricUpdateManifests@2
-
-  displayName: 'Update Service Fabric Manifests (Manifest versions)'
-
-  inputs:
-
-    applicationPackagePath: '$(build.artifactstagingdirectory)\applicationpackage'
-
-    versionSuffix: '-$(featureName)-$(build.buildnumber)'
-
-
-
-- task: ExtractServiceFabricApplicationVersionTask@1
-
-  displayName: 'Extracting ServiceFabric Version'
-
-  inputs:
-
-    ApplicationManifest: '$(build.artifactstagingdirectory)\applicationpackage\ApplicationManifest.xml'
-
-    VariableName: AppVersion
-
-    TypeVariableName: ApplicationType
-
-
-
-- task: ArchiveFiles@2
-
-  displayName: 'Archive $(build.artifactstagingdirectory)\applicationpackage'
-
-  inputs:
-
-    rootFolderOrFile: '$(build.artifactstagingdirectory)\applicationpackage'
-
-    includeRootFolder: false
-
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(AppVersion).sfpkg'
-
-
-
-- task: ArchiveFiles@2
-
-  displayName: 'Archive $(build.artifactstagingdirectory)\applicationpackage'
-
-  inputs:
-
-    rootFolderOrFile: '$(build.artifactstagingdirectory)\applicationpackage'
-
-    includeRootFolder: false
-
-    archiveFile: '$(Build.ArtifactStagingDirectory)/latest.sfpkg'
-
-
-
-- task: CopyFiles@2
-
-  displayName: 'Copy Files to: $(build.artifactstagingdirectory)\projectartifacts'
-
-  inputs:
-
-    SourceFolder: '$(system.defaultworkingdirectory)'
-
-    Contents: |
-     **\PublishProfiles\*.xml
-     **\ApplicationParameters\*.xml
-
-    TargetFolder: '$(build.artifactstagingdirectory)\projectartifacts'
-
-  enabled: false
-
-
-
-- task: PublishBuildArtifacts@1
-
-  displayName: 'Publish Artifact: drop'
-
-  inputs:
-
-    PathtoPublish: '$(build.artifactstagingdirectory)'
-
-  enabled: false
-
-
-
-- task: AzureFileCopy@2
-
-  displayName: 'AzureBlob File Copy'
-
-  inputs:
-
-    SourcePath: '$(Build.ArtifactStagingDirectory)/$(AppVersion).sfpkg'
-
-    azureSubscription: 'Microsoft Partner Network (0fd7128b-5305-49da-a400-b7a37feb271c)'
-
-    Destination: AzureBlob
-
-    storage: dotnetdevops
-
-    ContainerName: sfapps
-
-    BlobPrefix: '$(ApplicationType)/$(featureName)'
-
-
-
-- task: AzureFileCopy@2
-
-  displayName: 'AzureBlob File Copy'
-
-  inputs:
-
-    SourcePath: '$(Build.ArtifactStagingDirectory)/latest.sfpkg'
-
-    azureSubscription: 'Microsoft Partner Network (0fd7128b-5305-49da-a400-b7a37feb271c)'
-
-    Destination: AzureBlob
-
-    storage: dotnetdevops
-
-    ContainerName: sfapps
-
-    BlobPrefix: '$(ApplicationType)/$(featureName)'
-
-
-
-- task: DeleteFiles@1
-
-  displayName: 'Delete files from $(Build.ArtifactStagingDirectory)'
-
-  inputs:
-
-    SourceFolder: '$(Build.ArtifactStagingDirectory)'
-
-    Contents: '*.sfpkg'
-
-
-
-
-
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+name: '$(date:yyyyMMdd)$(rev:.rr)'
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+    - dev
+
+pr:
+- master
+- dev
+- releases/*
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: 'windows-2019'
+
+    variables:
+      buildConfiguration: 'Release'
+
+
+    steps:
+    # .NET Core
+    # Restore NuGet packages.
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+        projects: '**/*.csproj'
+        feedsToUse: config
+        nugetConfigPath: nuget.config # you should always have a NuGet.config file!
+        #verbosityRestore: 'detailed' # Options: quiet, minimal, normal, detailed, diagnostic
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: build
+        projects: '**/*.csproj'
+        configuration: '$(buildConfiguration)'
+    - task: DotNetCoreCLI@2
+      displayName: Publish
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: 'functions/**/*.csproj'
+        configuration: '$(buildConfiguration)'
+        arguments: '--output $(Build.ArtifactStagingDirectory)'
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'drop'
+        targetPath: '$(Build.ArtifactStagingDirectory)'
+- stage: Publish
+  jobs:
+  - deployment: DeployDotNetDevOps
+    pool:
+      vmImage: 'windows-2019'
+    variables:
+      buildConfiguration: 'Release'
+    environment: 'DotNETDevOps'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - task: AzureRmWebAppDeployment@4
+              inputs:
+                azureSubscription: 'Microsoft Partner Network(0fd7128b-5305-49da-a400-b7a37feb271c)'
+                appType: 'functionApp'
+                WebAppName: 'dotnetdevops-www'
+                package: '$(Pipeline.Workspace)/**/DotNETDevOps.FunctionHost.zip'
+                enableCustomDeployment: true
+                DeploymentType: 'runFromZip'
+ 

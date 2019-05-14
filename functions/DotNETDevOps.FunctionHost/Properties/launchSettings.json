@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DotNETDevOps.FunctionHost": {
+      "commandName": "Project",
+      "commandLineArgs": "host start --pause-on-error --port 44340"
+    }
+  }
+}
