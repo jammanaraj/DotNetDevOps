@@ -533,6 +533,15 @@
             "name": "Security"
           },
           {
+            "parameters": [
+              {
+                "name": "EnableDefaultServicesUpgrade",
+                "value": true
+              }
+            ],
+            "name": "ClusterManager"
+          },
+          {
             "name": "Diagnostics",
             "parameters": [
               {

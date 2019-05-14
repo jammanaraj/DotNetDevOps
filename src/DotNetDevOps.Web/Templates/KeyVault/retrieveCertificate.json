@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "certificate": { "type": "securestring" },
-    "value": { "type": "securestring" },
+    "secrets": { "type": "object" },
     "encrypted": {
       "type": "bool"
     }
@@ -18,7 +18,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/parseCertificate?certificate=',uricomponent(parameters('certificate')),'&encrypted=',parameters('encrypted'),'&value=',uricomponent(parameters('value')))]",
+          "uri": "[concat('{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/parseCertificate?certificate=',uricomponent(parameters('certificate')),'&encrypted=',parameters('encrypted'),'&secrets=',uricomponent( string(parameters('secrets'))))]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -32,9 +32,9 @@
       "type": "string",
       "value": "[reference('ParseCertificateInformation').outputs.thumbprint.value]"
     },
-    "value": {
-      "type": "string",
-      "value": "[reference('ParseCertificateInformation').outputs.value.value]"
+    "secrets": {
+      "type": "object",
+      "value": "[reference('ParseCertificateInformation').outputs.secrets.value]"
     }
   }
 }

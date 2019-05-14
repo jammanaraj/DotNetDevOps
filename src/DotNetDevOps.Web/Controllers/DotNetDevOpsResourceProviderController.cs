@@ -136,15 +136,51 @@ namespace DotNetDevOps.Web
 
         }
 
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/UnprotectValues")]
+        public async Task<IActionResult> UnprotectValues([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDataProtector dataProtector)
+        {
+            var values  = Request.Query.ToDictionary(k => k.Key, v => new { type = "securestring", value = dataProtector.Unprotect(v.Value.First()) });
 
+            return Content(JObject.FromObject(new Dictionary<string, object>
+                {
+                    {"$schema" ,"https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"},
+                    {"contentVersion","1.0.0.0" },
+                      { "resources",new object[0]},
+                    {
+                        "outputs", values
+                    }
+                    }).ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
+        }
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/parseCertificate")]
-        public async Task<IActionResult> parseCertificate([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDataProtector dataProtector, string certificate, string value, bool encrypted = false)
+        public async Task<IActionResult> parseCertificate([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDataProtector dataProtector, string certificate, string secrets, bool encrypted = false)
         {
 
             //            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.parseCertificate.json");
 
             var cert = new X509Certificate2(Convert.FromBase64String(certificate));
+            var secretsObj = null as JObject;
+            try
+            {
+                secrets = secrets.Replace("\\\\\\\\\\\\\\\"", "\"");
+                secretsObj = JToken.Parse(secrets) as JObject;
 
+            }catch(Exception ex)
+            {
+                throw new Exception(secrets);
+            }
+
+            string encrypt(string value)
+            {
+                try
+                {
+                    return string.IsNullOrEmpty(value) ? "" : Encrypt(cert, encrypted ? Encoding.Unicode.GetString(dataProtector.Unprotect(Base64.DecodeToByteArray(value))) : value);
+                }catch(Exception ex)
+                {
+                    throw new Exception(value);
+                }
+            }
+
+            var encryptedSecrets = secretsObj.Properties().ToDictionary(k => k.Name, value => encrypt(value.Value.ToString()));
 
 
             return Content(JObject.FromObject(new Dictionary<string, object>
@@ -158,9 +194,9 @@ namespace DotNetDevOps.Web
                                 type="string",
                                 value=cert.Thumbprint
                             },
-                            value = new {
-                                type="string",
-                                value=  string.IsNullOrEmpty(value) ? "": Encrypt(cert,encrypted? Encoding.Unicode.GetString( dataProtector.Unprotect(Base64.DecodeToByteArray(value))):value)// 
+                            secrets = new {
+                                type="object",
+                                value= encryptedSecrets// 
                             }
                         }
                     }
@@ -814,7 +850,7 @@ namespace DotNetDevOps.Web
                         var value = await client.GetSecretAsync($"https://{vault.Split('/').Last()}.vault.azure.net", secret);
 
                         param["defaultValue"] = value.Value;
-                        url = url + $"{(url.Contains('?') ? '&' : '?')}{prop.Name}= {Base64.Encode(dataProtector.Protect(Encoding.Unicode.GetBytes(value.Value)))}";
+                        url = url + $"{(url.Contains('?') ? '&' : '?')}{prop.Name}={Base64.Encode(dataProtector.Protect(Encoding.Unicode.GetBytes(value.Value)))}";
                     }
                     catch (Exception ex)
                     {

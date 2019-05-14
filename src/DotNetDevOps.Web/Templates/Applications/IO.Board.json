@@ -11,6 +11,22 @@
         "login_hint": "pks@s-innovations.net"
       }
     },
+    "AzureSignalRConnectionString": {
+      "type": "securestring",
+      "reference": {
+        "keyVault": "/subscriptions/0fd7128b-5305-49da-a400-b7a37feb271c/resourceGroups/io-board/providers/Microsoft.KeyVault/vaults/io-board",
+        "secretName": "AzureSignalRConnectionString",
+        "login_hint": "pks@s-innovations.net"
+      }
+    },
+    "IOStorageApiClientSecret": {
+      "type": "securestring",
+      "reference": {
+        "keyVault": "/subscriptions/0fd7128b-5305-49da-a400-b7a37feb271c/resourceGroups/io-board/providers/Microsoft.KeyVault/vaults/io-board",
+        "secretName": "IOStorageApiClientSecret",
+        "login_hint": "pks@s-innovations.net"
+      }
+    },
     "keyVaultName": {
       "type": "string",
       "defaultValue": "[toLower(take(resourceGroup().name,24))]",
@@ -58,7 +74,14 @@
         "parameters": {
           "secretName": { "value": "test" },
           "keyVaultName": { "value": "[parameters('keyVaultName')]" },
-          "value": { "value": "[parameters('AzureADServicePrincipal')]" },
+          "secrets": {
+            "value": {
+              "AzureADServicePrincipal": "[parameters('AzureADServicePrincipal')]",
+              "AzureSignalRConnectionString": "[parameters('AzureSignalRConnectionString')]",
+              "IOStorageApiClientSecret": "[parameters('IOStorageApiClientSecret')]"
+            }
+           
+          },
           "encrypted": { "value": true }
         }
       }
@@ -82,7 +105,7 @@
               "ASPNETCORE_ENVIRONMENT": "[parameters('environment')]",
               "ApplicationStorageAccountId": "/subscriptions/0fd7128b-5305-49da-a400-b7a37feb271c/resourceGroups/io-board/providers/Microsoft.Storage/storageAccounts/ioboard",
               "Azure.KeyVault.Uri": "[parameters('keyVaultUri')]",
-              "AzureADServicePrincipal": "[reference('RetriveAndParseCertificateInformation').outputs.value.value]",
+              "AzureADServicePrincipal": "[reference('RetriveAndParseCertificateInformation').outputs.secrets.value.AzureADServicePrincipal]",
               "AzureResourceManagerCertThumbrint": "[reference('RetriveAndParseCertificateInformation').outputs.thumbprint.value]",
               "GatewayProperties": "{'CloudFlareZoneId':'fff7db212450666eaf8518a090c3ab88'}",
               "GatewayReverseProxyLocation": "/gateway/",
@@ -116,12 +139,15 @@
               "IO-Board.Portal_InstanceCount": "2",
               "IO-Board.StorageService_InstanceCount": "2",
               "IO-Board.IdentityService_InstanceCount": "2",
+              "IO-Board.StorageServices.BlobChangeService_InstanceCount": "2",
               "IO-Board_Environment": "Production",
               "IO-Board_PortalUrl": "https://io-board.com",
               "IO-Board_GatewayApplication": "[variables('gatewayApplicationName')]",
               "IO-Board_ApplicationInsights": "[parameters('instrumentationKey')]",
               "IO-Board_Authority": "https://login.io-board.com",
-              "IO-Board_ResourceApi": "https://api.io-board.com"
+              "IO-Board_ResourceApi": "https://api.io-board.com",
+              "IO-Board_SignalRConnectionString": "[reference('RetriveAndParseCertificateInformation').outputs.secrets.value.AzureSignalRConnectionString]",
+              "IO-Board_IOStorageApiClientSecret": "[reference('RetriveAndParseCertificateInformation').outputs.secrets.value.IOStorageApiClientSecret]"
             }
           }
         }

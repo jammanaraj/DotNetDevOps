@@ -9,8 +9,8 @@
       "type": "string"
 
     },
-    "value": {
-      "type": "securestring"
+    "secrets": {
+      "type": "object"
     },
     "encrypted": {
       "type": "bool"
@@ -33,7 +33,7 @@
         },
         "parameters": {
           "encrypted": {"value": "[parameters('encrypted')]"},
-          "value": { "value": "[parameters('value')]" },
+          "secrets": { "value": "[parameters('secrets')]" },
           "certificate": {
             "reference": {
               "keyVault": {
@@ -55,9 +55,9 @@
       "type": "string",
       "value": "[reference(resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults/secrets', parameters('keyVaultName'), parameters('secretName')), '2015-06-01').secretUriWithVersion]"
     },
-    "value": {
-      "type": "string",
-      "value": "[reference('RetriveCertificateInformation').outputs.value.value]"
+    "secrets": {
+      "type": "object",
+      "value": "[reference('RetriveCertificateInformation').outputs.secrets.value]"
     }
   }
 }
