@@ -31,19 +31,23 @@ namespace DotNETDevOps.FunctionHost
     }
     public class WebHostBuilderConfigurationBuilderExtension : IWebHostBuilderExtension
     {
+        private readonly ILogger<WebHostBuilderConfigurationBuilderExtension> logger;
         private readonly Microsoft.Extensions.Hosting.IHostingEnvironment hostingEnvironment;
 
-        public WebHostBuilderConfigurationBuilderExtension(Microsoft.Extensions.Hosting.IHostingEnvironment hostingEnvironment)
+        public WebHostBuilderConfigurationBuilderExtension(ILogger<WebHostBuilderConfigurationBuilderExtension> logger, Microsoft.Extensions.Hosting.IHostingEnvironment hostingEnvironment)
         {
+            this.logger = logger;
             this.hostingEnvironment = hostingEnvironment;
         }
 
 
         public void ConfigureAppConfiguration(WebHostBuilderContext context, IConfigurationBuilder builder)
         {
-            builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            builder               
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true)
-                .AddUserSecrets("93CD8C24-88BA-4141-9E65-7E78FBDB6D95");
+                .AddUserSecrets("93CD8C24-88BA-4141-9E65-7E78FBDB6D95")
+                .AddEnvironmentVariables();
         }
 
         public void ConfigureWebHostBuilder(WebHostBuilder builder)
@@ -52,9 +56,11 @@ namespace DotNETDevOps.FunctionHost
             builder.ConfigureAppConfiguration(ConfigureAppConfiguration);
             builder.ConfigureLogging(Logging);
 
+            logger.LogWarning(hostingEnvironment.EnvironmentName);
+
             if (hostingEnvironment.IsDevelopment())
             {
-                builder.UseContentRoot(Path.Combine(Directory.GetCurrentDirectory(), "../../../../../src/DotNetDevOps.Web"));
+               builder.UseContentRoot(Path.Combine(Directory.GetCurrentDirectory(), "../../../../../src/DotNetDevOps.Web"));
             }
             // builder.UseContentRoot();
             //   builder.UseContentRoot(Directory.GetCurrentDirectory());
@@ -90,6 +96,12 @@ namespace DotNETDevOps.FunctionHost
         [FunctionName("AspNetCoreHost")]
         public Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, Route = "{*all}")]HttpRequest req, ExecutionContext executionContext, ILogger log)
-       => aspNetCoreRunner.RunAsync<Startup>(req, executionContext);
+        {
+           // var h = req.HttpContext.RequestServices.GetService<Microsoft.AspNetCore.Hosting.IHostingEnvironment>();
+          //  var c = req.HttpContext.RequestServices.GetService<IConfiguration>();
+
+            return aspNetCoreRunner.RunAsync<Startup>(req, executionContext);
+
+        }
     }
 }
