@@ -37,6 +37,27 @@ stages:
         feedsToUse: config
         nugetConfigPath: nuget.config # you should always have a NuGet.config file!
         #verbosityRestore: 'detailed' # Options: quiet, minimal, normal, detailed, diagnostic
+    
+    - task: Npm@1
+        displayName: 'npm install'
+        inputs:
+        workingDir: 'src\DotNetDevOps.Web'
+        verbose: false
+
+    - task: Npm@1
+      displayName: 'npm custom'
+      inputs:
+        command: custom
+        workingDir: 'src\DotNetDevOps.Web'
+        verbose: false
+        customCommand: 'run tsc'
+
+    - task: Grunt@0
+      displayName: 'grunt packwww'
+      inputs:
+        gruntFile: src/DotNetDevOps.Web/gruntfile.js
+        targets: packwww
+
     - task: DotNetCoreCLI@2
       displayName: Build
       inputs:
@@ -51,6 +72,12 @@ stages:
         projects: 'functions/**/*.csproj'
         configuration: '$(buildConfiguration)'
         arguments: '--output $(Build.ArtifactStagingDirectory)'
+    - task: VSTSBuildInfoTask@1
+      displayName: 'Creating Build Artifact'
+      inputs:
+        OutPutFileName: '$(build.artifactstagingdirectory)\buildinfo.json'
+        FeatureRegexPattern: '[^/]+(?=/$|$)'
+        FeatureVariableName: featureName   
     - task: PublishPipelineArtifact@0
       inputs:
         artifactName: 'drop'
@@ -69,7 +96,7 @@ stages:
           steps:
             - task: AzureRmWebAppDeployment@4
               inputs:
-                azureSubscription: 'Microsoft Partner Network(0fd7128b-5305-49da-a400-b7a37feb271c)'
+                azureSubscription: 'Microsoft Partner Network (0fd7128b-5305-49da-a400-b7a37feb271c)'
                 appType: 'functionApp'
                 WebAppName: 'dotnetdevops-www'
                 package: '$(Pipeline.Workspace)/**/DotNETDevOps.FunctionHost.zip'
