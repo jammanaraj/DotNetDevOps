@@ -1,0 +1,151 @@
+
+
+
+.w-nav {
+    position: relative;
+    background: #ddd;
+    z-index: 1000;
+}
+
+
+.navbar {
+    position: fixed;
+    width: ~"calc(100% - 40px)";
+    height: auto;
+    padding: 5vh 5vw 0;
+    background-color: #f87f2e;
+}
+
+.w-nav:after, .w-nav:before {
+    content: " ";
+    display: table;
+    grid-column-start: 1;
+    grid-row-start: 1;
+    grid-column-end: 2;
+    grid-row-end: 2;
+}
+.brand.w--current, .brand.w--current:hover, .brand:hover, .link-nav {
+    box-shadow: none;
+}
+
+.brand {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+   
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    border-bottom: 1px #000;
+    box-shadow: none;
+
+}
+
+.w-nav-brand, .w-nav-link {
+    position: relative;
+    text-decoration: none;
+
+   
+}
+.w-nav-brand {
+    float: left;
+    font-family: barlow;
+    font-size: 4rem;
+    line-height: 4rem;
+    background-color: black;
+    color: rgb(248, 127, 46);
+    padding: 20px;
+    font-weight: 600;
+}
+
+
+.nav-menu {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    padding-top: 4vh;
+    padding-bottom: 2vh;
+    float: right;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.w-nav-menu {
+    position: relative;
+    float: right;
+}
+
+.link-nav.w--current, .link-nav:hover {
+    box-shadow: inset 0 -3px 0 0 rgba(0,0,0,.5);
+    color: #000;
+}
+
+.w-nav-link {
+    display: inline-block;
+    vertical-align: top;
+    color: #222;
+    padding: 20px;
+    text-align: left;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.link-nav {
+    margin-right: 10px;
+    margin-left: 10px;
+    padding: 0 0 5px;
+    -webkit-transition: color .2s ease,box-shadow .2s ease;
+    transition: color .2s ease,box-shadow .2s ease;
+    font-family: Roboto,sans-serif;
+    color: #000;
+    font-size: 16px;
+    font-weight: 400;
+}
+.brand.w--current, .brand.w--current:hover, .brand:hover, .link-nav {
+    box-shadow: none;
+}
+
+
+.w-nav-button {
+    position: relative;
+    float: right;
+    padding: 18px;
+    font-size: 24px;
+    display: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.w-nav-overlay {
+    position: absolute;
+    overflow: hidden;
+    display: none;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+}
+
+.w-nav:after {
+    clear: both;
+}
+
+.w-nav:after, .w-nav:before {
+    content: " ";
+    display: table;
+    grid-column-start: 1;
+    grid-row-start: 1;
+    grid-column-end: 2;
+    grid-row-end: 2;
+}
+

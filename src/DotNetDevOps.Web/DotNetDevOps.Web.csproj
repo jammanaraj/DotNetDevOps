@@ -5,6 +5,7 @@
     <TypeScriptToolsVersion>3.1</TypeScriptToolsVersion>
     <RootNamespace>DotNetDevOps</RootNamespace>
     <LangVersion>latest</LangVersion>
+    <UserSecretsId>39da27f7-26bd-4940-a897-d21fe6c0c2c6</UserSecretsId>
     
   </PropertyGroup>
 

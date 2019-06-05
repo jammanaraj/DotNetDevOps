@@ -1,0 +1,131 @@
+
+
+
+.hero {
+    position: fixed;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    width: calc(100% - 40px);
+    min-height: calc(100% - 40px);
+    padding-bottom: 10vh;
+    -webkit-box-align: end;
+    -webkit-align-items: flex-end;
+    -ms-flex-align: end;
+    align-items: flex-end;
+    background-color: transparent;
+}
+
+.hero, .hero.pages {
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+
+
+
+.wrapper-title {
+    overflow: hidden;
+    width: 100%;
+    margin-right: 0;
+    margin-left: 0;
+    padding-right: 5vw;
+    padding-left: 5vw;
+}
+
+._w-h1 {
+    position: relative;
+    overflow: hidden;
+    padding-right: 10vw;
+}
+
+
+
+
+.main-h1 {
+    position: relative;
+    margin-top: 5px;
+    margin-bottom: 0;
+    color: #000;
+    font-size: 14vh;
+    line-height: 16vh;
+    font-weight: 400;
+}
+.main-h2 {
+    position: relative;
+    margin-top: 5px;
+    margin-bottom: 0;
+    color: #000;
+    font-size: 10vh;
+    line-height: 12vh;
+    font-weight: 400;
+
+}
+
+.hero h1,.hero h2, .scroll-to-demo h1 {
+    font-family: Barlow,sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.main-h1.bold {
+    font-weight: 900;
+}
+
+.main-h1.home {
+    padding-bottom: 51px;
+ //   font-size: 22vh;
+ //   line-height: 22vh;
+}
+
+.main-h2.home {
+    padding-bottom: 31px;
+  //  font-size: 16vh;
+  //  line-height: 16vh;
+}
+
+
+.main-h1.bold.home {
+    margin-top: 0;
+    font-size: 16vh;
+}
+
+
+@media screen and (min-width: 32em) {
+
+    ._w-h1.last:after {
+        content: "";
+        width: 6rem;
+        height: 3px;
+        background: #ba4e06;
+        position: absolute;
+        bottom: 0;
+    }
+}
+
+.home-subhead {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    width: 30vw;
+    margin-top: 30px;
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.paragraph-3 {
+    color: #000;
+}
+
+.hero p, .scroll-to-demo p {
+    line-height: 20px;
+}

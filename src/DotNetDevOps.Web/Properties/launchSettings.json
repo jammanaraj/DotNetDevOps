@@ -14,16 +14,6 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    },
-    "DotNetDevOps.Web": {
-      "commandName": "Executable",
-      "executablePath": "C:\\Users\\pksor\\AppData\\Local\\AzureFunctionsTools\\Releases\\2.22.0\\cli\\func.exe",
-      "commandLineArgs": "host start --pause-on-error --port 44340 --useHttps",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "http://localhost:23407/"
     }
   }
 }

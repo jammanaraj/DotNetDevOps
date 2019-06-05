@@ -13,13 +13,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
 		azure-pipelines.yml = azure-pipelines.yml
+		front-pipeline.yml = front-pipeline.yml
 		global.json = global.json
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNETDevOps.FunctionHost", "functions\DotNETDevOps.FunctionHost\DotNETDevOps.FunctionHost.csproj", "{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNETDevOps.FunctionHost", "functions\DotNETDevOps.FunctionHost\DotNETDevOps.FunctionHost.csproj", "{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "functions", "functions", "{D59D4BB7-285F-4C9F-8B5F-6698E5F32656}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNETDevOps.Front", "apps\DotNETDevOps.Front\DotNETDevOps.Front.csproj", "{81CF4B55-B290-448F-B948-863F6ADDB3A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apps", "apps", "{6BAA94A7-48C6-49D0-95AA-7374A6218D28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +50,14 @@ Global
 		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Release|x64.ActiveCfg = Release|Any CPU
 		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2}.Release|x64.Build.0 = Release|Any CPU
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8}.Debug|x64.Build.0 = Debug|Any CPU
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8}.Release|x64.ActiveCfg = Release|Any CPU
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -52,6 +65,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{F016374C-8654-44AF-A7D0-D45352F95803} = {3CA4699D-2057-4D75-9A63-017615DCF550}
 		{C3ADA7D9-A03A-4992-899B-CEC9232A67E2} = {D59D4BB7-285F-4C9F-8B5F-6698E5F32656}
+		{81CF4B55-B290-448F-B948-863F6ADDB3A8} = {6BAA94A7-48C6-49D0-95AA-7374A6218D28}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFF22EB7-22A2-4A95-B4D5-4A93A06FCD92}

@@ -1,0 +1,136 @@
+
+
+
+.section {
+    position: relative;
+    top: 100vh;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    height: 100vh;
+    padding-right: 0;
+    padding-left: 0;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    background-color: #dcdee0;
+}
+
+.section.main {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.section.main {
+    background: #e9e3de;
+    z-index: 1000000;
+}
+
+.wrapper {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    width: 100%;
+    -webkit-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-box-align: stretch;
+    -webkit-align-items: stretch;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    background-color: #fff;
+}
+
+.column._100vh {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    overflow: visible;
+    width: 50%;
+    padding: 10vh 10vw 10vh 15vw;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-flex: 0;
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+    background-color: rgba(0,0,0,.75);
+    color: #fff;
+}
+
+.column {
+    overflow: hidden;
+    -webkit-box-flex: 1;
+    -webkit-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    border: 1px #000;
+}
+
+.section.main .column {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+
+.project-info {
+    align-self: baseline;
+}
+
+.project-info, .project-info.head {
+    -webkit-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
+}
+
+.project-info {
+    position: relative;
+    z-index: 20;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.big-link, .number {
+    font-family: Palatino Linotype,Book Antiqua,Palatino,serif;
+}
+
+.number {
+    position: relative;
+    margin-bottom: 0;
+    margin-left: 0;
+    float: none;
+    color: grey;
+    font-size: 70px;
+    line-height: 60px;
+    font-weight: 400;
+}
+
+.project-info h2 {
+    font-family: Barlow,sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.project-description {
+    color: #7a7a7a;
+    font-size: 18px;
+}
