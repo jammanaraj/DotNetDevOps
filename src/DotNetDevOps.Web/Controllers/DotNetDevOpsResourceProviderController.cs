@@ -130,6 +130,16 @@ namespace DotNetDevOps.Web
             var functionBlob = functionContainer.GetBlockBlobReference(function + "/" + latest.Version + "/" + function + ".zip");
             template.SelectToken("$.parameters.artifactsUri")["defaultValue"] = functionBlob.Uri;
 
+            var appsettings = template.SelectToken("$.resources[0].properties.siteConfig.appSettings") as JArray;
+
+            foreach(var query in Request.Query.Where(k => k.Key.StartsWith("appsetting_")))
+            {
+                appsettings.Add(new JObject(
+                    new JProperty("name",query.Key.Substring("appsetting_".Length)),
+                    new JProperty("value",query.Value.FirstOrDefault())
+                    ));
+            }
+
             return Ok(template);
         }
 

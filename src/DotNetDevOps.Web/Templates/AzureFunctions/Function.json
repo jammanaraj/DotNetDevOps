@@ -21,6 +21,9 @@
       "apiVersion": "2016-03-01",
       "name": "[parameters('name')]",
       "type": "Microsoft.Web/sites",
+      "identity": {
+        "type": "SystemAssigned"
+      },
       "properties": {
         "name": "[parameters('name')]",
         "siteConfig": {
