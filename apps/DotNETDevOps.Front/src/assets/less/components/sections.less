@@ -27,8 +27,9 @@
 }
 
 .section.main {
-    background: #e9e3de;
+    background: white;
     z-index: 1000000;
+    padding: 20px 0;
 }
 
 .wrapper {
@@ -87,6 +88,9 @@
 .project-info {
     align-self: baseline;
 }
+.project-info.center {
+    align-self: center;
+}
 
 .project-info, .project-info.head {
     -webkit-box-align: start;
@@ -133,4 +137,12 @@
 .project-description {
     color: #7a7a7a;
     font-size: 18px;
+}
+
+.column._100vh:nth-child(2) {
+    background-color: #e9e3de
+}
+
+.section.main .w-dyn-item:nth-of-type(2n) > .column {
+    flex-direction: row-reverse;
 }

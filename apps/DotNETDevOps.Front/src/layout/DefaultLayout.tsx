@@ -70,7 +70,22 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
                 <HeroLayout transform={this.transform} backgroundColor={this.backgroundColor} title="DotNET DevOps" subtitle="Deliver software faster" />
 
                 <router-view>
-                    <WDynItem title="LetsEncrypt" number="01" />
+                    <WDynItem title="LetsEncrypt" number="01" >
+                        <p class="reader">
+                            With the following Azure Function, using lets encrypt is easy.
+                                        </p>
+                        <p class="reader">
+
+                        </p>
+                    </WDynItem>
+                    <WDynItem title="DotNET DevOps Routr" number="02" >
+                        <p class="reader">
+                          <b>DotNET DevOps Routr</b> is a consumption based reverse proxy build on .net core that allow you to quickly configure, deploy and manage your routing of microservices across several azure services.
+                                        </p>
+                        <p class="reader">
+                            The reverse proxy allows easy nginx inspired configuration of routing to azure functions, blob storage and other azure services.
+                        </p>
+                    </WDynItem>
                 </router-view>
             </div>
         );

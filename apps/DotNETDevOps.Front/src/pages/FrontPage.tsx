@@ -44,14 +44,9 @@ export class WDynItem extends tsx.Component<WDynItemOptions> {
 
                     </div>
                 </div>
-                <div class="column _100vh bg-white">
-                    <div class="project-description">
-                        <p class="reader">
-                            With the following Azure Function, using lets encrypt is easy.
-                                        </p>
-                        <p class="reader">
-
-                        </p>
+                <div class="column _100vh">
+                        <div class="project-description">
+                            {this.$slots.default}
                     </div>
                 </div>
             </div>
