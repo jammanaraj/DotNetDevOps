@@ -17,6 +17,7 @@
     <Content Remove="Templates\Applications\FabricGateway.json" />
     <Content Remove="Templates\Applications\IO.Board.json" />
     <Content Remove="Templates\Applications\IO.Board.Update.json" />
+    <Content Remove="Templates\AzureFunctions\Function.json" />
     <Content Remove="Templates\KeyVault\parseCertificate.json" />
     <Content Remove="Templates\KeyVault\retrieveAndParseCertificate.json" />
     <Content Remove="Templates\KeyVault\retrieveCertificate.json" />
@@ -81,6 +82,10 @@
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.2" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Templates\AzureFunctions\Function.json" />
   </ItemGroup>
 
 </Project>

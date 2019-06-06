@@ -5,9 +5,11 @@ using Microsoft.Azure.KeyVault;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SemanticVersions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -46,6 +48,45 @@ namespace DotNetDevOps.Web
         }
     }
 
+    public class LibVersion
+    {
+        public string Version { get; set; }
+    }
+    public class CDNHelper
+    {
+        public string url { get; }
+        public string lib { get; }
+
+        public CDNHelper(string url, string lib)
+        {
+            this.url = url;
+            this.lib = lib;
+        }
+        private static char[] splits = new[] { '/' };
+
+        public async Task<LibVersion> GetAsync(string filter = "*")
+        {
+            var blob = new CloudBlobContainer(new Uri(url));
+            if (!await blob.ExistsAsync())
+            {
+                return null;
+            }
+            var versions = await blob.ListBlobsSegmentedAsync($"{lib}/", null);
+
+            var sems = versions.Results.OfType<CloudBlobDirectory>()
+                .Where(c => SemanticVersion.TryParse(c.Prefix.Split(splits, StringSplitOptions.RemoveEmptyEntries).Last(), out SemanticVersion semver) && semver.Satisfies(filter))
+                .OrderByDescending(c => new SemanticVersion(c.Prefix.Split(splits, StringSplitOptions.RemoveEmptyEntries).Last()))
+                .ToArray();
+            if (!sems.Any())
+            {
+                return null;
+            }
+
+            return new LibVersion { Version = sems.FirstOrDefault().Prefix.Split(splits, StringSplitOptions.RemoveEmptyEntries).Last() };
+
+        }
+    }
+
     public class DotNetDevOpsResourceProviderController : Controller
     {
         private static async Task<JToken> LoadTemplateAsync(EndpointOptions endpoint, string key)
@@ -73,6 +114,21 @@ namespace DotNetDevOps.Web
 
 
 
+
+            return Ok(template);
+        }
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/azure-function")]
+        public async Task<IActionResult> GetAzureFunctionDeployment([FromServices] IOptions<EndpointOptions> endpoints, string function, [FromServices] CloudStorageAccount cloudStorageAccount)
+        {
+            var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.Function.json");
+
+            var functionContainer = cloudStorageAccount.CreateCloudBlobClient().GetContainerReference("functions");
+
+            var cdnHelper = new CDNHelper(functionContainer.Uri.ToString(), function);
+            var latest = await cdnHelper.GetAsync();
+            var functionBlob = functionContainer.GetBlockBlobReference(function + "/" + latest.Version + "/" + function + ".zip");
+            template.SelectToken("$.parameters.artifactsUri")["defaultValue"] = functionBlob.Uri;
 
             return Ok(template);
         }

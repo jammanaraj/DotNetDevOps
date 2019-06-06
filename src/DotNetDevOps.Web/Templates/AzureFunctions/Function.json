@@ -1,0 +1,65 @@
+{
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "subscriptionId": {
+      "type": "string"
+    },
+    "artifactsUri": {
+      "type": "string"
+    },
+    "storageResourceId": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-03-01",
+      "name": "[parameters('name')]",
+      "type": "Microsoft.Web/sites",
+      "properties": {
+        "name": "[parameters('name')]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',last(split(paramters('storageResourceId'),'/')),';AccountKey=',listKeys(parameters('storageResourceId'), '2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~2"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',last(split(paramters('storageResourceId'),'/')),';AccountKey=',listKeys(parameters('storageResourceId'), '2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[concat(toLower(parameters('name')), 'bd58')]"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_ZIP",
+              "value": "[parameters('artifactsUri')]"
+            }
+          ]
+        },
+        "clientAffinityEnabled": false,
+        "reserved": false
+      },
+      "resources": [
+      ],
+      "location": "[parameters('location')]",
+      "kind": "functionapp"
+    }
+  ],
+  "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0"
+}
