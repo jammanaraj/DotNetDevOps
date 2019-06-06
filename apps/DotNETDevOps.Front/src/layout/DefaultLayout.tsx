@@ -90,9 +90,10 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
    
 
     get href() {
-        
 
-            let url = `https://portal.azure.com/#create/Microsoft.Template/uri/${encodeURI(this.resourceApi + `/providers/DotNetDevOps.AzureTemplates/templates/azure-function?function=${this.functionName}&${this.appSettings.map(kv => `appsetting_${kv.keyValue}=${kv.value}`).join('&')}`)}`;
+        let encodedUri = encodeURIComponent(this.resourceApi + `/providers/DotNetDevOps.AzureTemplates/templates/azure-function?function=${this.functionName}&${this.appSettings.map(kv => `appsetting_${kv.keyValue}=${kv.value}`).join('&')}`);
+
+        let url = `https://portal.azure.com/#create/Microsoft.Template/uri/${encodedUri}`;
             console.log(url);
             return url;
          

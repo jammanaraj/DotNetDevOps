@@ -355,6 +355,7 @@ namespace DotNetDevOps.Web
 
             services.AddSingleton(CloudStorageAccount.Parse(configuration.GetValue<string>("storage:connectionString")));
 
+            services.AddCors();
 
             //services.AddAuthentication()
             //     .AddOpenIdConnect(opts =>
@@ -435,6 +436,8 @@ namespace DotNetDevOps.Web
 
                 });
             });
+
+            app.UseCors(c=>c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
             app.UseStaticFiles();
 

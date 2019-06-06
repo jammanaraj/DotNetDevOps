@@ -13,6 +13,9 @@ namespace DotNetDevOps
     {
         public static void Main(string[] args)
         {
+            //var cdn = new CDNHelper("https://dotnetdevops.blob.core.windows.net/functions", "DotNETDevOps.FrontDoor.RouterFunction");
+            //var a = cdn.GetAsync().Result;
+
             CreateWebHostBuilder(args).Build().Run();
         }
 
