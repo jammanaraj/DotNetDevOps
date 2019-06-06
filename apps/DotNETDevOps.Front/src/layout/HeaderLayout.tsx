@@ -19,7 +19,7 @@ export default class HeaderLayout extends tsx.Component<HeaderLayoutOptions>{
         return (
             <div data-animation="default" data-duration="400" class="navbar w-nav no-print" style={ { backgroundColor: this.backgroundColor, 'will-change':'background' } }>
                 <a href="/" class="brand w-nav-brand w--current">
-                    DotNETDevOps
+                    DotNET DevOps
                 </a>
                 <nav role="navigation" class="nav-menu w-nav-menu">
                     {this.$slots.links}
