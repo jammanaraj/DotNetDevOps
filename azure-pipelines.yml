@@ -10,6 +10,11 @@ trigger:
     include:
     - master
     - dev
+  paths:
+    include:
+    - functions/*
+    - azure-pipelines.yml
+    - src/DotNetDevOps.Web/*
 
 pr:
 - master
