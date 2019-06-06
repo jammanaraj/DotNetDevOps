@@ -16,40 +16,44 @@ export interface FrontPageOptions {
 export interface WDynItemOptions {
     number: string;
     title: string;
+    
 }
 @Component
-export class WDynItem extends tsx.Component<WDynItemOptions> {
+export class WDynItem extends tsx.Component<WDynItemOptions, {}, {info}> {
 
-    resourceApi = "https://management.dotnetdevops.org";
+    
 
-    @Prop({default:"01"})
+    @Prop({ default: "01" })
     number!: string;
 
     @Prop()
     title!: string;
 
+
+   
+
     render() {
         return (
-        <div class="wrapper w-dyn-item">
-            <div class="column">
-                <div class="column _100vh">
-                    <div class="project-info">
-                        <div class="number">
-                            <h2 class="number zero">{this.number}</h2>
+            <div class="wrapper w-dyn-item">
+                <div class="column">
+                    <div class="column _100vh">
+                        <div class="project-info">
+                            <div class="number">
+                                <h2 class="number zero">{this.number}</h2>
+                            </div>
+                            <h2 class="project-title">{this.title}</h2>
+
+                            {this.$scopedSlots.info(this)}
+                           
+
                         </div>
-                        <h2 class="project-title">{this.title}</h2>
-
-                        <VBtn target="_blank" href={`https://portal.azure.com/#create/Microsoft.Template/uri/${encodeURI(this.resourceApi + '/providers/DotNetDevOps.AzureTemplates/templates/azure-function')}`}>Deploy to Azure</VBtn>
-
-
                     </div>
-                </div>
-                <div class="column _100vh">
+                    <div class="column _100vh">
                         <div class="project-description">
                             {this.$slots.default}
+                        </div>
                     </div>
                 </div>
-            </div>
             </div>
         )
     }
@@ -58,9 +62,9 @@ export class WDynItem extends tsx.Component<WDynItemOptions> {
 @Component
 export default class FrontPage extends tsx.Component<FrontPageOptions>{
 
-   
 
-    
+
+
 
 
     render() {

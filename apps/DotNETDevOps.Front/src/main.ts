@@ -13,7 +13,11 @@ import './registerServiceWorker'
 
 
 import 'vuetify/dist/vuetify.min.css'
-import "./assets/less/core.less";   
+import "./assets/less/core.less";
+
+import Vuetify from 'vuetify'
+
+Vue.use(Vuetify)
 
 Vue.use(VueRouter);
 Vue.use(RouterPrefetch);

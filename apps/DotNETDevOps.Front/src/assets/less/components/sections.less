@@ -28,7 +28,7 @@
 
 .section.main {
     background: white;
-    z-index: 1000000;
+    z-index: 100;
     padding: 20px 0;
 }
 
@@ -88,6 +88,7 @@
 .project-info {
     align-self: baseline;
 }
+
 .project-info.center {
     align-self: center;
 }
@@ -132,6 +133,7 @@
     font-family: Barlow,sans-serif;
     font-weight: 900;
     text-transform: uppercase;
+    color: white;
 }
 
 .project-description {
@@ -145,4 +147,19 @@
 
 .section.main .w-dyn-item:nth-of-type(2n) > .column {
     flex-direction: row-reverse;
+}
+
+.v-btn__content {
+    svg {
+        height: 30px;
+        /* top: 1px; */
+        padding: 3px 0 7px 0;
+    }
+
+    
+}
+.azuredeploy {
+    .v-btn__content {
+        color: rgb(0, 137, 214);
+    }
 }
