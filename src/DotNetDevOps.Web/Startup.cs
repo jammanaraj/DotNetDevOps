@@ -350,8 +350,8 @@ namespace DotNetDevOps.Web
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest); 
-            services.AddHsts(o => { o.IncludeSubDomains = false; o.Preload = true; });
-            services.AddHttpsRedirection(o => { });
+         //   services.AddHsts(o => { o.IncludeSubDomains = false; o.Preload = true; });
+         //   services.AddHttpsRedirection(o => { });
 
             services.AddSingleton(CloudStorageAccount.Parse(configuration.GetValue<string>("storage:connectionString")));
 
@@ -437,7 +437,7 @@ namespace DotNetDevOps.Web
                 });
             });
 
-            app.UseCors(c=>c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+            app.UseCors(c=>c.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin().SetPreflightMaxAge(TimeSpan.FromHours(1)));
 
             app.UseStaticFiles();
 
