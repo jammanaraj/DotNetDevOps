@@ -188,7 +188,7 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
     transform = "scale3d(1, 1, 1)";
 
     onScroll() {
-        console.log(arguments);
+        
 
         let element = document.scrollingElement as Element;
         let p = element.scrollTop / ((element.scrollHeight - element.clientHeight));
@@ -231,7 +231,7 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
                 <HeroLayout transform={this.transform} backgroundColor={this.backgroundColor} title="DotNET DevOps" subtitle="Deliver software faster" />
 
                 <router-view>
-                    <WDynItem title="LetsEncrypt" number="01"  >
+                    <WDynItem video="devops1.mp4" title="LetsEncrypt" number="01"  >
                         <p class="reader">
                             With the following Azure Function, using lets encrypt is easy.
                                         </p>

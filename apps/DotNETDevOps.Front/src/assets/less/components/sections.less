@@ -76,6 +76,7 @@
     -ms-flex: 1;
     flex: 1;
     border: 1px #000;
+    
 }
 
 .section.main .column {
@@ -137,12 +138,12 @@
 }
 
 .project-description {
-    color: #7a7a7a;
+    color: black;
     font-size: 18px;
 }
 
 .column._100vh:nth-child(2) {
-    background-color: #e9e3de
+    background-color: #e9e3decc;
 }
 
 .section.main .w-dyn-item:nth-of-type(2n) > .column {
@@ -161,5 +162,38 @@
 .azuredeploy {
     .v-btn__content {
         color: rgb(0, 137, 214);
+    }
+}
+
+
+.wrapper.w-dyn-item {
+    &:first-of-type {
+       // background-image: url(https://image.shutterstock.com/image-illustration/development-operations-culture-pixelated-word-450w-382573585.jpg);
+    }
+    margin-bottom:20px;
+    background-position: 100% 50%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+    overflow: hidden;
+
+    video {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translateX(-50%) translateY(-50%);
+        transform: translateX(-50%) translateY(-50%);
+        min-width: 100%;
+        min-height: 100%;
+        width: auto;
+        height: auto;
+     //   z-index: -1000;
+        overflow: hidden;
+    }
+
+    .vh50 {
+        min-height: calc(100vh - 40px);
+        z-index: 10;
     }
 }
