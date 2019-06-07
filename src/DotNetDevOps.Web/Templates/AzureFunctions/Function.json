@@ -25,6 +25,9 @@
         "type": "SystemAssigned"
       },
       "properties": {
+        "cors": {
+          "allowedOrigins": []          
+        },
         "name": "[parameters('name')]",
         "siteConfig": {
           "appSettings": [
