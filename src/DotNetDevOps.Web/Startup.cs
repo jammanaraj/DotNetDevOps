@@ -403,6 +403,12 @@ namespace DotNetDevOps.Web
                
             }
 
+            app.Use((c, n) =>
+            {
+                c.Response.Headers["Access-Control-Allow-Origin"] = "*";
+                return Task.CompletedTask;
+            });
+
             app.Map("/oidc-signin", (appinner) =>
             {
                 appinner.Use(async (ctx, next) =>
