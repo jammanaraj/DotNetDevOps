@@ -63,7 +63,7 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
 
     resourceApi = "https://management.dotnetdevops.org";
 
-    storageResourceId = null;
+    storageResourceId: string | null = null;
 
     @Prop()
     functionName!: string;
@@ -91,7 +91,7 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
 
     get href() {
 
-        let encodedUri = encodeURIComponent(this.resourceApi + `/providers/DotNetDevOps.AzureTemplates/templates/azure-function?function=${this.functionName}&${this.appSettings.map(kv => `appsetting_${kv.keyValue}=${kv.value}`).join('&')}`);
+        let encodedUri = encodeURIComponent(this.resourceApi + `/providers/DotNetDevOps.AzureTemplates/templates/azure-function?function=${this.functionName}&storageResourceId=${encodeURIComponent(this.storageResourceId||"")}&${this.appSettings.map(kv => `appsetting_${kv.keyValue}=${encodeURIComponent(kv.value)}`).join('&')}`);
 
         let url = `https://portal.azure.com/#create/Microsoft.Template/uri/${encodedUri}`;
             console.log(url);
@@ -123,22 +123,36 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
             <VCard>
                 <VCardTitle> <span class="headline">Deploy to Azure</span></VCardTitle>
                 <VCardText  class="grey darken-2 text-xs-center">
-
                     <VContainer class="grid-list-md">
                         <VLayout wrap>
                             <v-flex xs12>
                                 <form>
-                                    <VTextField label="AzureWebJobsStorage ResourceId" value={this.storageResourceId} />                                   
-
-                                
+                                    <VTextField label="AzureWebJobsStorage ResourceId" v-model={this.storageResourceId} />       
                                 </form>
                             </v-flex>
                         </VLayout>
                     </VContainer>
                 </VCardText>
-                <v-card-text style="  position: relative">
+                <v-card-text dark style="  position: relative">
+                    <VLayout wrap>
+                        <v-flex xs12>
+                            <h1>AppSettings</h1>
+                            </v-flex>
+                    </VLayout>
+                    <VContainer class="grid-list-md">
+                       
+                        <VLayout wrap>
+                            <v-flex xs12>
+                                <form>
+                                    {settings}  
+                                </form>
+                            </v-flex>
+                        </VLayout>
+                    </VContainer>
+                </v-card-text>
+                <v-card-text class="grey darken-2" style="  position: relative">
                     <v-fab-transition>
-                        <v-btn onClick={this.addApplicationSetting}                         
+                        <v-btn onClick={this.addApplicationSetting}
                             color="pink"
                             dark
                             absolute
@@ -149,19 +163,9 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
                             <v-icon>add</v-icon>
                         </v-btn>
                     </v-fab-transition>
-                    <VContainer class="grid-list-md">
-                        <VLayout wrap>
-                            <v-flex xs12>
-                                <form>
-                                    {settings}                                  
-
-                                </form>
-                            </v-flex>
-                        </VLayout>
-                    </VContainer>
                 </v-card-text>
-                <VDivider />
-                <VCardActions>
+                
+                <VCardActions class="grey darken-2">
                     <VSpacer />
                     <v-btn color="blue darken-1" flat onClick={this.closeDialog}>Close</v-btn>
                     <VBtn target="_blank" href={this.href} flat class="azuredeploy">

@@ -89,11 +89,36 @@ namespace DotNetDevOps.Web
 
     public class DotNetDevOpsResourceProviderController : Controller
     {
-        private static async Task<JToken> LoadTemplateAsync(EndpointOptions endpoint, string key)
+        private static async Task<JToken> LoadTemplateAsync(EndpointOptions endpoint, string key, IQueryCollection query=null)
         {
             var template = await new StreamReader(typeof(DotNetDevOpsResourceProviderController).Assembly.GetManifestResourceStream($"DotNetDevOps.Templates.{key}")).ReadToEndAsync();
             var dict = new ConcurrentDictionary<string, Guid>();
-            return JToken.Parse(Regex.Replace(template.Replace("{{HOST}}", endpoint.ResourceApiEndpoint), "{{GUID-.*}}", (m) => dict.GetOrAdd(m.Value, Guid.NewGuid()).ToString()));
+            var tmp = JToken.Parse(Regex.Replace(template.Replace("{{HOST}}", endpoint.ResourceApiEndpoint), "{{GUID-.*}}", (m) => dict.GetOrAdd(m.Value, Guid.NewGuid()).ToString()));
+
+            if (query != null)
+            {
+                var parameters = tmp.SelectToken("$.parameters") as JObject;
+                if (parameters != null)
+                {
+                    foreach (var prop in parameters.Properties())
+                    {
+                        var reference = prop.Value.SelectToken("$.reference");
+                        if (reference != null)
+                        {
+                            reference.Parent.Remove();
+                        }
+
+                        if (query.ContainsKey(prop.Name))
+                        {
+                            var param = prop.Value;
+                            param["defaultValue"] = query[prop.Name].FirstOrDefault(); // reference != null? Encoding.Unicode.GetString( dataProtector.Unprotect(Base64.DecodeToByteArray(Request.Query[prop.Name]))) :  Request.Query[prop.Name].FirstOrDefault();
+                        }
+
+
+                    }
+                }
+            }
+            return tmp;
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo")]
@@ -121,7 +146,7 @@ namespace DotNetDevOps.Web
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/azure-function")]
         public async Task<IActionResult> GetAzureFunctionDeployment([FromServices] IOptions<EndpointOptions> endpoints, string function, [FromServices] CloudStorageAccount cloudStorageAccount)
         {
-            var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.Function.json");
+            var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.Function.json",Request.Query);
 
             var functionContainer = cloudStorageAccount.CreateCloudBlobClient().GetContainerReference("functions");
 
@@ -947,25 +972,9 @@ namespace DotNetDevOps.Web
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/applications/{name}")]
         public async Task<IActionResult> GetApplicationTemplate([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDataProtector dataProtector, string name)
         {
-            var template = await LoadTemplateAsync(endpoints.Value, $"Applications.{name.Replace('-', '.')}.json");
+            var template = await LoadTemplateAsync(endpoints.Value, $"Applications.{name.Replace('-', '.')}.json",Request.Query);
 
-            var parameters = template.SelectToken("$.parameters") as JObject;
-            foreach (var prop in parameters.Properties())
-            {
-                var reference = prop.Value.SelectToken("$.reference");
-                if (reference != null)
-                {
-                    reference.Parent.Remove();
-                }
-
-                if (Request.Query.ContainsKey(prop.Name))
-                {
-                    var param = prop.Value;
-                    param["defaultValue"] = Request.Query[prop.Name].FirstOrDefault(); // reference != null? Encoding.Unicode.GetString( dataProtector.Unprotect(Base64.DecodeToByteArray(Request.Query[prop.Name]))) :  Request.Query[prop.Name].FirstOrDefault();
-                }
-
-
-            }
+          
 
 
 
