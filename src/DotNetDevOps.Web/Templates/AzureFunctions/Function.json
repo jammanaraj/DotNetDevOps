@@ -4,10 +4,8 @@
       "type": "string"
     },
     "location": {
-      "type": "string"
-    },
-    "subscriptionId": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
     },
     "artifactsUri": {
       "type": "string"
@@ -37,7 +35,7 @@
             },
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',last(split(paramters('storageResourceId'),'/')),';AccountKey=',listKeys(parameters('storageResourceId'), '2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',last(split(parameters('storageResourceId'),'/')),';AccountKey=',listKeys(parameters('storageResourceId'), '2015-05-01-preview').key1)]"
             },
             {
               "name": "FUNCTIONS_EXTENSION_VERSION",
@@ -45,7 +43,7 @@
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',last(split(paramters('storageResourceId'),'/')),';AccountKey=',listKeys(parameters('storageResourceId'), '2015-05-01-preview').key1)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',last(split(parameters('storageResourceId'),'/')),';AccountKey=',listKeys(parameters('storageResourceId'), '2015-05-01-preview').key1)]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
