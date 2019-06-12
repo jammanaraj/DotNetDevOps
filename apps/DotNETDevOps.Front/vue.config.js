@@ -1,7 +1,16 @@
-﻿const webpack = require('webpack');
+const webpack = require('webpack');
 
 module.exports = {
     lintOnSave: false,
+    chainWebpack: (config) => {
+        const svgRule = config.module.rule('svg');
+
+        svgRule.uses.clear();
+
+        svgRule
+            .use('vue-svg-loader')
+            .loader('vue-svg-loader');
+    },
     configureWebpack: {
         // Set up all the aliases we use in our app.
         resolve: {

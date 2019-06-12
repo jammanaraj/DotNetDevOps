@@ -5,9 +5,12 @@ import { Component, Prop, Watch } from 'vue-property-decorator';
 
 import "@/assets/less/components/nav.less";
 
+import SvgLogo from "@/assets/logo.svg";
+
 export interface HeaderLayoutOptions {
     backgroundColor: string;
 }
+
 
 @Component
 export default class HeaderLayout extends tsx.Component<HeaderLayoutOptions>{
@@ -19,7 +22,7 @@ export default class HeaderLayout extends tsx.Component<HeaderLayoutOptions>{
         return (
             <div data-animation="default" data-duration="400" class="navbar w-nav no-print" style={ { backgroundColor: this.backgroundColor, 'will-change':'background' } }>
                 <a href="/" class="brand w-nav-brand w--current">
-                    DotNET DevOps
+                    <SvgLogo />
                 </a>
                 <nav role="navigation" class="nav-menu w-nav-menu">
                     {this.$slots.links}
