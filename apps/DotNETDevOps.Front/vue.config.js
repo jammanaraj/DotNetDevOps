@@ -29,7 +29,11 @@ module.exports = {
         themeColor: '#344675',
         msTileColor: '#344675',
         appleMobileWebAppCapable: 'yes',
-        appleMobileWebAppStatusBarStyle: '#344675'
+        appleMobileWebAppStatusBarStyle: '#344675',
+        workboxPluginMode: 'GenerateSW',
+        workboxOptions: {
+            skipWaiting: true
+        }
     },
     pluginOptions: {
         i18n: {

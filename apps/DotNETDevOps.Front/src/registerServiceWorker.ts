@@ -28,6 +28,7 @@ if (process.env.NODE_ENV === 'production') {
             //@ts-ignore
            // self.skipWaiting();
             if (!registration || !registration.waiting) { return; }
+
             registration.waiting.postMessage('skipWaiting');
         },
         offline() {
