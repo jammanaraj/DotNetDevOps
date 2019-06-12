@@ -231,14 +231,7 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
                 <HeroLayout transform={this.transform} backgroundColor={this.backgroundColor} title="DotNET DevOps" subtitle="Deliver software faster" />
 
                 <router-view>
-                    <WDynItem video="devops1.mp4" title="LetsEncrypt" number="01"  >
-                        <p class="reader">
-                            With the following Azure Function, using lets encrypt is easy.
-                                        </p>
-                        <p class="reader">
-
-                        </p>
-
+                    <WDynItem video="devops1.mp4" title="LetsEncrypt" number="01"  >                        
                         <template slot="info">
                             <DeployPopup functionName="DotNetDevOps.LetsEncrypt" />                           
                         </template>

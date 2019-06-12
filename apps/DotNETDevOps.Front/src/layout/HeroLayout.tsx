@@ -6,6 +6,10 @@ import { Component, Prop, Watch } from 'vue-property-decorator';
 
 import "@/assets/less/components/hero.less";
 
+import anime from 'animejs';
+import  'waypoints/lib/noframework.waypoints.js';
+console.log(Waypoint);
+
 export interface HeroLayoutOptions {
     transform: string;
     backgroundColor: string;
@@ -28,6 +32,59 @@ export default class HeroLayout extends tsx.Component<HeroLayoutOptions>{
     @Prop()
     subtitle!: string;
 
+
+    mounted() {
+
+        
+        console.log("A");
+        var tl = anime.timeline({
+            easing: 'easeInOutQuad',
+            duration: 750,
+            autoplay:false
+        } as any);
+
+        tl.add({
+            targets: "h1.main-h1.home",
+            translateY: ["100%", "0%"],
+            duration: 300,
+            delay: 100,
+            easing: 'easeInOutQuad'
+        })
+
+        tl.add({
+            targets: "h2.main-h2.home",
+            translateY: ["-100%", "0%"],
+            duration: 300,
+            delay: 0,
+            easing: 'easeInOutQuad'
+        })
+
+        tl.add({
+            targets: ".home-subhead",
+            translateY: ["100%", "0%"],
+            duration: 300,
+            delay: 0,
+            easing: 'easeInOutQuad'
+        })
+
+        var waypoint = new Waypoint({
+            element: document.querySelector('.hero'),
+            enabled: false,
+            handler: function (direction) {
+                console.log(arguments);
+                if (!tl.began)
+                    tl.play();
+            }
+        })
+        waypoint.enable();
+        setTimeout(() => {
+            if (!tl.began)
+                tl.play();
+        }, 0);
+
+
+    }
+
     render() {
         return (
             <div class="hero" style={{ backgroundColor: this.backgroundColor, 'will-change': 'background' }}>
@@ -35,19 +92,19 @@ export default class HeroLayout extends tsx.Component<HeroLayoutOptions>{
                 <div data-w-id="8379a733-d2be-9ef6-7d74-5aa993d72c65" class="wrapper-title" style={{ transform: this.transform }} data-bind="style:{transform:transform,'will-change': 'transform'; 'transform-style': 'preserve-3d'}}">
 
                     <div class={{ '_w-h1': true, 'last': !this.subtitle }}>
-                        <h1  style="transform: translate3d(0px, 0%, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg); color: rgb(0, 0, 0); transform-style: preserve-3d;" class="main-h1 home">{this.title}</h1>
+                        <h1  style="transform: translateY(100%)" class="main-h1 home">{this.title}</h1>
                     </div>
 
                     {
                         this.subtitle ?
                             <div class="_w-h1 last">
-                                <h2 style="transform: translate3d(0px, 0%, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg); color: rgb(0, 0, 0); transform-style: preserve-3d;" class="main-h2 bold home">{this.subtitle}</h2>
+                                <h2 class="main-h2 bold home">{this.subtitle}</h2>
                             </div>
                             : null
                     }
                   
 
-                    <div   style="transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg); transform-style: preserve-3d;" class="home-subhead">
+                    <div class="home-subhead">
                         <p class="paragraph-3">
                             Kjeldager Holding IVS
                     <br />

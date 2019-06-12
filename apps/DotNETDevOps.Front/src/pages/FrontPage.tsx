@@ -1,4 +1,5 @@
 
+
 import * as tsx from "vue-tsx-support";
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
@@ -11,6 +12,7 @@ import "@/assets/less/components/sections.less";
 export interface FrontPageOptions {
 
 }
+
 
 
 export interface WDynItemOptions {
@@ -39,10 +41,20 @@ export class WDynItem extends tsx.Component<WDynItemOptions, {}, {info}> {
         if (this.video) {
             
             let videoElement = document.querySelector("#myVideo") as HTMLVideoElement;
+           
             let e = videoElement.parentElement as HTMLDivElement;
             document.addEventListener("scroll", (event) => {
-               
                 let bb = e.getBoundingClientRect();
+                try {
+                    if (!videoElement.currentTime) {
+                        //     videoElement.currentTime = (500 - bb.top) / 100
+                        //  videoElement.currentTime = 
+                        videoElement.play();
+                    }
+                } catch (err) {
+                    console.log(err);
+                }
+               
                 // console.log(bb.top);
                 this.top = `calc(50% - ${bb.top}px)`
                // videoElement.style.top = `calc(-100% + ${Math.abs(bb.top)}px)`
@@ -51,6 +63,16 @@ export class WDynItem extends tsx.Component<WDynItemOptions, {}, {info}> {
                 //   console.log(this.$data);
             });
         }
+       
+        var waypoint = new Waypoint({
+            element: document.getElementById(this.uniqId),
+            
+            handler:  (direction)=> {
+                console.log(document.getElementById(this.uniqId));
+                console.log(direction);
+                 
+            }
+        })
     }
     render() {
       //  console.log(this.$data.top);
@@ -60,13 +82,13 @@ export class WDynItem extends tsx.Component<WDynItemOptions, {}, {info}> {
         if (this.video) {
            
             video = (
-                <video autoplay muted loop id="myVideo" style={{ top: this.top }} >
+                <video muted={true} id="myVideo" style={{ top: this.top }} >
                     <source src={this.video} type="video/mp4" />
                 </video>
             );
         }
         return (
-            <div class="wrapper w-dyn-item">
+            <div id={this.uniqId} class={{ 'wrapper': true, 'w-dyn-item': true, 'with-video-background': this.video }}>
 
                 {video}
                 

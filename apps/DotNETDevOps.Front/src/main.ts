@@ -22,6 +22,21 @@ Vue.use(Vuetify)
 Vue.use(VueRouter);
 Vue.use(RouterPrefetch);
 
+declare module 'vue/types/vue' {
+    export interface Vue {
+        uniqId: string;
+    }
+}
+Vue.use({
+    install: function (Vue, options) {
+        Object.defineProperty(Vue.prototype, "uniqId", {
+            get: function uniqId() {
+                return this._uid;
+            }
+        });
+    }
+});
+
 /* eslint-disable no-new */
 new Vue({
     router,

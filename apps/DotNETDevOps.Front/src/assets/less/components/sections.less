@@ -69,6 +69,11 @@
     color: #fff;
 }
 
+.with-video-background {
+    .column._100vh {
+        background-color: unset;
+    }
+}
 .column {
     overflow: hidden;
     -webkit-box-flex: 1;
@@ -144,6 +149,11 @@
 
 .column._100vh:nth-child(2) {
     background-color: #e9e3decc;
+}
+.with-video-background {
+    .column._100vh:nth-child(2) {
+        background-color: unset;
+    }
 }
 
 .section.main .w-dyn-item:nth-of-type(2n) > .column {
