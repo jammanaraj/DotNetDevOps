@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
@@ -388,7 +389,7 @@ namespace DotNetDevOps.Web
             //             }
             //         };
             //     });
-
+            services.AddHealthChecks();
         }
 
 
@@ -396,6 +397,16 @@ namespace DotNetDevOps.Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseHealthChecks("/.well-known/ready", new HealthCheckOptions()
+            {
+                Predicate = (check) => check.Tags.Contains("ready"),
+            });
+
+            app.UseHealthChecks("/.well-known/live", new HealthCheckOptions
+            {
+                Predicate = (_) => false
+            });
+
             app.UseDeveloperExceptionPage();
 
             if (env.IsDevelopment())
