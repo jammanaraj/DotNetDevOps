@@ -80,6 +80,7 @@ stages:
         OutPutFileName: '$(Build.SourcesDirectory)/$(srcPath)/dist/buildinfo.json'
         FeatureRegexPattern: '[^/]+(?=/$|$)'
         FeatureVariableName: ciname
+        PullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
       inputs:
