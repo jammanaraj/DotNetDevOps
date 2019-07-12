@@ -1,37 +1,39 @@
 
 import Vue, { VNode } from 'vue';
-import vuescroll from 'vue-scroll'
-
 
 import * as tsx from "vue-tsx-support";
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
-import HeaderLayout from "./HeaderLayout";
-import HeroLayout from './HeroLayout';
-import { WDynItem } from '../pages/FrontPage';
-import { VBtn, VDialog, VCard, VCardTitle, VCardText, VDivider, VCardActions, VSpacer, VContainer, VLayout, VFlex, VTextField } from 'vuetify-tsx';
 
-Vue.use(vuescroll)
+import { VBtn, VDialog, VCard, VCardTitle, VCardText, VDivider, VCardActions, VSpacer, VContainer, VLayout, VFlex, VTextField, VApp } from 'vuetify-tsx';
 
-export interface DefaultLayoutOptions {
+import "@/assets/less/components/sections.less";
+//import "@/assets/less/components/btn.less";
+
+
+export interface FrontPageOptions {
 
 }
 
-const color1 = [248, 127, 46];
-const color2 = [255, 255, 255];
-const diff = [color2[0] - color1[0], color2[1] - color1[1], color2[2] - color1[2]]
-const scale = 0.3;
 
+
+export interface WDynItemOptions {
+  number: string;
+  title: string;
+  video?: string;
+
+}
 
 export class AppSetting extends Vue {
 
-    keyValue!:string;
+    keyValue!: string;
     value!: string;
 
-    constructor(keyValue: string , value: string ) { super({ data: { keyValue, value } }) }
+    constructor(keyValue: string, value: string) { super({ data: { keyValue, value } }) }
 
-     
+
 }
+
 
 @Component
 export class KeyValueComponent extends tsx.Component<{ keyValue?: string }, { onNewData }>
@@ -54,9 +56,10 @@ export class KeyValueComponent extends tsx.Component<{ keyValue?: string }, { on
                 <v-flex xs6> <VTextField label="Key" v-model={this.value.key} /></v-flex>
                 <v-flex xs6> <VTextField label="Value" v-model={this.value.value} /></v-flex>
             </VLayout>
-            );
+        );
     }
 }
+
 
 @Component
 export class DeployPopup extends tsx.Component<{ functionName: string, initialAppSettings?: any }>{
@@ -72,9 +75,9 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
     closeDialog() {
         this.dialog = false;
     }
-   
+
     addApplicationSetting() {
-        this.appSettings.push(new AppSetting("",""));
+        this.appSettings.push(new AppSetting("", ""));
         //this.settings.push(<KeyValueComponent value={{ key: "", value:"" }} />)
     }
 
@@ -87,21 +90,21 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
     appSettings = this.initialAppSettings
 
 
-   
+
 
     get href() {
 
-        let encodedUri = encodeURIComponent(this.resourceApi + `/providers/DotNetDevOps.AzureTemplates/templates/azure-function?function=${this.functionName}&storageResourceId=${encodeURIComponent(this.storageResourceId||"")}&${this.appSettings.map(kv => `appsetting_${kv.keyValue}=${encodeURIComponent(kv.value)}`).join('&')}`);
+        let encodedUri = encodeURIComponent(this.resourceApi + `/providers/DotNetDevOps.AzureTemplates/templates/azure-function?function=${this.functionName}&storageResourceId=${encodeURIComponent(this.storageResourceId || "")}&${this.appSettings.map(kv => `appsetting_${kv.keyValue}=${encodeURIComponent(kv.value)}`).join('&')}`);
 
         let url = `https://portal.azure.com/#create/Microsoft.Template/uri/${encodedUri}`;
-            console.log(url);
-            return url;
-         
+        console.log(url);
+        return url;
+
     }
     render() {
 
         let settings = this.appSettings && this.appSettings.map(v => (<KeyValueComponent keyValue={v.keyValue} onNewData={(e) => { console.log(e);[v.keyValue, v.value] = e }} />));
-        
+
         //@ts-ignore
         return (<VDialog dark v-model={this.dialog} persistent width="700" scopedSlots={{
             activator: (props) => (
@@ -122,12 +125,12 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
 
             <VCard>
                 <VCardTitle> <span class="headline">Deploy to Azure</span></VCardTitle>
-                <VCardText  class="grey darken-2 text-xs-center">
+                <VCardText class="grey darken-2 text-xs-center">
                     <VContainer class="grid-list-md">
                         <VLayout wrap>
                             <v-flex xs12>
                                 <form>
-                                    <VTextField label="AzureWebJobsStorage ResourceId" v-model={this.storageResourceId} />       
+                                    <VTextField label="AzureWebJobsStorage ResourceId" v-model={this.storageResourceId} />
                                 </form>
                             </v-flex>
                         </VLayout>
@@ -137,14 +140,14 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
                     <VLayout wrap>
                         <v-flex xs12>
                             <h1>AppSettings</h1>
-                            </v-flex>
+                        </v-flex>
                     </VLayout>
                     <VContainer class="grid-list-md">
-                       
+
                         <VLayout wrap>
                             <v-flex xs12>
                                 <form>
-                                    {settings}  
+                                    {settings}
                                 </form>
                             </v-flex>
                         </VLayout>
@@ -164,12 +167,12 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
                         </v-btn>
                     </v-fab-transition>
                 </v-card-text>
-                
+
                 <VCardActions class="grey darken-2">
                     <VSpacer />
                     <v-btn color="blue darken-1" flat onClick={this.closeDialog}>Close</v-btn>
                     <VBtn target="_blank" href={this.href} flat class="azuredeploy">
-                        <span class="pr-2">Deploy</span>                       
+                        <span class="pr-2">Deploy</span>
                     </VBtn>
 
                 </VCardActions>
@@ -178,67 +181,133 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
         </VDialog>);
     }
 }
-// target="_blank" href={`https://portal.azure.com/#create/Microsoft.Template/uri/${encodeURI(this.resourceApi + `/providers/DotNetDevOps.AzureTemplates/templates/azure-function?function=${this.functionName}`)}`}
+
 @Component
-export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
-
- 
-
-    backgroundColor = "rgb(248, 127, 46)";
-    transform = "scale3d(1, 1, 1)";
-
-    onScroll() {
-        
-
-        let element = document.scrollingElement as Element;
-        let p = element.scrollTop / ((element.scrollHeight - element.clientHeight));
-        p = isNaN(p) ? 1 : p;
+export class WDynItem extends tsx.Component<WDynItemOptions, {}, { info }> {
 
 
 
-        this.backgroundColor = `rgb(${color1[0] + diff[0] * p},${color1[1] + diff[1] * p},${color1[2] + diff[2] * p})`;
-        this.transform = `scale3d(${1 - scale * p}, ${1 - scale * p}, ${1 - scale * p})`;
+  @Prop({ default: "01" })
+  number!: string;
 
-        if (element.scrollHeight - element.scrollTop === element.clientHeight) {
-            console.log('scrolled');
-            document.body.classList.add("scrolled");
-        } else {
-            document.body.classList.remove("scrolled");
+  @Prop()
+  title!: string;
+
+  @Prop()
+  video!: string;
+
+  top = "-60%";
+
+  async mounted() {
+    if (this.video) {
+
+      let videoElement = document.querySelector("#myVideo") as HTMLVideoElement;
+
+      let e = videoElement.parentElement as HTMLDivElement;
+      document.addEventListener("scroll", (event) => {
+        let bb = e.getBoundingClientRect();
+        try {
+          if (!videoElement.currentTime) {
+            //     videoElement.currentTime = (500 - bb.top) / 100
+            //  videoElement.currentTime = 
+            videoElement.play();
+          }
+        } catch (err) {
+          console.log(err);
         }
 
-
-        return p;
+        // console.log(bb.top);
+        this.top = `calc(50% - ${bb.top}px)`
+        // videoElement.style.top = `calc(-100% + ${Math.abs(bb.top)}px)`
+        //  console.log(videoElement.style.top);
+        //  console.log(this.top);
+        //   console.log(this.$data);
+      });
     }
+      if (process.client) {
+          console.log("mounted");
+          console.log((this.uniqId));
+          console.log(document.getElementById(this.uniqId));
+          await import('waypoints/lib/noframework.waypoints.js');
+          var waypoint = new Waypoint({
+              element: document.getElementById(this.uniqId),
 
-    mounted() {
-        document.addEventListener("scroll", (event) => {
-            let p = this.onScroll();
+              handler: (direction) => {
+                  console.log(document.getElementById(this.uniqId));
+                  console.log(direction);
+                  console.log("a");
+              }
+          })
+      }
+  }
+  render() {
+    //  console.log(this.$data.top);
+    //   console.log(this.video)
+      
+    let video: JSX.Element | null = null;
+    if (this.video) {
 
-        });
-    }
+      video = (
+        <video muted={true} id="myVideo" style={{ top: this.top }} >
+          <source src={this.video} type="video/mp4" />
+        </video>
+      );
+      }
+  
+      return (       
+      <div id={this.uniqId} class={{ 'wrapper': true, 'w-dyn-item': true, 'with-video-background': this.video }}>
+
+        {video}
+
+        <div class="column vh50">
+          <div class="column _100vh">
+            <div class="project-info">
+              <div class="number">
+                <h2 class="number zero">{this.number}</h2>
+              </div>
+              <h2 class="project-title">{this.title}</h2>
+
+              {this.$scopedSlots.info(this)}
+
+
+            </div>
+          </div>
+          <div class="column _100vh">
+            <div class="project-description">
+              {this.$slots.default}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+@Component(
+    {
+        layout: "DefaultLayout"
+    })
+export default class FrontPage extends tsx.Component<FrontPageOptions>{
 
 
 
-    render() {
-        return (
-            <div>
-                <HeaderLayout backgroundColor={this.backgroundColor}>
-                    <template slot="links">
-                        <a href="/" class="link-nav w-nav-link w--current">Info</a>
-                        <a href="/dashboard/" class="link-nav w-nav-link">Blog</a>
-                    </template>
-                </HeaderLayout>
-                <HeroLayout transform={this.transform} backgroundColor={this.backgroundColor} title="DotNET DevOps" subtitle="Deliver software faster" />
+    
 
-                <router-view>
-                    <WDynItem video="devops1.mp4" title="LetsEncrypt" number="01"  >                        
+
+  render() {
+
+    return (
+      <div class="section main">
+        <div class="w-dyn-list">
+          <div class="w-dyn-items">
+                    <WDynItem video="devops1.mp4" title="LetsEncrypt" number="01"  >
                         <template slot="info">
-                            <DeployPopup functionName="DotNetDevOps.LetsEncrypt" />                           
+                            <DeployPopup functionName="DotNetDevOps.LetsEncrypt" />
                         </template>
                     </WDynItem>
                     <WDynItem title="DotNET DevOps Routr" number="02">
                         <p class="reader">
-                          <b>DotNET DevOps Routr</b> is a consumption based reverse proxy build on .net core that allow you to quickly configure, deploy and manage your routing of microservices across several azure services.
+                            <b>DotNET DevOps Routr</b> is a consumption based reverse proxy build on .net core that allow you to quickly configure, deploy and manage your routing of microservices across several azure services.
                                         </p>
                         <p class="reader">
                             The reverse proxy allows easy nginx inspired configuration of routing to azure functions, blob storage and other azure services.
@@ -246,10 +315,12 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
                         <template slot="info">
                             <DeployPopup functionName="DotNETDevOps.FrontDoor.RouterFunction" initialAppSettings={[new AppSetting("RemoteConfiguration", "")]} />
                         </template>
-                        
+
                     </WDynItem>
-                </router-view>
-            </div>
-        );
-    }
+          </div>
+        </div>
+
+      </div>
+    );
+  }
 }

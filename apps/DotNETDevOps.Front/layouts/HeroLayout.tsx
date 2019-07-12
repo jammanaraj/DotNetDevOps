@@ -7,8 +7,7 @@ import { Component, Prop, Watch } from 'vue-property-decorator';
 import "@/assets/less/components/hero.less";
 
 import anime from 'animejs';
-import  'waypoints/lib/noframework.waypoints.js';
-console.log(Waypoint);
+
 
 export interface HeroLayoutOptions {
     transform: string;
@@ -33,7 +32,7 @@ export default class HeroLayout extends tsx.Component<HeroLayoutOptions>{
     subtitle!: string;
 
 
-    mounted() {
+    async mounted() {
 
         
         console.log("A");
@@ -66,17 +65,19 @@ export default class HeroLayout extends tsx.Component<HeroLayoutOptions>{
             delay: 0,
             easing: 'easeInOutQuad'
         })
-
-        var waypoint = new Waypoint({
-            element: document.querySelector('.hero'),
-            enabled: false,
-            handler: function (direction) {
-                console.log(arguments);
-                if (!tl.began)
-                    tl.play();
-            }
-        })
-        waypoint.enable();
+        if (process.client) {
+            await import('waypoints/lib/noframework.waypoints.js');
+            var waypoint = new Waypoint({
+                element: document.querySelector('.hero'),
+                enabled: false,
+                handler: function (direction) {
+                    console.log(arguments);
+                    if (!tl.began)
+                        tl.play();
+                }
+            })
+            waypoint.enable();
+        }
         setTimeout(() => {
             if (!tl.began)
                 tl.play();

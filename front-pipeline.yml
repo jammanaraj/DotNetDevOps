@@ -64,13 +64,16 @@ stages:
         workingDir: '$(srcPath)'
         verbose: false
 
-    - task: Npm@1
-      displayName: 'npm custom'
-      inputs:
-        command: custom
-        workingDir: '$(srcPath)'
-        verbose: false
-        customCommand: 'run build'
+#    - task: Npm@1
+#      displayName: 'npm custom'
+#      inputs:
+#        command: custom
+#        workingDir: '$(srcPath)'
+#        verbose: false
+#        customCommand: 'run build'
+    - script: npx nuxt generate
+      workingDirectory: '$(srcPath)'
+
     - task: VSTSBuildInfoTask@1
       displayName: 'Creating Build Artifact'
       inputs:
