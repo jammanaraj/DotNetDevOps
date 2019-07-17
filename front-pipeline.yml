@@ -96,16 +96,14 @@ stages:
          package.json
         TargetFolder: '$(build.artifactstagingdirectory)'
 
-    - task: AzureFileCopy@3
+    - task: AzureBlobFileCopy@2
       displayName: 'Uploading to DotNETDevOps CDN'
       inputs:
-        destination: 'AzureBlob'
-        sourcePath: '$(srcPath)\dist\*'
-        azureSubscription: 'Microsoft Partner Network (0fd7128b-5305-49da-a400-b7a37feb271c)'
-        storage: 'dotnetdevops'
-        containerName: libs
-        blobPrefix: '$(libName)/$(libversion)-$(ciname)-$(Build.BuildNumber)/'
-        additionalArgumentsForBlobCopy: '--cache-control max-age=31557600' 
+        Source: '$(srcPath)\dist\*'
+        ConnectedServiceName: 'Microsoft Partner Network (0fd7128b-5305-49da-a400-b7a37feb271c)'
+        storage: '/subscriptions/0fd7128b-5305-49da-a400-b7a37feb271c/resourceGroups/dotnetdevops/providers/Microsoft.Storage/storageAccounts/dotnetdevops'
+        container: libs
+        CacheControl: 'max-age=31557600' 
 
 
 
