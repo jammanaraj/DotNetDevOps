@@ -18,13 +18,13 @@ module.exports = {
         //    { name: "theme-color", content: "#ffffff" }
         //],
         link: [
-            { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+            //{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
             { rel: 'stylesheet', type: 'image/x-icon', href: 'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' },
-            { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
-            { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
-            { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
+            //{ rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+            //{ rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+            //{ rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
             //{ rel: "manifest", href: "/site.webmanifest" },
-            { rel: "mask-icon", href: "/safari-pinned-tab.svg", color: "#f87f2e" }
+            //{ rel: "mask-icon", href: "/safari-pinned-tab.svg", color: "#f87f2e" }
 
         ]
     },
@@ -33,11 +33,13 @@ module.exports = {
     //},
     manifest: {
         name: 'DotNet DevOps',
+        short_name:'DevOps'
     },
     meta: {
         name: 'DotNet DevOps',
-        themeColor: '#344675',
-        msTileColor: '#344675',
+        description:'Deliver software faster with DotNet DevOps',
+        themeColor: '#ffffff',
+        msTileColor: '#f87f2e',
         appleMobileWebAppCapable: 'yes',
         appleMobileWebAppStatusBarStyle: '#344675',
         workboxPluginMode: 'GenerateSW',
