@@ -104,6 +104,7 @@ stages:
         storage: '/subscriptions/0fd7128b-5305-49da-a400-b7a37feb271c/resourceGroups/dotnetdevops/providers/Microsoft.Storage/storageAccounts/dotnetdevops'
         container: libs
         CacheControl: 'max-age=31557600' 
+        prefix: '$(libName)/$(libversion)-$(ciname)-$(Build.BuildNumber)/'
 
 
 
