@@ -1,7 +1,10 @@
+import "vue-tsx-support/enable-check"
+
 const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 const nodeExternals = require('webpack-node-externals')
 
 module.exports = {
+    //mode:"spa",
     /*
     ** Headers of the page
     */
@@ -17,11 +20,11 @@ module.exports = {
         link: [
             { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
             { rel: 'stylesheet', type: 'image/x-icon', href: 'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' },
-            { rel: "apple-touch-icon", sizes: "180x180", href: "apple-touch-icon.png" },
-            { rel: "icon", type: "image/png", sizes: "32x32", href: "favicon-32x32.png" },
-            { rel: "icon", type: "image/png", sizes: "16x16", href: "favicon-16x16.png" },
-            { rel: "manifest", href: "site.webmanifest" },
-            { rel: "mask-icon", href: "safari-pinned-tab.svg", color: "#f87f2e" }
+            { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
+            { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
+            { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
+            //{ rel: "manifest", href: "/site.webmanifest" },
+            { rel: "mask-icon", href: "/safari-pinned-tab.svg", color: "#f87f2e" }
 
         ]
     },
@@ -86,5 +89,15 @@ module.exports = {
             })
         }
     }
+    //server: {
+    //    https: true,
+    //    host: '0.0.0.0',
+    //    hot: true,
+    //    disableHostCheck: true,
+    //    https: {
+    //    pfx: "c:/dev/localhost.pfx",
+    //    pfxPassphrase: "123456",
+    //    public: 'http://localhost:8080'
+    //}
 }
 

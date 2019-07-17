@@ -31,12 +31,13 @@
       "@nuxt/vue-app"
     ]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx",
-    "node_modules/vue-tsx-support/enable-check.d.ts"
-  ]
+    "include": [
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.vue",
+        "**/*.svg",
+        "tests/**/*.ts",
+        "tests/**/*.tsx",
+        "node_modules/vue-tsx-support/enable-check.d.ts"
+    ]
 }

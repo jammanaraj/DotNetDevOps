@@ -90,7 +90,7 @@ export default class HeroLayout extends tsx.Component<HeroLayoutOptions>{
         return (
             <div class="hero" style={{ backgroundColor: this.backgroundColor, 'will-change': 'background' }}>
                 <img src="https://uploads-ssl.webflow.com/5c0e3c5ca90b66220d8975ec/5c0e3c5ca90b662a7d89762e_arrow.svg" alt="" class="arrow" />
-                <div data-w-id="8379a733-d2be-9ef6-7d74-5aa993d72c65" class="wrapper-title" style={{ transform: this.transform }} data-bind="style:{transform:transform,'will-change': 'transform'; 'transform-style': 'preserve-3d'}}">
+                <div class="wrapper-title" style={{ transform: this.transform, 'will-change': 'transform', 'transform-style': 'preserve-3d'}}>
 
                     <div class={{ '_w-h1': true, 'last': !this.subtitle }}>
                         <h1  style="transform: translateY(100%)" class="main-h1 home">{this.title}</h1>

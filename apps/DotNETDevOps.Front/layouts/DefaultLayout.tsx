@@ -9,7 +9,7 @@ import { Component, Prop, Watch } from 'vue-property-decorator';
 import { WDynItem } from '../pages/index';
 import { VBtn, VDialog, VCard, VCardTitle, VCardText, VDivider, VCardActions, VSpacer, VContainer, VLayout, VFlex, VTextField, VApp } from 'vuetify-tsx';
 
- 
+import "@/assets/less/components/sections.less";
 
 import HeaderLayout from "./HeaderLayout";
 import HeroLayout from './HeroLayout';
@@ -60,6 +60,7 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
     }
 
     mounted() {
+        console.log("mounted defaultlayout");
         document.addEventListener("scroll", (event) => {
             let p = this.onScroll();
 
@@ -74,14 +75,13 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
                 <HeaderLayout backgroundColor={this.backgroundColor}>
                     <template slot="links">
                         <a href="/" class="link-nav w-nav-link w--current">Info</a>
-                        <a href="/dashboard/" class="link-nav w-nav-link">Blog</a>
+                        <a href="/blog/" class="link-nav w-nav-link">Blog</a>
                     </template>
                 </HeaderLayout>
                 <HeroLayout transform={this.transform} backgroundColor={this.backgroundColor} title="DotNET DevOps" subtitle="Deliver software faster" />
 
-                <router-view>
-                    
-                </router-view>
+                <nuxt />
+
                 </VApp>
         );
     }

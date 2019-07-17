@@ -1,5 +1,5 @@
 
-import "vue-tsx-support/enable-check"
+
 
 import Vue from "vue";
 
@@ -32,7 +32,7 @@ var c = 0;
 Vue.mixin({
 
     beforeCreate() {
-        this.uniqId = c++;
+        this.uniqId = "_" + c++;
     }
 })
 if (process.client) {

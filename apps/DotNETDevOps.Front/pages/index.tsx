@@ -18,9 +18,9 @@ export interface FrontPageOptions {
 
 
 export interface WDynItemOptions {
-  number: string;
-  title: string;
-  video?: string;
+    number: string;
+    title: string;
+    video?: string;
 
 }
 
@@ -187,100 +187,107 @@ export class WDynItem extends tsx.Component<WDynItemOptions, {}, { info }> {
 
 
 
-  @Prop({ default: "01" })
-  number!: string;
+    @Prop({ default: "01" })
+    number!: string;
 
-  @Prop()
-  title!: string;
+    @Prop()
+    title!: string;
 
-  @Prop()
-  video!: string;
+    @Prop()
+    video!: string;
 
-  top = "-60%";
+    top = "-60%";
 
-  async mounted() {
-    if (this.video) {
+    mounted() {
+        console.log("MOUNTED");
 
-      let videoElement = document.querySelector("#myVideo") as HTMLVideoElement;
+        if (this.video) {
 
-      let e = videoElement.parentElement as HTMLDivElement;
-      document.addEventListener("scroll", (event) => {
-        let bb = e.getBoundingClientRect();
-        try {
-          if (!videoElement.currentTime) {
-            //     videoElement.currentTime = (500 - bb.top) / 100
-            //  videoElement.currentTime = 
-            videoElement.play();
-          }
-        } catch (err) {
-          console.log(err);
+            let videoElement = document.querySelector("#myVideo") as HTMLVideoElement;
+
+            let e = videoElement.parentElement as HTMLDivElement;
+            document.addEventListener("scroll", (event) => {
+                console.log("scrolling");
+                let bb = e.getBoundingClientRect();
+                try {
+                    if (!videoElement.currentTime) {
+                        //     videoElement.currentTime = (500 - bb.top) / 100
+                        //  videoElement.currentTime = 
+                        videoElement.play();
+                    }
+                } catch (err) {
+                    console.log(err);
+                }
+
+                // console.log(bb.top);
+                this.top = `calc(50% - ${bb.top}px)`
+                // videoElement.style.top = `calc(-100% + ${Math.abs(bb.top)}px)`
+                //  console.log(videoElement.style.top);
+                //  console.log(this.top);
+                //   console.log(this.$data);
+            });
+        }
+        console.log("mounted");
+        if (process.client) {
+            console.log(this);
+            console.log("mounted");
+            console.log((this.uniqId));
+            console.log(document.getElementById(this.uniqId));
+            setTimeout(async () => {
+                await import('waypoints/lib/noframework.waypoints.js');
+                var waypoint = new Waypoint({
+                    element: this.$el, // document.getElementById(this.uniqId),
+
+                    handler: (direction) => {
+                        console.log(document.getElementById(this.uniqId));
+                        console.log(direction);
+                        console.log("a");
+                    }
+                })
+            });
+        }
+    }
+    render() {
+        //  console.log(this.$data.top);
+        //   console.log(this.video)
+
+        let video: JSX.Element | null = null;
+        if (this.video) {
+
+            video = (
+                <video muted={true} id="myVideo" style={{ top: this.top }} >
+                    <source src={this.video} type="video/mp4" />
+                </video>
+            );
         }
 
-        // console.log(bb.top);
-        this.top = `calc(50% - ${bb.top}px)`
-        // videoElement.style.top = `calc(-100% + ${Math.abs(bb.top)}px)`
-        //  console.log(videoElement.style.top);
-        //  console.log(this.top);
-        //   console.log(this.$data);
-      });
+        return (
+            <div  class={{ 'wrapper': true, 'w-dyn-item': true, 'with-video-background': this.video }}>
+
+                {video}
+
+                <div class="column vh50">
+                    <div class="column _100vh">
+                        <div class="project-info">
+                            <div class="number">
+                                <h2 class="number zero">{this.number}</h2>
+                            </div>
+                            <h2 class="project-title">{this.title}</h2>
+
+                            {this.$scopedSlots.info(this)}
+
+
+                        </div>
+                    </div>
+                    <div class="column _100vh">
+                        <div class="project-description">
+                            {this.$slots.default}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
     }
-      if (process.client) {
-          console.log("mounted");
-          console.log((this.uniqId));
-          console.log(document.getElementById(this.uniqId));
-          await import('waypoints/lib/noframework.waypoints.js');
-          var waypoint = new Waypoint({
-              element: document.getElementById(this.uniqId),
-
-              handler: (direction) => {
-                  console.log(document.getElementById(this.uniqId));
-                  console.log(direction);
-                  console.log("a");
-              }
-          })
-      }
-  }
-  render() {
-    //  console.log(this.$data.top);
-    //   console.log(this.video)
-      
-    let video: JSX.Element | null = null;
-    if (this.video) {
-
-      video = (
-        <video muted={true} id="myVideo" style={{ top: this.top }} >
-          <source src={this.video} type="video/mp4" />
-        </video>
-      );
-      }
-  
-      return (       
-      <div id={this.uniqId} class={{ 'wrapper': true, 'w-dyn-item': true, 'with-video-background': this.video }}>
-
-        {video}
-
-        <div class="column vh50">
-          <div class="column _100vh">
-            <div class="project-info">
-              <div class="number">
-                <h2 class="number zero">{this.number}</h2>
-              </div>
-              <h2 class="project-title">{this.title}</h2>
-
-              {this.$scopedSlots.info(this)}
-
-
-            </div>
-          </div>
-          <div class="column _100vh">
-            <div class="project-description">
-              {this.$slots.default}
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 }
 
 @Component(
@@ -290,37 +297,39 @@ export class WDynItem extends tsx.Component<WDynItemOptions, {}, { info }> {
 export default class FrontPage extends tsx.Component<FrontPageOptions>{
 
 
+    mounted() {
+        console.log("Mounted FrontPage");
+    }
 
-    
 
 
-  render() {
+    render() {
 
-    return (
-      <div class="section main">
-        <div class="w-dyn-list">
-          <div class="w-dyn-items">
-                    <WDynItem video="devops1.mp4" title="LetsEncrypt" number="01"  >
-                        <template slot="info">
-                            <DeployPopup functionName="DotNetDevOps.LetsEncrypt" />
-                        </template>
-                    </WDynItem>
-                    <WDynItem title="DotNET DevOps Routr" number="02">
-                        <p class="reader">
-                            <b>DotNET DevOps Routr</b> is a consumption based reverse proxy build on .net core that allow you to quickly configure, deploy and manage your routing of microservices across several azure services.
+        return (
+            <div class="section main">
+                <div class="w-dyn-list">
+                    <div class="w-dyn-items">
+                        <WDynItem video="devops1.mp4" title="LetsEncrypt" number="01"  >
+                            <template slot="info">
+                                <DeployPopup functionName="DotNetDevOps.LetsEncrypt" />
+                            </template>
+                        </WDynItem>
+                        <WDynItem title="DotNET DevOps Routr" number="02">
+                            <p class="reader">
+                                <b>DotNET DevOps Routr</b> is a consumption based reverse proxy build on .net core that allow you to quickly configure, deploy and manage your routing of microservices across several azure services.
                                         </p>
-                        <p class="reader">
-                            The reverse proxy allows easy nginx inspired configuration of routing to azure functions, blob storage and other azure services.
+                            <p class="reader">
+                                The reverse proxy allows easy nginx inspired configuration of routing to azure functions, blob storage and other azure services.
                         </p>
-                        <template slot="info">
-                            <DeployPopup functionName="DotNETDevOps.FrontDoor.RouterFunction" initialAppSettings={[new AppSetting("RemoteConfiguration", "")]} />
-                        </template>
+                            <template slot="info">
+                                <DeployPopup functionName="DotNETDevOps.FrontDoor.RouterFunction" initialAppSettings={[new AppSetting("RemoteConfiguration", "")]} />
+                            </template>
 
-                    </WDynItem>
-          </div>
-        </div>
+                        </WDynItem>
+                    </div>
+                </div>
 
-      </div>
-    );
-  }
+            </div>
+        );
+    }
 }
