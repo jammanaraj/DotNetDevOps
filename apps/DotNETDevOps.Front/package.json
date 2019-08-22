@@ -1,50 +1,43 @@
 {
-    "version": "1.0.0",
+    "version": "2.0.0",
     "name": "dotnetdevops-front",
+    "description": "Deliver software with DotNET DevOps",
+    "author": "Poul Kjeldager Sørensen <pks@s-innovations.net>",
     "private": true,
     "scripts": {
-        "serve": "vue-cli-service serve --open",
-        "build": "vue-cli-service build",
-        "e2e": "node test/e2e/runner.js",
-        "lint": "vue-cli-service lint",
-        "dev": "vue-cli-service serve --open",
-        "lint-fix": "vue-cli-service lint --fix"
+        "dev": "nuxt",
+        "build": "nuxt build",
+        "start": "nuxt start",
+        "generate": "nuxt generate",
+        "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
+        "precommit": "npm run lint"
     },
     "dependencies": {
-        "@types/animejs": "^2.0.2",
+        "@nuxtjs/pwa": "^3.0.0-beta.16",
         "animejs": "3.0.1",
-        "register-service-worker": "^1.5.2",
-        "vue": "^2.6.6",
-        "vue-i18n": "^8.8.1",
-        "vue-router": "^3.0.2",
-        "vue-router-prefetch": "^1.4.0",
+        "nuxt": "^2.0.0",
+        "ts-node": "^8.3.0",
         "vue-scroll": "^2.1.12",
+        "vue-tsx-support": "^2.3.0",
         "vuetify": "^1.5.14",
-        "vuetify-tsx": "0.24.0",
+        "vuetify-tsx": "^0.26.3",
         "waypoints": "^4.0.1"
     },
     "devDependencies": {
-        "@vue/cli-plugin-babel": "^3.4.0",
-        "@vue/cli-plugin-eslint": "^3.4.0",
-        "@vue/cli-plugin-pwa": "^3.4.0",
-        "@vue/cli-service": "^3.4.0",
-        "@vue/cli-plugin-typescript": "^3.7.0",
-        "node-sass": "^4.11.0",
-        "sass-loader": "^7.1.0",
         "vue-svg-loader": "0.12.0",
         "less": "3.9.0",
         "less-loader": "5.0.0",
-        "vue-cli-plugin-i18n": "^0.5.1",
-        "vue-template-compiler": "^2.6.6",
-        "typescript": "3.4.5",
-        "vue-class-component": "7.1.0",
-        "vue-property-decorator": "8.1.1",
+        "@types/animejs": "^2.0.2",
+        "@nuxt/typescript": "^2.8.1",
+        "babel-eslint": "^10.0.1",
+        "eslint": "^4.19.1",
+        "eslint-friendly-formatter": "^4.0.1",
+        "eslint-loader": "^2.1.1",
+        "eslint-plugin-vue": "^4.0.0",
+        "vue-property-decorator": "^8.2.1",
         "stylus-loader": "3.0.2",
-        "stylus": "0.54.5"
-    },
-    "browserslist": [
-        "> 1%",
-        "last 2 versions",
-        "not ie <= 11"
-    ]
+        "stylus": "0.54.5",
+        "vuetify-loader": "1.2.2",
+        "webpack-node-externals": "1.7.2"
+    }
 }

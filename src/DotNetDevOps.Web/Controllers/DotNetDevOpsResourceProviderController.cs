@@ -167,6 +167,33 @@ namespace DotNetDevOps.Web
 
             return Ok(template);
         }
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/AzureFunctions/WithMSI")]
+        public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints, string function, string containerUri)
+        {
+            var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.FunctionWithKeyVault.json", Request.Query);
+
+            if (!string.IsNullOrEmpty(containerUri))
+            {
+                var functionContainer = new CloudBlobContainer(new Uri(containerUri));
+
+                var cdnHelper = new CDNHelper(functionContainer.Uri.ToString(), function);
+                var latest = await cdnHelper.GetAsync();
+                var functionBlob = functionContainer.GetBlockBlobReference(function + "/" + latest.Version + "/" + function + ".zip");
+                template.SelectToken("$.parameters.artifactsUri")["defaultValue"] = functionBlob.Uri;
+            }
+
+            var appsettings = template.SelectToken("$.resources[3].properties.template.resources[0].properties.siteConfig.appSettings") as JArray;
+
+            foreach (var query in Request.Query.Where(k => k.Key.StartsWith("appsetting_")))
+            {
+                appsettings.Add(new JObject(
+                    new JProperty("name", query.Key.Substring("appsetting_".Length)),
+                    new JProperty("value", query.Value.FirstOrDefault())
+                    ));
+            }
+
+            return Ok(template);
+        }
 
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/ACI/commands/certificate")]
@@ -447,7 +474,8 @@ namespace DotNetDevOps.Web
             return Ok(template);
         }
 
-        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/vaults/demo")]
+       
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/vaults/{keyVaultName}")]
         public async Task<IActionResult> GetVaultsTemplate([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName)
         {
             var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.vault.json");

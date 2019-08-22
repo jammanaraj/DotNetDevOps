@@ -17,9 +17,16 @@ trigger:
     - src/DotNetDevOps.Web/*
 
 pr:
-- master
-- dev
-- releases/*
+  branches:
+    include:
+    - master
+    - dev
+    - releases/*
+  paths:
+    include:
+    - functions/*
+    - azure-pipelines.yml
+    - src/DotNetDevOps.Web/*
 
 stages:
 - stage: Build
@@ -41,27 +48,7 @@ stages:
         projects: '**/*.csproj'
         feedsToUse: config
         nugetConfigPath: nuget.config # you should always have a NuGet.config file!
-        #verbosityRestore: 'detailed' # Options: quiet, minimal, normal, detailed, diagnostic
-    
-    - task: Npm@1
-      displayName: 'npm install'
-      inputs:
-        workingDir: 'src\DotNetDevOps.Web'
-        verbose: false
-
-    - task: Npm@1
-      displayName: 'npm custom'
-      inputs:
-        command: custom
-        workingDir: 'src\DotNetDevOps.Web'
-        verbose: false
-        customCommand: 'run tsc'
-
-    - task: Grunt@0
-      displayName: 'grunt packwww'
-      inputs:
-        gruntFile: src/DotNetDevOps.Web/gruntfile.js
-        targets: packwww
+        #verbosityRestore: 'detailed' # Options: quiet, minimal, normal, detailed, diagnostic  
 
     - task: DotNetCoreCLI@2
       displayName: Build
@@ -83,6 +70,7 @@ stages:
         OutPutFileName: '$(build.artifactstagingdirectory)\buildinfo.json'
         FeatureRegexPattern: '[^/]+(?=/$|$)'
         FeatureVariableName: featureName   
+        PullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
     - task: PublishPipelineArtifact@0
       inputs:
         artifactName: 'drop'

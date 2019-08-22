@@ -263,3 +263,7 @@ __pycache__/
 *.pyc
 /src/DotNetDevOps.Web/wwwroot
 /functions/DotNETDevOps.FunctionHost/Properties/PublishProfiles
+
+.nuxt
+dist
+sw.*

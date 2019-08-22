@@ -17,9 +17,15 @@ trigger:
 
 
 pr:
-- master
-- dev
-- releases/*
+  branches:
+    include:
+    - master
+    - dev
+    - releases/*
+  paths:
+    include:
+    - apps/DotNETDevOps.Front/*
+    - front-pipeline.yml
 
 stages:
 - stage: BuildFrontend
@@ -64,19 +70,23 @@ stages:
         workingDir: '$(srcPath)'
         verbose: false
 
-    - task: Npm@1
-      displayName: 'npm custom'
-      inputs:
-        command: custom
-        workingDir: '$(srcPath)'
-        verbose: false
-        customCommand: 'run build'
+#    - task: Npm@1
+#      displayName: 'npm custom'
+#      inputs:
+#        command: custom
+#        workingDir: '$(srcPath)'
+#        verbose: false
+#        customCommand: 'run build'
+    - script: npx nuxt generate
+      workingDirectory: '$(srcPath)'
+
     - task: VSTSBuildInfoTask@1
       displayName: 'Creating Build Artifact'
       inputs:
         OutPutFileName: '$(Build.SourcesDirectory)/$(srcPath)/dist/buildinfo.json'
         FeatureRegexPattern: '[^/]+(?=/$|$)'
         FeatureVariableName: ciname
+        PullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(build.artifactstagingdirectory)'
       inputs:
@@ -86,13 +96,14 @@ stages:
          package.json
         TargetFolder: '$(build.artifactstagingdirectory)'
 
-    - task: AzureBlobFileCopy@1
+    - task: AzureBlobFileCopy@2
       displayName: 'Uploading to DotNETDevOps CDN'
       inputs:
-        source: '$(srcPath)\dist\*'
+        Source: '$(srcPath)\dist\*'
         ConnectedServiceName: 'Microsoft Partner Network (0fd7128b-5305-49da-a400-b7a37feb271c)'
         storage: '/subscriptions/0fd7128b-5305-49da-a400-b7a37feb271c/resourceGroups/dotnetdevops/providers/Microsoft.Storage/storageAccounts/dotnetdevops'
         container: libs
+        CacheControl: 'max-age=31557600' 
         prefix: '$(libName)/$(libversion)-$(ciname)-$(Build.BuildNumber)/'
 
 
