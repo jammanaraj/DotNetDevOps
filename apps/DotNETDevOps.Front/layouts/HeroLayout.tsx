@@ -46,7 +46,7 @@ export default class HeroLayout extends tsx.Component<HeroLayoutOptions>{
             targets: "h1.main-h1.home",
             translateY: ["100%", "0%"],
             duration: 300,
-            delay: 100,
+            delay: 0,
             easing: 'easeInOutQuad'
         })
 
@@ -57,6 +57,7 @@ export default class HeroLayout extends tsx.Component<HeroLayoutOptions>{
             delay: 0,
             easing: 'easeInOutQuad'
         })
+
 
         tl.add({
             targets: ".home-subhead",

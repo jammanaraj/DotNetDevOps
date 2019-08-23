@@ -1,36 +1,38 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "jsx": "preserve",
-    "moduleResolution": "node",
-    "lib": [
-      "esnext",
-      "esnext.asynciterable",
-      "dom"
-    ],
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "allowJs": true,
-    "sourceMap": true,
-    "strict": true,
-    "noImplicitAny": false,
-    "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "~/*": [
-        "./*"
-      ],
-      "@/*": [
-        "./*"
-      ]
-    },
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "jsx": "preserve",
+        "moduleResolution": "node",
+        "lib": [
+            "esnext",
+            "esnext.asynciterable",
+            "dom"
+        ],
+        "esModuleInterop": true,
+        "experimentalDecorators": true,
+        "allowJs": true,
+        "sourceMap": true,
+        "strict": true,
+        "noImplicitAny": false,
+        "noEmit": true,
+        "baseUrl": ".",
+        "paths": {
+            "~/*": [
+                "./*"
+            ],
+            "@/*": [
+                "./*"
+            ]
+        },
 
-    "types": [
-      "@types/node",
-      "@nuxt/vue-app"
-    ]
-  },
+        "types": [
+            "@types/node",
+            "@nuxt/types",
+            "vuetify"
+        ]
+    },
+    "exclude": ["node_modules"],
     "include": [
         "**/*.ts",
         "**/*.tsx",
@@ -38,6 +40,6 @@
         "**/*.svg",
         "tests/**/*.ts",
         "tests/**/*.tsx",
-        "node_modules/vue-tsx-support/enable-check.d.ts"
+        "node_modules/vue-tsx-support/enable-check.d.ts", "nuxt.config.js"
     ]
 }

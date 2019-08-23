@@ -5,7 +5,6 @@ import * as tsx from "vue-tsx-support";
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
 
-import { VBtn, VDialog, VCard, VCardTitle, VCardText, VDivider, VCardActions, VSpacer, VContainer, VLayout, VFlex, VTextField, VApp } from 'vuetify-tsx';
 
 import "@/assets/less/components/sections.less";
 //import "@/assets/less/components/btn.less";
@@ -52,10 +51,10 @@ export class KeyValueComponent extends tsx.Component<{ keyValue?: string }, { on
 
     render() {
         return (
-            <VLayout>
-                <v-flex xs6> <VTextField label="Key" v-model={this.value.key} /></v-flex>
-                <v-flex xs6> <VTextField label="Value" v-model={this.value.value} /></v-flex>
-            </VLayout>
+            <v-layout>
+                <v-flex xs6> <v-text-field label="Key" v-model={this.value.key} /></v-flex>
+                <v-flex xs6> <v-text-field label="Value" v-model={this.value.value} /></v-flex>
+            </v-layout>
         );
     }
 }
@@ -106,9 +105,9 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
         let settings = this.appSettings && this.appSettings.map(v => (<KeyValueComponent keyValue={v.keyValue} onNewData={(e) => { console.log(e);[v.keyValue, v.value] = e }} />));
 
         //@ts-ignore
-        return (<VDialog dark v-model={this.dialog} persistent width="700" scopedSlots={{
+        return (<v-dialog dark v-model={this.dialog} persistent width="700" scopedSlots={{
             activator: (props) => (
-                <VBtn onClick={props.on.click} class="azuredeploy">
+                <v-btn onClick={props.on.click} class="azuredeploy">
                     <span class="pr-2">Deploy to</span>
                     <svg xmlnsSvg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52.91666 15.244921" version="1.1" >
                         <defs id="defs2" />
@@ -119,39 +118,40 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
                             </g>
                         </g>
                     </svg>
-                </VBtn>
+                </v-btn>
+
             )
         }}>
 
-            <VCard>
-                <VCardTitle> <span class="headline">Deploy to Azure</span></VCardTitle>
-                <VCardText class="grey darken-2 text-xs-center">
-                    <VContainer class="grid-list-md">
-                        <VLayout wrap>
+            <v-card>
+                <v-card-title> <span class="headline">Deploy to Azure</span></v-card-title>
+                <v-card-text class="grey darken-2 text-xs-center">
+                    <v-container class="grid-list-md">
+                        <v-layout wrap>
                             <v-flex xs12>
                                 <form>
-                                    <VTextField label="AzureWebJobsStorage ResourceId" v-model={this.storageResourceId} />
+                                    <v-text-field label="AzureWebJobsStorage ResourceId" v-model={this.storageResourceId} />
                                 </form>
                             </v-flex>
-                        </VLayout>
-                    </VContainer>
-                </VCardText>
+                        </v-layout>
+                    </v-container>
+                </v-card-text>
                 <v-card-text dark style="  position: relative">
-                    <VLayout wrap>
+                    <v-layout wrap>
                         <v-flex xs12>
                             <h1>AppSettings</h1>
                         </v-flex>
-                    </VLayout>
-                    <VContainer class="grid-list-md">
+                    </v-layout>
+                    <v-container class="grid-list-md">
 
-                        <VLayout wrap>
+                        <v-layout wrap>
                             <v-flex xs12>
                                 <form>
                                     {settings}
                                 </form>
                             </v-flex>
-                        </VLayout>
-                    </VContainer>
+                        </v-layout>
+                    </v-container>
                 </v-card-text>
                 <v-card-text class="grey darken-2" style="  position: relative">
                     <v-fab-transition>
@@ -168,17 +168,17 @@ export class DeployPopup extends tsx.Component<{ functionName: string, initialAp
                     </v-fab-transition>
                 </v-card-text>
 
-                <VCardActions class="grey darken-2">
-                    <VSpacer />
+                <v-card-actions class="grey darken-2">
+                    <v-spacer />
                     <v-btn color="blue darken-1" flat onClick={this.closeDialog}>Close</v-btn>
-                    <VBtn target="_blank" href={this.href} flat class="azuredeploy">
+                    <v-btn target="_blank" href={this.href} flat class="azuredeploy">
                         <span class="pr-2">Deploy</span>
-                    </VBtn>
+                    </v-btn>
 
-                </VCardActions>
+                </v-card-actions>
 
-            </VCard>
-        </VDialog>);
+            </v-card>
+        </v-dialog>);
     }
 }
 
@@ -299,6 +299,9 @@ export default class FrontPage extends tsx.Component<FrontPageOptions>{
 
     mounted() {
         console.log("Mounted FrontPage");
+        if (process.client) {
+            window.document.body.classList.add("mounted");
+        }
     }
 
 

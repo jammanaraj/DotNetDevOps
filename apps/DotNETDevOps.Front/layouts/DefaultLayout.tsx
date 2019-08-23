@@ -5,10 +5,6 @@ import Vue, { VNode } from 'vue';
 import * as tsx from "vue-tsx-support";
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
-
-import { WDynItem } from '../pages/index';
-import { VBtn, VDialog, VCard, VCardTitle, VCardText, VDivider, VCardActions, VSpacer, VContainer, VLayout, VFlex, VTextField, VApp } from 'vuetify-tsx';
-
 import "@/assets/less/components/sections.less";
 
 import HeaderLayout from "./HeaderLayout";
@@ -71,7 +67,7 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
 
     render() {
         return (
-            <VApp>
+            <v-app>
                 <HeaderLayout backgroundColor={this.backgroundColor}>
                     <template slot="links">
                         <a href="/" class="link-nav w-nav-link w--current">Info</a>
@@ -82,7 +78,7 @@ export default class DefaultLayout extends tsx.Component<DefaultLayoutOptions>{
 
                 <nuxt />
 
-                </VApp>
+            </v-app>
         );
     }
 }

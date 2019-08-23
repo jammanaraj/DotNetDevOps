@@ -4,7 +4,10 @@ const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
 const nodeExternals = require('webpack-node-externals')
 
 module.exports = {
-    //mode:"spa",
+
+    router: {
+        mode:"hash"
+    },
     /*
     ** Headers of the page
     */
@@ -50,6 +53,20 @@ module.exports = {
     workbox: {
 
     },
+    buildModules: [
+        '@nuxt/typescript-build',
+        // Simple usage
+        '@nuxtjs/vuetify',
+
+        // With options
+        // ['@nuxtjs/vuetify', { /* module options */ }]],
+    ],
+    vuetify: {
+        /* module options */
+        theme: {
+            dark: false
+        }
+    },
     /*
     ** Customize the progress bar color
     */
@@ -61,20 +78,22 @@ module.exports = {
     build: {
         parallel: true,
         plugins: [
-            new VuetifyLoaderPlugin(),
+           // new VuetifyLoaderPlugin(),
         ],
         transpile: [/^vuetify/],
         /*
         ** Run ESLint on save
         */
         extend(config, { isDev, isClient }) {
+
+            if (!isDev) {
+                // relative links, please.
+                config.output.publicPath = './_nuxt/'
+            }
+
             if (isDev && isClient) {
-                config.module.rules.push({
-                    enforce: 'pre',
-                    test: /\.(js|vue)$/,
-                    loader: 'eslint-loader',
-                    exclude: /(node_modules)/
-                })
+               
+                
             }
             if (process.server) {
                 config.externals = [
