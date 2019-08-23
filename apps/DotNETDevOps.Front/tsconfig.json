@@ -40,6 +40,6 @@
         "**/*.svg",
         "tests/**/*.ts",
         "tests/**/*.tsx",
-        "node_modules/vue-tsx-support/enable-check.d.ts", "nuxt.config.js"
+        "node_modules/vue-tsx-support/enable-check.d.ts"
     ]
 }

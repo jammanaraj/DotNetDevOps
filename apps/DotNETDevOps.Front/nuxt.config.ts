@@ -1,12 +1,12 @@
-import "vue-tsx-support/enable-check"
+import "vue-tsx-support/enable-check";
 
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
-const nodeExternals = require('webpack-node-externals')
+const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
 
     router: {
-        mode:"hash"
+        mode: "hash"
     },
     /*
     ** Headers of the page
@@ -22,7 +22,7 @@ module.exports = {
         //],
         link: [
             //{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-            { rel: 'stylesheet', type: 'image/x-icon', href: 'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' },
+            { rel: 'stylesheet', type: 'image/x-icon', href: 'https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' }
             //{ rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon.png" },
             //{ rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
             //{ rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
@@ -36,16 +36,16 @@ module.exports = {
     //},
     manifest: {
         name: 'DotNet DevOps',
-        short_name:'DevOps'
+        short_name: 'DevOps'
     },
     meta: {
         name: 'DotNet DevOps',
-        description:'Deliver software faster with DotNet DevOps',
+        description: 'Deliver software faster with DotNet DevOps',
         themeColor: '#ffffff',
         msTileColor: '#f87f2e',
         appleMobileWebAppCapable: 'yes',
         appleMobileWebAppStatusBarStyle: '#344675',
-        workboxPluginMode: 'GenerateSW',
+        workboxPluginMode: 'GenerateSW'
     },
     modules: [
         "@nuxtjs/pwa"
@@ -56,7 +56,7 @@ module.exports = {
     buildModules: [
         '@nuxt/typescript-build',
         // Simple usage
-        '@nuxtjs/vuetify',
+        '@nuxtjs/vuetify'
 
         // With options
         // ['@nuxtjs/vuetify', { /* module options */ }]],
@@ -78,7 +78,7 @@ module.exports = {
     build: {
         parallel: true,
         plugins: [
-           // new VuetifyLoaderPlugin(),
+            // new VuetifyLoaderPlugin(),
         ],
         transpile: [/^vuetify/],
         /*
@@ -88,26 +88,22 @@ module.exports = {
 
             if (!isDev) {
                 // relative links, please.
-                config.output.publicPath = './_nuxt/'
+                config.output.publicPath = './_nuxt/';
             }
 
-            if (isDev && isClient) {
-               
-                
-            }
             if (process.server) {
                 config.externals = [
                     nodeExternals({
                         whitelist: [/^vuetify/]
                     })
-                ]
+                ];
             }
 
-            config.module.rules.filter(r => r.test.toString().includes('svg')).forEach(r => { r.test = /\.(png|jpe?g|gif)$/ })
+            config.module.rules.filter(r => r.test.toString().includes('svg')).forEach(r => { r.test = /\.(png|jpe?g|gif)$/; });
             config.module.rules.push({
                 test: /\.svg$/,
                 loader: "vue-svg-loader"
-            })
+            });
         }
     }
     //server: {
@@ -120,5 +116,5 @@ module.exports = {
     //    pfxPassphrase: "123456",
     //    public: 'http://localhost:8080'
     //}
-}
+};
 

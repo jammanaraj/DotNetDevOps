@@ -77,7 +77,7 @@ stages:
 #        workingDir: '$(srcPath)'
 #        verbose: false
 #        customCommand: 'run build'
-    - script: npx nuxt generate
+    - script: npx nuxt-ts generate
       workingDirectory: '$(srcPath)'
 
     - task: VSTSBuildInfoTask@1
