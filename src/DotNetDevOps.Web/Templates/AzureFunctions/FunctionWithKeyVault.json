@@ -14,7 +14,33 @@
     },
     "AzureWebJobsStorage": {
       "type": "string"
+    },
+    "AppSettings": {
+      "type": "array",
+      "defaultValue": []
     }
+
+  },
+  "variables": {
+    "localAppSettings": [
+      {
+        "name": "FUNCTIONS_WORKER_RUNTIME",
+        "value": "dotnet"
+      },
+      {
+        "name": "AzureWebJobsStorage",
+        "value": "[parameters('AzureWebJobsStorage')]"
+      },
+      {
+        "name": "FUNCTIONS_EXTENSION_VERSION",
+        "value": "~2"
+      },
+      {
+        "name": "WEBSITE_RUN_FROM_ZIP",
+        "value": "[parameters('artifactsUri')]"
+      }
+    ],
+    "AppSettings": "[concat(variables('localAppSettings'),parameters('AppSettings'))]"
   },
   "resources": [
     {
@@ -108,24 +134,7 @@
                   "allowedOrigins": []
                 },
                 "siteConfig": {
-                  "appSettings": [
-                    {
-                      "name": "FUNCTIONS_WORKER_RUNTIME",
-                      "value": "dotnet"
-                    },
-                    {
-                      "name": "AzureWebJobsStorage",
-                      "value": "[parameters('AzureWebJobsStorage')]"
-                    },
-                    {
-                      "name": "FUNCTIONS_EXTENSION_VERSION",
-                      "value": "~2"
-                    },
-                    {
-                      "name": "WEBSITE_RUN_FROM_ZIP",
-                      "value": "[parameters('artifactsUri')]"
-                    }
-                  ]
+                  "appSettings": "[variables('AppSettings')]"
                 },
                 "clientAffinityEnabled": false,
                 "reserved": false
