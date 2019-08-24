@@ -115,7 +115,7 @@
                     },
                     {
                       "name": "AzureWebJobsStorage",
-                      "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',last(split(parameters('AzureWebJobsStorage'),'/')),';AccountKey=',listKeys(parameters('AzureWebJobsStorage'), '2015-05-01-preview').key1)]"
+                      "value": "[parameters('AzureWebJobsStorage')]"
                     },
                     {
                       "name": "FUNCTIONS_EXTENSION_VERSION",
