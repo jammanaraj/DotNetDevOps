@@ -3,14 +3,14 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "roleDefinitionId": { "type": "string" },
-    "principalId": { "type": "string" },
+    "principalId": { "type": "string", "defaultValue":"" },
     "scope": {"type": "string"}
   },
   "variables": {},
   "resources": [
     {
       "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2017-05-01",
+      "apiVersion": "2019-04-01-preview",
       "name": "{{GUID-roleassignment}}",
       "properties": {
         "roleDefinitionId": "[parameters('roleDefinitionId')]",

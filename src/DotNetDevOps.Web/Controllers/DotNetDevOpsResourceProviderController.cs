@@ -226,15 +226,36 @@ namespace DotNetDevOps.Web
         private static ConcurrentDictionary<string, DateTimeOffset> _delays = new ConcurrentDictionary<string, DateTimeOffset>();
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/ManagedIdentity/roleAssignments")]
-        public async Task<IActionResult> DoRoleAssignment([FromServices] IOptions<EndpointOptions> endpoints, string id)
+        public async Task<IActionResult> DoRoleAssignment([FromServices] IOptions<EndpointOptions> endpoints, string id, string provider, string resourceName,string sourceResource)
         {
-            var delayUntil = _delays.GetOrAdd(id, DateTimeOffset.UtcNow.AddSeconds(30));
 
-            await Task.Delay(delayUntil.Subtract(DateTimeOffset.UtcNow));
+            if (!string.IsNullOrEmpty(id)) { 
+                var delayUntil = _delays.GetOrAdd(id, DateTimeOffset.UtcNow.AddSeconds(30));
+
+                await Task.Delay(delayUntil.Subtract(DateTimeOffset.UtcNow));
+            }
+           
             var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.roleAssignments.json");
+
+            if (!string.IsNullOrEmpty(provider))
+            {
+                template.SelectToken("$.resources[0].type").Replace($"{provider}/providers/roleAssignments");
+                template.SelectToken("$.resources[0].name").Replace($"[concat('{resourceName}/Microsoft.Authorization/',guid(resourceGroup().id, '{resourceName}'))]");
+
+                if (!string.IsNullOrEmpty(sourceResource))
+                {
+                    template.SelectToken("$.resources[0].properties.principalId").Replace($"[reference(concat(resourceId('{provider}','{sourceResource}'),'/providers/Microsoft.ManagedIdentity/Identities/default'),'2018-11-30').principalId]");
+                }
+            }
+           
+                
             return Ok(template);
 
         }
+
+        
+
+
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/retrieveAndParseCertificate")]
         public async Task<IActionResult> retrieveAndParseCertificate([FromServices] IOptions<EndpointOptions> endpoints, string id)
