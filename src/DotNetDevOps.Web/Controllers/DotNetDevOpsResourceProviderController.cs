@@ -182,7 +182,7 @@ namespace DotNetDevOps.Web
                 template.SelectToken("$.parameters.artifactsUri")["defaultValue"] = functionBlob.Uri;
             }
 
-            var appsettings = template.SelectToken("$.resources[3].properties.template.resources[0].properties.siteConfig.appSettings") as JArray;
+            var appsettings = template.SelectToken("$.variables.localAppSettings") as JArray;
 
             foreach (var query in Request.Query.Where(k => k.Key.StartsWith("appsetting_")))
             {
