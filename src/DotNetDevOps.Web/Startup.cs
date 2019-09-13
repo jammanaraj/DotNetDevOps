@@ -349,7 +349,7 @@ namespace DotNetDevOps.Web
             services.AddScoped(sp => sp.GetDataProtector("generic"));
             services.AddAzureTableStorageCache("cache", "ga");
 
-
+            services.Configure<EndpointOptions>(configuration.GetSection("Endpoints"));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest); 
          //   services.AddHsts(o => { o.IncludeSubDomains = false; o.Preload = true; });
          //   services.AddHttpsRedirection(o => { });
