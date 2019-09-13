@@ -95,4 +95,5 @@ stages:
                 package: '$(Pipeline.Workspace)/**/DotNETDevOps.FunctionHost.zip'
                 enableCustomDeployment: true
                 DeploymentType: 'runFromZip'
+                AppSettings: '-Endpoints__ResourceApiEndpoint https://management.dotnetdevops.org'
  
