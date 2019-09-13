@@ -167,6 +167,12 @@ namespace DotNetDevOps.Web
 
             return Ok(template);
         }
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/AddAccessPolicy")]
+        public async Task<IActionResult> GetAddAccessPolicyTemplate([FromServices] IOptions<EndpointOptions> endpoints, string function, string containerUri)
+        {
+            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.AddAccessPolicy.json", Request.Query);
+            return Ok(template);
+        }
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/AzureFunctions/WithMSI")]
         public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints, string function, string containerUri)
         {
@@ -403,7 +409,10 @@ namespace DotNetDevOps.Web
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo/parameters")]
-        public IActionResult GetCertificateParameters([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName, string dns)
+        public async Task<IActionResult> GetCertificateParameters(
+            [FromServices] IOptions<EndpointOptions> endpoints,
+            [FromServices] CloudStorageAccount cloudStorageAccount,
+            string keyVaultName, string secretName, string dns)
         {
             var password = "";
             X509Certificate2 x509Certificate = null;
@@ -431,6 +440,12 @@ namespace DotNetDevOps.Web
 
             var certBase64 = Convert.ToBase64String(x509Certificate.Export(X509ContentType.Pkcs12));
 
+            var container = cloudStorageAccount.CreateCloudBlobClient().GetContainerReference("publiccerts");
+            await container.CreateIfNotExistsAsync();
+            var blob = container.GetBlockBlobReference(x509Certificate.Thumbprint + ".cer");
+            var publicKey = x509Certificate.Export(X509ContentType.Cert);
+            await blob.UploadFromByteArrayAsync(publicKey, 0, publicKey.Length);
+
             return Content(JObject.FromObject(new Dictionary<string, object>
             {
                 {"$schema" ,"https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"},
@@ -451,6 +466,14 @@ namespace DotNetDevOps.Web
                     certificateThumbprint = new
                     {
                         value=x509Certificate.Thumbprint
+                    },
+                    publicKey=new
+                    {
+                        value=publicKey
+                    },
+                    publicKeyLink=new
+                    {
+                        value=blob.Uri + blob.GetSharedAccessSignature(new SharedAccessBlobPolicy{ Permissions = SharedAccessBlobPermissions.Read, SharedAccessExpiryTime = DateTimeOffset.MaxValue })
                     }
 
                 } }

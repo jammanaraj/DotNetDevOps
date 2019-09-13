@@ -83,30 +83,13 @@
       "resourceGroup": "[first(skip(split(skip(parameters('sourceVaultValue'),1),'/'),3))]",
       "properties": {
         "mode": "Incremental",
-        "template": {
-          "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "resources": [
-            {
-              "type": "Microsoft.KeyVault/vaults/accessPolicies",
-              "name": "[concat(last(split(parameters('sourceVaultValue'),'/')), '/add')]",
-              "apiVersion": "2016-10-01",
-              "properties": {
-                "accessPolicies": [
-                  {
-                    "tenantId": "[reference(concat(resourceId('Microsoft.Web/sites',parameters('name')),'/providers/Microsoft.ManagedIdentity/Identities/default'),'2015-08-31-PREVIEW').tenantId]",
-                    "objectId": "[reference(concat(resourceId('Microsoft.Web/sites',parameters('name')),'/providers/Microsoft.ManagedIdentity/Identities/default'),'2015-08-31-PREVIEW').principalId]",
-                    "permissions": {
-                      "keys": [ "all" ],
-                      "secrets": [ "all" ],
-                      "certificates": [ "all" ],
-                      "storage": [ "all" ]
-                    }
-                  }
-                ]
-              }
-            }
-          ]
+        "templateLink": {
+          "uri": "{{HOST}}/providers/DotNetDevOps.AzureTemplates/templates/KeyVault/AddAccessPolicy",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "sourceVaultValue": { "value": "[parameters('sourceVaultValue')]" },
+          "name": { "value": "[parameters('name')]" }
         }
       }
     },
