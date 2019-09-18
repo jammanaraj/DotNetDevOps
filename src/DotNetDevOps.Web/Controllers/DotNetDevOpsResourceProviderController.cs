@@ -174,7 +174,7 @@ namespace DotNetDevOps.Web
             return Ok(template);
         }
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/AzureFunctions/WithMSI")]
-        public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints, string function, string containerUri)
+        public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints, string function, string containerUri, string functions_extension_version = "~2")
         {
             var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.FunctionWithKeyVault.json", Request.Query);
 
@@ -189,6 +189,7 @@ namespace DotNetDevOps.Web
             }
 
             var appsettings = template.SelectToken("$.variables.localAppSettings") as JArray;
+            appsettings.SelectToken("$[2].value").Replace(functions_extension_version);
 
             foreach (var query in Request.Query.Where(k => k.Key.StartsWith("appsetting_")))
             {
