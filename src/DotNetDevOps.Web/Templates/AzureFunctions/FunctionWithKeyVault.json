@@ -148,7 +148,7 @@
       "value": "[reference(concat('UpdateAppSettings-',uniqueString(resourceGroup().id, deployment().name))).outputs.functionBaseUrl.value]"
     },
     "functionResourceId": {
-      "type": "resourceId",
+      "type": "string",
       "value": "[reference(concat('UpdateAppSettings-',uniqueString(resourceGroup().id, deployment().name))).outputs.resourceId.value]"
     }
   },
