@@ -132,11 +132,7 @@
             "functionBaseUrl": {
               "type": "string",
               "value": "[reference(parameters('name')).defaultHostName]"
-            },
-            "keys": {
-              "type": "SecureObject",
-              "value": "[listkeys(concat(resourceId('Microsoft.Web/sites',parameters('name')), '/host/default/'),'2016-08-01')]"
-            }
+            }            
           }
         }
       }
@@ -149,7 +145,7 @@
     },
     "keys": {
       "type": "secureobject",
-      "value": "[reference(concat('UpdateAppSettings-',uniqueString(resourceGroup().id, deployment().name))).outputs.keys.value]"
+      "value": "[listkeys(concat(resourceId('Microsoft.Web/sites',parameters('name')), '/host/default/'),'2016-08-01')]"
     }
   },
   "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
