@@ -412,8 +412,8 @@ namespace DotNetDevOps.Web
             }
         }
 
-        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/WebApps/ListHostKeys")]
-        public async Task<IActionResult> GetHostKeys()
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/WebApps/WriteHostKeys")]
+        public async Task<IActionResult> GetHostKeys(string jsonPath)
         {
             //     "template": {
             //  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
@@ -438,16 +438,35 @@ namespace DotNetDevOps.Web
                     resourceId = new
                     {
                         type = "string"
+                    },
+                    keyVaultName = new
+                    {
+                        type = "string"
+                    },
+                    secretName = new
+                    {
+                        type = "string"
                     }
                 },
-                ["resources"] = new object[0],
+                ["resources"] = new object[]{
+                       new
+                       {
+                            type = "Microsoft.KeyVault/vaults/secrets",
+                            apiVersion = "2015-06-01",
+                            name= "[concat(parameters('keyVaultName'), '/', parameters('secretName'))]",
+                            properties =new {
+                                value= $"[listkeys(concat(parameters('resourceId'), '/host/default/'),'2018-11-01'){jsonPath}]"
+                            }
+                       }
+
+                },
                 ["outputs"] = new
                 {
-                    keys=new
+                    secretUriWithVersion = new
                     {
-                        type="secureobject",
-                        value= "[listkeys(concat(parameters('resourceId'), '/host/default/'),'2018-11-01')]"
-                    }
+                        type = "string",
+                        value = "[reference(resourceId(resourceGroup().name, 'Microsoft.KeyVault/vaults/secrets', parameters('keyVaultName'), parameters('secretName')), '2015-06-01').secretUriWithVersion]"
+                    },
                 }
 
             }).ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
