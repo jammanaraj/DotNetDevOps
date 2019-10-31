@@ -445,7 +445,7 @@ namespace DotNetDevOps.Web
                 {
                     keys=new
                     {
-                        tpye="secureobject",
+                        type="secureobject",
                         value= "[listkeys(concat(parameters('resourceId'), '/host/default/'),'2018-11-01')]"
                     }
                 }
