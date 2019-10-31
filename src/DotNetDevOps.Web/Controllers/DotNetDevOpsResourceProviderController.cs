@@ -89,7 +89,7 @@ namespace DotNetDevOps.Web
 
     public class DotNetDevOpsResourceProviderController : Controller
     {
-        private static async Task<JToken> LoadTemplateAsync(EndpointOptions endpoint, string key, IQueryCollection query=null)
+        private static async Task<JToken> LoadTemplateAsync(EndpointOptions endpoint, string key, IQueryCollection query = null)
         {
             var template = await new StreamReader(typeof(DotNetDevOpsResourceProviderController).Assembly.GetManifestResourceStream($"DotNetDevOps.Templates.{key}")).ReadToEndAsync();
             var dict = new ConcurrentDictionary<string, Guid>();
@@ -146,7 +146,7 @@ namespace DotNetDevOps.Web
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/azure-function")]
         public async Task<IActionResult> GetAzureFunctionDeployment([FromServices] IOptions<EndpointOptions> endpoints, string function, [FromServices] CloudStorageAccount cloudStorageAccount)
         {
-            var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.Function.json",Request.Query);
+            var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.Function.json", Request.Query);
 
             var functionContainer = cloudStorageAccount.CreateCloudBlobClient().GetContainerReference("functions");
 
@@ -157,11 +157,11 @@ namespace DotNetDevOps.Web
 
             var appsettings = template.SelectToken("$.resources[0].properties.siteConfig.appSettings") as JArray;
 
-            foreach(var query in Request.Query.Where(k => k.Key.StartsWith("appsetting_")))
+            foreach (var query in Request.Query.Where(k => k.Key.StartsWith("appsetting_")))
             {
                 appsettings.Add(new JObject(
-                    new JProperty("name",query.Key.Substring("appsetting_".Length)),
-                    new JProperty("value",query.Value.FirstOrDefault())
+                    new JProperty("name", query.Key.Substring("appsetting_".Length)),
+                    new JProperty("value", query.Value.FirstOrDefault())
                     ));
             }
 
@@ -233,15 +233,16 @@ namespace DotNetDevOps.Web
         private static ConcurrentDictionary<string, DateTimeOffset> _delays = new ConcurrentDictionary<string, DateTimeOffset>();
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/ManagedIdentity/roleAssignments")]
-        public async Task<IActionResult> DoRoleAssignment([FromServices] IOptions<EndpointOptions> endpoints, string id, string provider, string resourceName,string sourceResource)
+        public async Task<IActionResult> DoRoleAssignment([FromServices] IOptions<EndpointOptions> endpoints, string id, string provider, string resourceName, string sourceResource)
         {
 
-            if (!string.IsNullOrEmpty(id)) { 
+            if (!string.IsNullOrEmpty(id))
+            {
                 var delayUntil = _delays.GetOrAdd(id, DateTimeOffset.UtcNow.AddSeconds(30));
 
                 await Task.Delay(delayUntil.Subtract(DateTimeOffset.UtcNow));
             }
-           
+
             var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.roleAssignments.json");
 
             if (!string.IsNullOrEmpty(provider))
@@ -254,13 +255,13 @@ namespace DotNetDevOps.Web
                     template.SelectToken("$.resources[0].properties.principalId").Replace($"[reference(concat(resourceId('{provider}','{sourceResource}'),'/providers/Microsoft.ManagedIdentity/Identities/default'),'2018-11-30').principalId]");
                 }
             }
-           
-                
+
+
             return Ok(template);
 
         }
 
-        
+
 
 
 
@@ -282,7 +283,7 @@ namespace DotNetDevOps.Web
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/UnprotectValues")]
         public async Task<IActionResult> UnprotectValues([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDataProtector dataProtector)
         {
-            var values  = Request.Query.ToDictionary(k => k.Key, v => new { type = "securestring", value = dataProtector.Unprotect(v.Value.First()) });
+            var values = Request.Query.ToDictionary(k => k.Key, v => new { type = "securestring", value = dataProtector.Unprotect(v.Value.First()) });
 
             return Content(JObject.FromObject(new Dictionary<string, object>
                 {
@@ -307,7 +308,8 @@ namespace DotNetDevOps.Web
                 secrets = secrets.Replace("\\\\\\\\\\\\\\\"", "\"");
                 secretsObj = JToken.Parse(secrets) as JObject;
 
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(secrets);
             }
@@ -317,7 +319,8 @@ namespace DotNetDevOps.Web
                 try
                 {
                     return string.IsNullOrEmpty(value) ? "" : Encrypt(cert, encrypted ? Encoding.Unicode.GetString(dataProtector.Unprotect(Base64.DecodeToByteArray(value))) : value);
-                }catch(Exception ex)
+                }
+                catch (Exception ex)
                 {
                     throw new Exception(value);
                 }
@@ -407,6 +410,47 @@ namespace DotNetDevOps.Web
 
                 // return new X509Certificate2(certificate.Export(X509ContentType.Pfx, password), password, X509KeyStorageFlags.MachineKeySet);
             }
+        }
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/WebApps/ListHostKeys")]
+        public async Task<IActionResult> GetHostKeys()
+        {
+            //     "template": {
+            //  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+            //  "contentVersion": "1.0.0.0",
+            //  "resources": [
+
+            //  ],
+            //  "outputs": {
+            //    "keys": {
+            //      "type": "string",
+            //      "value": "[listkeys(concat(, '/host/default/'),'2018-11-01').systemKeys.durabletask_extension]"
+            //    }
+            //  }
+            //}
+
+            return Content(JObject.FromObject(new Dictionary<string, object>
+            {
+                ["$schema"] = "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+                ["contentVersion"] = "1.0.0.0",
+                ["parameters"] = new
+                {
+                    resourceId = new
+                    {
+                        type = "string"
+                    }
+                },
+                ["resources"] = new object[0],
+                ["outputs"] = new
+                {
+                    keys=new
+                    {
+                        tpye="secureobject",
+                        value= "[listkeys(concat(parameters('resourceId'), '/host/default/'),'2018-11-01')]"
+                    }
+                }
+
+            }).ToString(Newtonsoft.Json.Formatting.Indented), "application/json");
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/certificates/demo/parameters")]
@@ -519,7 +563,7 @@ namespace DotNetDevOps.Web
             return Ok(template);
         }
 
-       
+
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVault/vaults/{keyVaultName}")]
         public async Task<IActionResult> GetVaultsTemplate([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName)
         {
@@ -1067,9 +1111,9 @@ namespace DotNetDevOps.Web
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/applications/{name}")]
         public async Task<IActionResult> GetApplicationTemplate([FromServices] IOptions<EndpointOptions> endpoints, [FromServices] IDataProtector dataProtector, string name)
         {
-            var template = await LoadTemplateAsync(endpoints.Value, $"Applications.{name.Replace('-', '.')}.json",Request.Query);
+            var template = await LoadTemplateAsync(endpoints.Value, $"Applications.{name.Replace('-', '.')}.json", Request.Query);
 
-          
+
 
 
 
