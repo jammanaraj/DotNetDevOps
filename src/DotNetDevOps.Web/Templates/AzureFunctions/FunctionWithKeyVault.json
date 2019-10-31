@@ -132,7 +132,11 @@
             "functionBaseUrl": {
               "type": "string",
               "value": "[reference(parameters('name')).defaultHostName]"
-            }            
+            },
+            "resourceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/sites',parameters('name'))]" //"[listkeys(concat(resourceId('Microsoft.Web/sites',parameters('name')), '/host/default/'),'2018-11-01')]"
+            }
           }
         }
       }
@@ -143,9 +147,9 @@
       "type": "string",
       "value": "[reference(concat('UpdateAppSettings-',uniqueString(resourceGroup().id, deployment().name))).outputs.functionBaseUrl.value]"
     },
-    "keys": {
-      "type": "secureobject",
-      "value": "[listkeys(concat(resourceId('Microsoft.Web/sites',parameters('name')), '/host/default/'),'2016-08-01')]"
+    "functionResourceId": {
+      "type": "resourceId",
+      "value": "[reference(concat('UpdateAppSettings-',uniqueString(resourceGroup().id, deployment().name))).outputs.resourceId.value]"
     }
   },
   "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
