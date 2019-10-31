@@ -131,7 +131,7 @@
           "outputs": {
             "functionBaseUrl": {
               "type": "string",
-              "value": "[reference(parameters('name')).defaultHostName]"
+              "value": "[concat('https://',reference(parameters('name')).defaultHostName)]"
             },
             "resourceId": {
               "type": "string",
