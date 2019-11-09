@@ -19,6 +19,7 @@
     <Content Remove="Templates\Applications\IO.Board.Update.json" />
     <Content Remove="Templates\AzureFunctions\Function.json" />
     <Content Remove="Templates\AzureFunctions\FunctionWithKeyVault.json" />
+    <Content Remove="Templates\AzureFunctions\UpdateAppSettings.json" />
     <Content Remove="Templates\KeyVault\AddAccessPolicy.json" />
     <Content Remove="Templates\KeyVault\parseCertificate.json" />
     <Content Remove="Templates\KeyVault\retrieveAndParseCertificate.json" />
@@ -52,6 +53,7 @@
     <EmbeddedResource Include="Templates\Applications\Carshopper.json" />
     <EmbeddedResource Include="Templates\Applications\EarthML.Pipelines.json" />
     <EmbeddedResource Include="Templates\AzureFunctions\FunctionWithKeyVault.json" />
+    <EmbeddedResource Include="Templates\AzureFunctions\UpdateAppSettings.json" />
     <EmbeddedResource Include="Templates\KeyVault\AddAccessPolicy.json" />
     <EmbeddedResource Include="Templates\KeyVault\retrieveAndParseCertificate.json" />
     <EmbeddedResource Include="Templates\KeyVault\roleAssignments.json" />
