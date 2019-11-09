@@ -175,7 +175,7 @@ namespace DotNetDevOps.Web
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/Websites/{name}/appsettings")]
-        public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints,string name, string function, string containerUri)
+        public async Task<IActionResult> UpdateAppsettings([FromServices] IOptions<EndpointOptions> endpoints,string name, string function, string containerUri)
         {
             var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.UpdateAppSettings.json", Request.Query);
 
