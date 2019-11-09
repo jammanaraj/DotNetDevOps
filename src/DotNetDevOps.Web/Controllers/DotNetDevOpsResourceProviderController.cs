@@ -173,6 +173,40 @@ namespace DotNetDevOps.Web
             var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.AddAccessPolicy.json", Request.Query);
             return Ok(template);
         }
+
+        [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/Websites/{name}/appsettings")]
+        public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints, string function, string containerUri)
+        {
+            var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.UpdateAppSettings.json", Request.Query);
+            var appsettings = template.SelectToken("$.parameters.mergeAppSettings.defaultValue");
+            var removeAppsettings = template.SelectToken("$.parameters.removeAppSettings.defaultValue");
+            if (!string.IsNullOrEmpty(containerUri))
+            {
+                var functionContainer = new CloudBlobContainer(new Uri(containerUri));
+
+                var cdnHelper = new CDNHelper(functionContainer.Uri.ToString(), function);
+                var latest = await cdnHelper.GetAsync();
+                var functionBlob = functionContainer.GetBlockBlobReference(function + "/" + latest.Version + "/" + function + ".zip");
+                appsettings["WEBSITE_RUN_FROM_ZIP"] = functionBlob.Uri;
+            }
+
+            
+           
+
+            foreach (var query in Request.Query.Where(k => k.Key.StartsWith("appsetting_")))
+            {
+                appsettings[query.Key.Substring("appsetting_".Length)] = query.Value.FirstOrDefault();
+                
+            }
+            foreach (var query in Request.Query.Where(k => k.Key.StartsWith("remove_appsetting_")))
+            {
+                removeAppsettings[query.Key.Substring("remove_appsetting_".Length)] = query.Value.FirstOrDefault();
+
+            }
+
+            return Ok(template);
+        }
+
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/AzureFunctions/WithMSI")]
         public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints, string function, string containerUri, string functions_extension_version = "~2")
         {

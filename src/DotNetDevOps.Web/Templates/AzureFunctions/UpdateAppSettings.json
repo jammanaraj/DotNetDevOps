@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "mergeAppSettings": {
+      "type": "object",
+      "defaultValue": {
+      }
+    },
+    "removeAppSettings": {
+      "type": "object",
+      "defaultValue": {
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "name": "GetAppSetting",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [],
+          "outputs": {
+            "appsettings": {
+              "type": "object",
+              "value": "[list(resourceId('Microsoft.Web/sites/config','pksorensen','appsettings'),'2018-11-01').properties]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": ["GetAppSetting"],
+      "name": "SetAppSetting",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "name": "[concat('pksorensen','/appsettings')]",
+              "type": "Microsoft.Web/sites/config",
+              "apiVersion": "2018-11-01",
+              "properties": "[intersection(union(reference('GetAppSetting').outputs.appsettings.value,parameters('mergeAppSettings'),parameters('removeAppSettings')),union(reference('GetAppSetting').outputs.appsettings.value,parameters('mergeAppSettings')))]"
+            }
+          ],
+          "outputs": {
+            "appsettings": {
+              "type": "object",
+              "value": "[list(resourceId('Microsoft.Web/sites/config','pksorensen','appsettings'),'2018-11-01').properties]"
+            }
+          }
+        }
+      }
+    }   
+  ]
+}
