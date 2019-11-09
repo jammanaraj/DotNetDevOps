@@ -634,11 +634,20 @@ namespace DotNetDevOps.Web
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVaults/{keyVaultName}/secrets/{secretName}")]
-        public async Task<IActionResult> AddSecretTemplate([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName, string sourceVault,string sourceVaultSubscription,string sourceResourceGroup,string sourceSecretName)
+        public async Task<IActionResult> AddSecretTemplate([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName, bool sourced, string sourceVault,string sourceVaultSubscription,string sourceResourceGroup,string sourceSecretName)
         {
-            if (!string.IsNullOrEmpty(sourceVault))
+            if (sourced || !string.IsNullOrEmpty(sourceVault))
             {
                 var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.linksecret.json",Request.Query);
+
+                if (!string.IsNullOrEmpty(keyVaultName))
+                {
+                    template.SelectToken("$.parameters.keyVaultName")["defaultValue"] = keyVaultName;
+                }
+                if (!string.IsNullOrEmpty(secretName))
+                {
+                    template.SelectToken("$.parameters.secretName")["defaultValue"] = secretName;
+                }
 
                 return Ok(template);
             }
