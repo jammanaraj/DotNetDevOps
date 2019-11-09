@@ -21,6 +21,7 @@
     <Content Remove="Templates\AzureFunctions\FunctionWithKeyVault.json" />
     <Content Remove="Templates\AzureFunctions\UpdateAppSettings.json" />
     <Content Remove="Templates\KeyVault\AddAccessPolicy.json" />
+    <Content Remove="Templates\KeyVault\linksecret.json" />
     <Content Remove="Templates\KeyVault\parseCertificate.json" />
     <Content Remove="Templates\KeyVault\retrieveAndParseCertificate.json" />
     <Content Remove="Templates\KeyVault\retrieveCertificate.json" />
@@ -55,6 +56,7 @@
     <EmbeddedResource Include="Templates\AzureFunctions\FunctionWithKeyVault.json" />
     <EmbeddedResource Include="Templates\AzureFunctions\UpdateAppSettings.json" />
     <EmbeddedResource Include="Templates\KeyVault\AddAccessPolicy.json" />
+    <EmbeddedResource Include="Templates\KeyVault\linksecret.json" />
     <EmbeddedResource Include="Templates\KeyVault\retrieveAndParseCertificate.json" />
     <EmbeddedResource Include="Templates\KeyVault\roleAssignments.json" />
     <EmbeddedResource Include="Templates\KeyVault\parseCertificate.json" />

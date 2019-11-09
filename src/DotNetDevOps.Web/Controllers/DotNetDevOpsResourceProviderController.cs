@@ -634,25 +634,35 @@ namespace DotNetDevOps.Web
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/KeyVaults/{keyVaultName}/secrets/{secretName}")]
-        public async Task<IActionResult> AddSecretTemplate([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName)
+        public async Task<IActionResult> AddSecretTemplate([FromServices] IOptions<EndpointOptions> endpoints, string keyVaultName, string secretName, string sourceVault,string sourceVaultSubscription,string sourceResourceGroup,string sourceSecretName)
         {
-            var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.secret.json");
-
-            if (!string.IsNullOrEmpty(keyVaultName))
+            if (!string.IsNullOrEmpty(sourceVault))
             {
-                template.SelectToken("$.parameters.keyVaultName")["defaultValue"] = keyVaultName;
-            }
-            if (!string.IsNullOrEmpty(secretName))
-            {
-                template.SelectToken("$.parameters.secretName")["defaultValue"] = secretName;
-            }
-            template.SelectToken("$.parameters.certificateThumbprint").Parent.Remove();
-            template.SelectToken("$.outputs.certificateThumbprint").Parent.Remove();
-            template.SelectToken("$.outputs")["secretUriWithVersion"] = template.SelectToken("$.outputs.certificateUrlValue").DeepClone();
-            template.SelectToken("$.outputs.certificateUrlValue").Parent.Remove();
-            template.SelectToken("$.resources[0].properties.contentType").Parent.Remove();
+                var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.linksecret.json",Request.Query);
 
-            return Ok(template);
+                return Ok(template);
+            }
+            else
+            {
+
+                var template = await LoadTemplateAsync(endpoints.Value, "KeyVault.secret.json");
+
+                if (!string.IsNullOrEmpty(keyVaultName))
+                {
+                    template.SelectToken("$.parameters.keyVaultName")["defaultValue"] = keyVaultName;
+                }
+                if (!string.IsNullOrEmpty(secretName))
+                {
+                    template.SelectToken("$.parameters.secretName")["defaultValue"] = secretName;
+                }
+                template.SelectToken("$.parameters.certificateThumbprint").Parent.Remove();
+                template.SelectToken("$.outputs.certificateThumbprint").Parent.Remove();
+                template.SelectToken("$.outputs")["secretUriWithVersion"] = template.SelectToken("$.outputs.certificateUrlValue").DeepClone();
+                template.SelectToken("$.outputs.certificateUrlValue").Parent.Remove();
+                template.SelectToken("$.resources[0].properties.contentType").Parent.Remove();
+
+                return Ok(template);
+            }
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/ServiceBus/namespaces/demo")]
