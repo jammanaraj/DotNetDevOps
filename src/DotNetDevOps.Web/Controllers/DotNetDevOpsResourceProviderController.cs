@@ -178,7 +178,7 @@ namespace DotNetDevOps.Web
         public async Task<IActionResult> UpdateAppsettings([FromServices] IOptions<EndpointOptions> endpoints,string name, string function, string containerUri)
         {
             var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.UpdateAppSettings.json", Request.Query);
-
+        
             template.SelectToken("$.parameters.name")["defaultValue"] = name;
 
             var appsettings = template.SelectToken("$.parameters.mergeAppSettings.defaultValue");
@@ -191,6 +191,8 @@ namespace DotNetDevOps.Web
                 var latest = await cdnHelper.GetAsync();
                 var functionBlob = functionContainer.GetBlockBlobReference(function + "/" + latest.Version + "/" + function + ".zip");
                 appsettings["WEBSITE_RUN_FROM_ZIP"] = functionBlob.Uri;
+                template.SelectToken("$.parameters.deploymentId")["defaultValue"] = Guid.NewGuid();
+                template.SelectToken("$.resources[1].properties.template.resources[1].properties.message").Replace($"Deployed {latest.Version}");
             }
 
             
@@ -648,7 +650,7 @@ namespace DotNetDevOps.Web
                 {
                     template.SelectToken("$.parameters.secretName")["defaultValue"] = secretName;
                 }
-
+                
                 return Ok(template);
             }
             else
