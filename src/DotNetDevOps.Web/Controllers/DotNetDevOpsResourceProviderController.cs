@@ -175,9 +175,12 @@ namespace DotNetDevOps.Web
         }
 
         [HttpGet("providers/DotNetDevOps.AzureTemplates/templates/Websites/{name}/appsettings")]
-        public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints, string function, string containerUri)
+        public async Task<IActionResult> GetAzureFunctionDeploymentWithMSI([FromServices] IOptions<EndpointOptions> endpoints,string name, string function, string containerUri)
         {
             var template = await LoadTemplateAsync(endpoints.Value, "AzureFunctions.UpdateAppSettings.json", Request.Query);
+
+            template.SelectToken("$.parameters.name")["defaultValue"] = name;
+
             var appsettings = template.SelectToken("$.parameters.mergeAppSettings.defaultValue");
             var removeAppsettings = template.SelectToken("$.parameters.removeAppSettings.defaultValue");
             if (!string.IsNullOrEmpty(containerUri))
