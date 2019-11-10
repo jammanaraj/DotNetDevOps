@@ -24,7 +24,7 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "name": "GetAppSetting",
+      "name": "[concat('GetAppSetting-',uniqueString(resourceGroup().id, deployment().name))]",
       "properties": {
         "mode": "Incremental",
         "template": {
@@ -43,8 +43,8 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
-      "dependsOn": [ "GetAppSetting" ],
-      "name": "SetAppSetting",
+      "dependsOn": [ "[concat('GetAppSetting-',uniqueString(resourceGroup().id, deployment().name))]" ],
+      "name": "[concat('SetAppSetting-',uniqueString(resourceGroup().id, deployment().name))]",
       "properties": {
         "mode": "Incremental",
         "template": {
@@ -56,24 +56,25 @@
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2018-11-01",
               "properties": "[intersection(union(reference('GetAppSetting').outputs.appsettings.value,parameters('mergeAppSettings'),parameters('removeAppSettings')),union(reference('GetAppSetting').outputs.appsettings.value,parameters('mergeAppSettings')))]"
-            },
-            {
-              "condition": "[greater(length(parameters('deploymentId')), 0)]",
-              "name": "[concat(parameters('name'),'/',parameters('deploymentId'))]",
-              "type": "Microsoft.Web/sites/deployments",
-              "apiVersion": "2019-08-01",
-              "properties": {
-                "status": 4,
-                "message": "hello",
-                //"author": "string",
-                "deployer": "DotNetDevOps Arm Templates"
-                //"author_email": "string",
-                //"start_time": "string",
-                //"end_time": "string",
-                //"active": "boolean",
-                //"details": "string"
-              }
             }
+            //,
+            //{
+            //  "condition": "[greater(length(parameters('deploymentId')), 0)]",
+            //  "name": "[concat(parameters('name'),'/',parameters('deploymentId'))]",
+            //  "type": "Microsoft.Web/sites/deployments",
+            //  "apiVersion": "2019-08-01",
+            //  "properties": {
+            //    "status": 4,
+            //    "message": "hello",
+            //    //"author": "string",
+            //    "deployer": "DotNetDevOps Arm Templates"
+            //    //"author_email": "string",
+            //    //"start_time": "string",
+            //    //"end_time": "string",
+            //    //"active": "boolean",
+            //    //"details": "string"
+            //  }
+            //}
           ],
           "outputs": {
             "appsettings": {

@@ -113,11 +113,12 @@
               },
               "properties": {
                 "name": "[parameters('name')]",
-                "cors": {
-                  "allowedOrigins": []
-                },
+
                 "siteConfig": {
-                  "appSettings": "[variables('AppSettings')]"
+                  "appSettings": "[variables('AppSettings')]",
+                  "cors": {
+                    "allowedOrigins": []
+                  }
                 },
                 "clientAffinityEnabled": false,
                 "reserved": false

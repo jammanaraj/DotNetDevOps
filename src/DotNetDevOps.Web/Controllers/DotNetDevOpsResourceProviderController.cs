@@ -191,7 +191,7 @@ namespace DotNetDevOps.Web
                 var latest = await cdnHelper.GetAsync();
                 var functionBlob = functionContainer.GetBlockBlobReference(function + "/" + latest.Version + "/" + function + ".zip");
                 appsettings["WEBSITE_RUN_FROM_ZIP"] = functionBlob.Uri;
-                template.SelectToken("$.parameters.deploymentId")["defaultValue"] = Guid.NewGuid();
+                template.SelectToken("$.parameters.deploymentId")["defaultValue"] = Guid.NewGuid().ToString();
                 template.SelectToken("$.resources[1].properties.template.resources[1].properties.message").Replace($"Deployed {latest.Version}");
             }
 
