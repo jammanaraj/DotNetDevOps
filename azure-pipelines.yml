@@ -34,8 +34,10 @@ stages:
   - job: Build
     pool:
       vmImage: 'windows-2019'
+
     variables:
       buildConfiguration: 'Release'
+
     steps:
     # .NET Core
     # Restore NuGet packages.
@@ -61,36 +63,37 @@ stages:
         projects: 'functions/**/*.csproj'
         configuration: '$(buildConfiguration)'
         arguments: '--output $(Build.ArtifactStagingDirectory)'
-    - task: VSTSBuildInfoTask@1
-      displayName: 'Creating Build Artifact'
-      inputs:
-        OutPutFileName: '$(build.artifactstagingdirectory)\buildinfo.json'
-        FeatureRegexPattern: '[^/]+(?=/$|$)'
-        FeatureVariableName: featureName   
-        PullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
+    # - task: VSTSBuildInfoTask@1
+    #   displayName: 'Creating Build Artifact'
+    #   inputs:
+    #     OutPutFileName: '$(build.artifactstagingdirectory)\buildinfo.json'
+    #     FeatureRegexPattern: '[^/]+(?=/$|$)'
+    #     FeatureVariableName: featureName   
+    #     PullRequestSourceBranch: '$(System.PullRequest.SourceBranch)'
     - task: PublishPipelineArtifact@0
       inputs:
         artifactName: 'drop'
         targetPath: '$(Build.ArtifactStagingDirectory)'
-- stage: Publish
-  jobs:
-  - deployment: DeployDotNetDevOps
-    pool:
-      vmImage: 'windows-2019'
-    variables:
-      buildConfiguration: 'Release'
-    environment: 'DotNETDevOps'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-            - task: AzureRmWebAppDeployment@4
-              inputs:
-                azureSubscription: 'Microsoft Partner Network (0fd7128b-5305-49da-a400-b7a37feb271c)'
-                appType: 'functionApp'
-                WebAppName: 'dotnetdevops-www'
-                package: '$(Pipeline.Workspace)/**/DotNETDevOps.FunctionHost.zip'
-                enableCustomDeployment: true
-                DeploymentType: 'runFromZip'
-                AppSettings: '-Endpoints__ResourceApiEndpoint https://management.dotnetdevops.org'
+
+# - stage: Publish
+#   jobs:
+#   - deployment: DeployDotNetDevOps
+#     pool:
+#       vmImage: 'windows-2019'
+#     variables:
+#       buildConfiguration: 'Release'
+#     environment: 'DotNETDevOps'
+#     strategy:
+#       runOnce:
+#         deploy:
+#           steps:
+#             - task: AzureRmWebAppDeployment@4
+#               inputs:
+#                 azureSubscription: 'Microsoft Partner Network (0fd7128b-5305-49da-a400-b7a37feb271c)'
+#                 appType: 'functionApp'
+#                 WebAppName: 'dotnetdevops-www'
+#                 package: '$(Pipeline.Workspace)/**/DotNETDevOps.FunctionHost.zip'
+#                 enableCustomDeployment: true
+#                 DeploymentType: 'runFromZip'
+#                 AppSettings: '-Endpoints__ResourceApiEndpoint https://management.dotnetdevops.org'
  
